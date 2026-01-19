@@ -30,8 +30,6 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.dt.DT;
-import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
@@ -63,12 +61,6 @@ public class AutomatonBuilder {
         this.consts = consts;
         this.components = components;
         this.automaton = new Hypothesis(consts);
-    }
-
-    public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts, DT dt) {
-    	this.consts = consts;
-    	this.components = components;
-    	this.automaton = new DTHyp(consts, dt);
     }
 
     public Hypothesis toRegisterAutomaton() {
@@ -127,9 +119,6 @@ public class AutomatonBuilder {
         //this.components.get(src_id);
         assert src_c != null;
 
-//        if (src_c == null && automaton instanceof DTHyp)
-//        	return;
-
         // locations
         RALocation src_loc = this.locations.get(src_id);
         RALocation dest_loc = this.locations.get(dest_id);
@@ -150,11 +139,6 @@ public class AutomatonBuilder {
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
         guard = rvv.apply(guard, src_c.getPrimePrefix().getAssignment());
 
-        // TODO: better solution
-        // guard is null because r is transition from a short prefix
-        if (automaton instanceof DTHyp && guard == null)
-            return;
-
         assert true;
         assert guard != null;
 
@@ -163,8 +147,6 @@ public class AutomatonBuilder {
         RegisterAssignment destAssign = dest_c.getPrimePrefix().getAssignment();
         Bijection<DataValue> remapping = dest_c.getRemapping(r);
         Assignment assign = computeAssignment(r.getPrefix(), srcAssign, destAssign, remapping);
-
-        //System.out.println(assign);
 
         // create transition
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);

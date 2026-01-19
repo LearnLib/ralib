@@ -40,10 +40,7 @@ import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
@@ -109,13 +106,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 ioOracle, teachers, consts, solver, sul.getInputSymbols());
 
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
-
-        RaLambda rastar = new RaLambda(mto, hypFactory, mlo,
-                consts, true, sul.getActionSymbols());
+        SLLambda sllambda = new SLLambda(mto, teachers,
+                consts, true, solver, sul.getActionSymbols());
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -135,11 +127,10 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
-            //System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
             }
@@ -147,9 +138,9 @@ public class LearnPQIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
-            rastar.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        return rastar.getHypothesis();
+        return sllambda.getHypothesis();
     }
 }

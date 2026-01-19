@@ -27,10 +27,7 @@ import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -55,18 +52,12 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
+        SLLambda sllambda = new SLLambda(mto, teachers,
+        		consts, false, solver, I_LOGIN, I_LOGOUT, I_REGISTER);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
-                consts, I_LOGIN, I_LOGOUT, I_REGISTER);
-        ralambda.setSolver(solver);
-
-        ralambda.learn();
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -75,10 +66,10 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 3);
@@ -117,28 +108,29 @@ public class LearnLoginTest extends RaLibTestSuite {
 	    measuresStar[seed] = runner.getMeasurements();
 	    runner.resetMeasurements();
         }
+
         Assert.assertEquals(Arrays.toString(measuresLambda),
-			    "[{TQ: 64, Resets: 2511, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2485, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1958, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1959, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1886, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2750, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2487, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1737, Inputs: 0}," +
-			    " {TQ: 68, Resets: 1758, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1604, Inputs: 0}]");
+			    "[{TQ: 88, Resets: 1997, Inputs: 0}," +
+			    " {TQ: 86, Resets: 1984, Inputs: 0}," +
+			    " {TQ: 88, Resets: 1417, Inputs: 0}," +
+			    " {TQ: 86, Resets: 1449, Inputs: 0}," +
+			    " {TQ: 88, Resets: 1403, Inputs: 0}," +
+			    " {TQ: 86, Resets: 2120, Inputs: 0}," +
+			    " {TQ: 88, Resets: 1984, Inputs: 0}," +
+			    " {TQ: 86, Resets: 1263, Inputs: 0}," +
+			    " {TQ: 93, Resets: 1243, Inputs: 0}," +
+			    " {TQ: 88, Resets: 1220, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
-			    "[{TQ: 65, Resets: 2339, Inputs: 0}," +
-			    " {TQ: 65, Resets: 2313, Inputs: 0}," +
-			    " {TQ: 65, Resets: 2208, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2205, Inputs: 0}," +
-			    " {TQ: 65, Resets: 2136, Inputs: 0}," +
-			    " {TQ: 65, Resets: 2578, Inputs: 0}," +
-			    " {TQ: 65, Resets: 2315, Inputs: 0}," +
-			    " {TQ: 65, Resets: 2192, Inputs: 0}," +
-			    " {TQ: 65, Resets: 3623, Inputs: 0}," +
-			    " {TQ: 65, Resets: 2059, Inputs: 0}]");
+			    "[{TQ: 65, Resets: 1807, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1788, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1693, Inputs: 0}," +
+			    " {TQ: 64, Resets: 1727, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1680, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1929, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1793, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1720, Inputs: 0}," +
+			    " {TQ: 65, Resets: 3103, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1682, Inputs: 0}]");
     }
 
 }

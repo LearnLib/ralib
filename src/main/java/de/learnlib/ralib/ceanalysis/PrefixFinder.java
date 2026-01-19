@@ -1,290 +1,374 @@
 package de.learnlib.ralib.ceanalysis;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.learnlib.logging.Category;
-import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.automata.RALocation;
+import de.learnlib.ralib.automata.RARun;
+import de.learnlib.ralib.ct.CTHypothesis;
+import de.learnlib.ralib.ct.CTLeaf;
+import de.learnlib.ralib.ct.ClassificationTree;
+import de.learnlib.ralib.ct.Prefix;
+import de.learnlib.ralib.ct.ShortPrefix;
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.RegisterValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.RemappingIterator;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.util.PermutationIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.learning.*;
-import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
-import de.learnlib.ralib.smt.SMTUtil;
-import de.learnlib.ralib.theory.Memorables;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.smt.ReplacingValuesVisitor;
 import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
+/**
+ * Analyzes counterexamples according to the SLλ algorithm.
+ *
+ * @author fredrik
+ */
 public class PrefixFinder {
 
-    private final TreeOracle sulOracle;
-
-    private TreeOracle hypOracle;
-
-    private Hypothesis hypothesis;
-
-    private final SDTLogicOracle sdtOracle;
-
-    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
-
-    private final Constants consts;
-
-    private SymbolicWord[] candidates;
-
-    private final Map<SymbolicWord, SDT> candidateCEs = new LinkedHashMap<SymbolicWord, SDT>();
-    private final Map<SymbolicWord, SDT> storedQueries = new LinkedHashMap<SymbolicWord, SDT>();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrefixFinder.class);
-
-    public PrefixFinder(TreeOracle sulOracle, TreeOracle hypOracle,
-            Hypothesis hypothesis, SDTLogicOracle sdtOracle,
-            Constants consts) {
-
-        this.sulOracle = sulOracle;
-        this.hypOracle = hypOracle;
-        this.hypothesis = hypothesis;
-        this.sdtOracle = sdtOracle;
-        this.consts = consts;
-        this.restrictionBuilder = sulOracle.getRestrictionBuilder();
-    }
-
-    public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-		int idx = findIndex(ce);
-        SymbolicWord sw = new SymbolicWord(candidates[idx].getPrefix(), candidates[idx].getSuffix());
-        SDT tqr = null; //storedQueries.get(sw);
-        if (tqr == null) {
-        	// THIS CAN (possibly) BE DONE WITHOUT A NEW TREE QUERY
-        	tqr = sulOracle.treeQuery(sw.getPrefix(), sw.getSuffix());
-        }
-        CEAnalysisResult result = new CEAnalysisResult(candidates[idx].getPrefix(),
-        		                                       candidates[idx].getSuffix(),
-        		                                       tqr);
-
-        candidateCEs.put(candidates[idx], tqr);
-        storeCandidateCEs(ce, idx);
-
-        return result;
-    }
-
-	private int findIndex(Word<PSymbolInstance> ce) {
-		candidates = new SymbolicWord[ce.length()];
-		int max = ce.length() - 1;
-		for (int idx=max; idx>=0; idx = idx-1) {
-
-			Word<PSymbolInstance> prefix = ce.prefix(idx);
-			Word<PSymbolInstance> nextPrefix = ce.prefix(idx+1);
-
-			LOGGER.trace(Category.DATASTRUCTURE, "idx: {} ce:     {}", idx, ce);
-			LOGGER.trace(Category.DATASTRUCTURE, "idx: {} prefix: {}", idx, prefix);
-			LOGGER.trace(Category.DATASTRUCTURE, "idx: {} next:   {}", idx, nextPrefix);
-
-			// check for location counterexample ...
-			//
-			Word<PSymbolInstance> suffix = ce.suffix(ce.length() - nextPrefix.length());
-			SymbolicSuffix symSuffix = new SymbolicSuffix(nextPrefix, suffix, restrictionBuilder);
-			LOC_CHECK: for (Word<PSymbolInstance> u : hypothesis.possibleAccessSequences(prefix)) {
-				Word<PSymbolInstance> uAlpha = hypothesis.transformTransitionSequence(nextPrefix, u);
-				SDT uAlphaResult = sulOracle.treeQuery(uAlpha, symSuffix);
-				storedQueries.put(new SymbolicWord(uAlpha, symSuffix), uAlphaResult);
-
-				// check if the word is inequivalent to all access sequences
-				//
-				for (Word<PSymbolInstance> uPrime : hypothesis.possibleAccessSequences(nextPrefix)) {
-					SDT uPrimeResult = sulOracle.treeQuery(uPrime, symSuffix);
-					storedQueries.put(new SymbolicWord(uPrime, symSuffix), uPrimeResult);
-
-					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} u:  {}", idx, u);
-					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} ua: {}", idx, uAlpha);
-					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} u': {}", idx, uPrime);
-					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} v:  {}", idx, symSuffix);
-
-					// different sizes
-					//
-					if (!Memorables.typedSize(uPrimeResult.getDataValues()).equals(
-							Memorables.typedSize(uAlphaResult.getDataValues()))) {
-						continue;
-					}
-
-					// remapping
-					//
-					RemappingIterator<DataValue> iterator = new RemappingIterator<>(
-							uPrimeResult.getDataValues(), uAlphaResult.getDataValues());
-
-					for (Bijection<DataValue> m : iterator) {
-						if (uAlphaResult.isEquivalent(uPrimeResult, m)) {
-							continue LOC_CHECK;
-						}
-					}
-
-				}
-				// found a counterexample!
-				candidates[idx] = new SymbolicWord(uAlpha, symSuffix);
-				LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for location");
-				return idx;
-			}
-
-			// check for transition counterexample ...
-			//
-			if (transitionHasCE(ce, idx-1)) {
-				LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for transition");
-				return idx;
-			}
-		}
-		throw new RuntimeException("should not reach here");
+	public enum ResultType {
+		TRANSITION,
+		LOCATION
 	}
 
-//    private Pair<SDT, SDT> checkForCE(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, Word<PSymbolInstance> transition) {
-//    	SymbolicWord symWord = new SymbolicWord(prefix, suffix);
-//    	SDT resHyp = hypOracle.treeQuery(prefix, suffix);
-//    	SDT resSul;
-//    	if (storedQueries.containsKey(symWord))
-//    		resSul = storedQueries.get(symWord);
-//    	else {
-//    		resSul = sulOracle.treeQuery(prefix, suffix);
-//    		storedQueries.put(symWord, resSul);
-//    	}
-//
-//        boolean hasCE = sdtOracle.hasCounterexample(prefix,
-//                resHyp.getSdt(), resHyp.getPiv(),
-//                resSul.getSdt(), resSul.getPiv(),
-//                new TransitionGuard(), transition);
-//
-//        return hasCE ? new ImmutablePair<SDT, SDT>(resHyp, resSul) : null;
-//    }
+	/**
+	 * Container for the result of a counterexample analysis
+	 */
+	public record Result(Word<PSymbolInstance> prefix, ResultType result) {};
 
-    private boolean transitionHasCE(Word<PSymbolInstance> ce, int idx) {
-    	if (idx+1 >= ce.length())
-    		return false;
+	private final CTHypothesis hyp;
+	private final ClassificationTree ct;
 
-    	Word<PSymbolInstance> prefix = ce.prefix(idx+1);
+	private final TreeOracle sulOracle;
+	private final Map<DataType, Theory> teachers;
 
-    	Word<PSymbolInstance> suffix = ce.suffix(ce.length() - (idx+1));
-    	SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
+	private final SymbolicSuffixRestrictionBuilder restrBuilder;
 
-    	Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
-    	for (Word<PSymbolInstance> location : locations) {
-	        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
-	                ce.prefix(idx+2), location);
+	private final ConstraintSolver solver;
 
-    		SDT resHyp = hypOracle.treeQuery(location, symSuffix);
-    		SDT resSul;
-    		SymbolicWord symWord = new SymbolicWord(location, symSuffix);
-    		if (storedQueries.containsKey(symWord))
-    			resSul = storedQueries.get(symWord);
-    		else {
-    			resSul = sulOracle.treeQuery(location, symSuffix);
-    			storedQueries.put(symWord, resSul);
-    		}
+	private final Constants consts;
 
-    		boolean hasCE = sdtOracle.hasCounterexample(location,
-	                resHyp,
-	                resSul,
-					ExpressionUtil.TRUE, transition);
+	public PrefixFinder(TreeOracle sulOracle, CTHypothesis hyp, ClassificationTree ct,
+			Map<DataType, Theory> teachers, SymbolicSuffixRestrictionBuilder restrBuilder,
+			ConstraintSolver solver, Constants consts) {
+		this.hyp = hyp;
+		this.ct = ct;
+		this.sulOracle = sulOracle;
+		this.teachers = teachers;
+		this.restrBuilder = restrBuilder;
+		this.solver = solver;
+		this.consts = consts;
+	}
 
-    		if (hasCE) {
-				SymbolicWord sw = candidate(location, symSuffix, resSul, resHyp, ce);
-				// new by falk
-				candidates[idx+1] = sw;
-				return true;
+	/**
+	 * Analyze counterexample {@code ce} from right to leaf to find a transition or
+	 * location discrepancy. If a discrepancy is found, returns the prefix which reveals
+	 * the discrepancy, along with a {@code ResultType} indicating the type of discrepancy.
+	 *
+	 * @param ce
+	 * @return
+	 */
+	public Result analyzeCounterExample(Word<PSymbolInstance> ce) {
+		RARun run = hyp.getRun(ce);
+		for (int i = ce.length(); i >= 1; i--) {
+			RALocation loc = run.getLocation(i-1);
+			RALocation locNext = run.getLocation(i);
+			PSymbolInstance symbol = run.getTransitionSymbol(i);
+			RegisterValuation runValuation = run.getValuation(i-1);
+			ParameterizedSymbol action = symbol.getBaseSymbol();
+
+			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
+			SymbolicSuffix v = new SymbolicSuffix(ce.prefix(i-1), ce.suffix(ce.length() - i + 1), restrBuilder);
+
+			Expression<Boolean> gHyp = run.getGuard(i, consts);
+
+			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
+				SDT sdt = sulOracle.treeQuery(u, v);
+
+				Set<DataValue> uVals = hyp.getLeaf(loc).getPrefix(u).getRegisters();
+				Mapping<DataValue, DataValue> uToRunRenaming = valuationRenaming(u, runValuation);
+				Set<Mapping<DataValue, DataValue>> uToRunExtendedRenamings = extendedValuationRenamings(sdt, uVals, run, i);
+
+				Branching branching = sulOracle.getInitialBranching(u, action, sdt);
+				for (Expression<Boolean> gSul : branching.guardSet()) {
+					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
+						renaming.putAll(uToRunRenaming);
+						if (isGuardSatisfied(gSul, renaming, symbol)) {
+							Optional<Result> res = checkTransition(locNext, u, action, vNext, gHyp, gSul);
+							if (res.isEmpty()) {
+								res = checkLocation(locNext, u, action, vNext);
+							}
+							if (res.isPresent()) {
+								return res.get();
+							}
+						}
+					}
+				}
 			}
-    	}
-    	return false;
-    }
+		}
 
-    private void storeCandidateCEs(Word<PSymbolInstance> ce, int idx) {
-    	if (idx+1 >= ce.length())
-    		return;
-    	Word<PSymbolInstance> prefix = ce.prefix(idx+1);
+		throw new IllegalStateException("Found no counterexample in " + ce);
+	}
 
-    	Word<PSymbolInstance> suffix = ce.suffix(ce.length() - (idx+1));
-    	SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
+	/**
+	 * @param u
+	 * @param val
+	 * @return a mapping from the register valuation of {@code u} on the hypothesis to the {@code val}
+	 */
+	private Mapping<DataValue, DataValue> valuationRenaming(Word<PSymbolInstance> u, RegisterValuation val) {
+		// get register mapping for u when run over the hypothesis
+		RARun uRun = hyp.getRun(u);
+		RegisterValuation uVal = uRun.getValuation(u.size());
+		// create mapping from u's valuation to val
+		Mapping<DataValue, DataValue> ret = new Mapping<>();
+		for (Map.Entry<Register, DataValue> e : uVal.entrySet()) {
+			DataValue replace = e.getValue();
+			DataValue by = val.get(e.getKey());
+			if (by == null) {
+				by = replace;
+			}
+			ret.put(replace, by);
+		}
+		return ret;
+	}
 
-    	Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
-    	for (Word<PSymbolInstance> location : locations) {
-    		SymbolicWord symWord = new SymbolicWord(location, symSuffix);
-    		SDT tqr = storedQueries.get(symWord);
+	/**
+	 * Create extensions of the valuation from the hypothesis at index {@code id}, and map
+	 * data values from {@code uSDT} to these extended valuations.
+	 * The returned remappings do not include parameters present in the valuation at {@code id}
+	 * (which should be mapped to parameters in {@code uVals}, except for duplicate parameters.
+	 * For example, if the parameters of {@code run} at index {@code id} contain the data values
+	 * 5,5,7 and the valuation contains 5, then the 7 and a single 5 will be considered for the
+	 * extension of the valuation. Similarly, if {@code uSDT} has data values 0,1,2 with 0 in
+	 * {@code uValuation}, then 1,2 will be considered. In this example, this method would
+	 * return the mappings {1->5, 2->7} and {1->7, 2->5}.
+	 *
+	 * @param uSDT sdt for prefix {@code u}
+	 * @param uVals memorable data values of {@code u}
+	 * @param run
+	 * @param id
+	 * @return
+	 */
+	private Set<Mapping<DataValue, DataValue>> extendedValuationRenamings(SDT uSDT, Set<DataValue> uVals, RARun run, int id) {
+		Set<Mapping<DataValue, DataValue>> empty = new LinkedHashSet<>();
+		empty.add(new Mapping<>());
+		if (id < 1) {
+			return empty;
+		}
 
-    		assert tqr != null;
+		// gather data values from uSDT, and remove values from uValuation
+		Set<DataValue> sdtVals = new LinkedHashSet<>(uSDT.getDataValues());
+		for (DataValue d : uVals) {
+			sdtVals.remove(d);
+		}
+		if (sdtVals.isEmpty()) {
+			return empty;
+		}
+		DataValue[] sdtValsArr = sdtVals.toArray(new DataValue[sdtVals.size()]);
 
-    		candidateCEs.put(symWord, tqr);
-    	}
-    }
+		// gather data values from prefix of run at index id
+		ArrayList<DataValue> runVals = new ArrayList<>();
+		for (int i = 1; i <= id-1; i++) {
+			for (DataValue d : run.getTransitionSymbol(i).getParameterValues()) {
+				runVals.add(d);
+			}
+		}
 
-    private SymbolicWord candidate(Word<PSymbolInstance> prefix,
-                                   SymbolicSuffix symSuffix, SDT sdtSul,
-                                   SDT sdtHyp, Word<PSymbolInstance> ce) {
-    	Word<PSymbolInstance> candidate = null;
+		/* remove data values from valuation.
+		 * may have multiple copies of same data value, which may be mapped to different
+		 * data values in uSDT, so only remove one instance of data values in valuation
+		 */
+		for (DataValue d : run.getValuation(id-1).values()) {
+			runVals = removeFirst(runVals, d);
+		}
 
-    	Expression<Boolean> expr = sdtOracle.getCEGuard(prefix, sdtSul, sdtHyp);
+		// compute all possible permutations of mappings between extended uSDT values and run values
+		Set<Mapping<DataValue, DataValue>> renamings = new LinkedHashSet<>();
+		PermutationIterator permit = new PermutationIterator(runVals.size());
+		for (int[] order : permit) {
+			Mapping<DataValue, DataValue> remapping = new Mapping<>();
+			boolean valid = true;
+			for (int i = 0; i < sdtValsArr.length; i++) {
+				DataValue sdtVal = sdtValsArr[i];
+				DataValue runVal = runVals.get(order[i]);
+				if (!sdtVal.getDataType().equals(runVal.getDataType())) {
+					valid = false;
+					break;
+				}
+				remapping.put(sdtVal, runVal);
+			}
+			if (valid) {
+				renamings.add(remapping);
+			}
+		}
 
-        Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul);
-        for (Word<PSymbolInstance> path : sulPaths.keySet()) {
-        	ParameterGenerator parGen = new ParameterGenerator();
-        	for (PSymbolInstance psi : prefix) {
-        		for (DataType dt : psi.getBaseSymbol().getPtypes())
-        			parGen.next(dt);
+		return renamings;
+	}
+
+	/**
+	 * @param list
+	 * @param d
+	 * @return array containing data values of {@code list}, with one occurrence of {@code d} removed
+	 */
+	private ArrayList<DataValue> removeFirst(ArrayList<DataValue> list, DataValue d) {
+		ArrayList<DataValue> ret = new ArrayList<>();
+		ret.addAll(list);
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).equals(d)) {
+				ret.remove(i);
+				break;
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Check for a transition discrepancy. This is done by checking whether there exists no
+	 * {@code action}-extension of {@code u} in the leaf of {@code loc} that is equivalent
+	 * to the {@code (hypGuard && sulGuard)} extension of {@code u} after {@code v}.
+	 *
+	 * @param loc the source location
+	 * @param u short prefix from leaf of {@code loc}
+	 * @param action the symbol of the next transition
+	 * @param v the suffix after {@code u} and {@code action}
+	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
+	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
+	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
+	 */
+	private Optional<Result> checkTransition(RALocation loc,
+			ShortPrefix u,
+			ParameterizedSymbol action,
+			SymbolicSuffix v,
+			Expression<Boolean> hypGuard,
+			Expression<Boolean> sulGuard) {
+		// rename hyp guard to match RP
+        ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+        Expression<Boolean> hypGuardRenamed = rvv.apply(hypGuard, u.getRpBijection().inverse().toVarMapping());
+        Expression<Boolean> conjunction = ExpressionUtil.and(hypGuardRenamed, sulGuard);
+
+        // instantiate a representative data value for the conjunction
+        DataType[] types = action.getPtypes();
+        DataValue[] reprDataVals = new DataValue[types.length];
+        for (int i = 0; i < types.length; i++) {
+        	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, consts, solver);
+        	if (reprDataVal.isEmpty()) {
+        		// guard unsat
+        		return Optional.empty();
         	}
-
-        	VarMapping<SuffixValue, Parameter> renaming = new VarMapping<>();
-        	SuffixValueGenerator svGen = new SuffixValueGenerator();
-        	for (ParameterizedSymbol ps : symSuffix.getActions()) {
-        		for (DataType dt : ps.getPtypes()) {
-        			Parameter p = parGen.next(dt);
-        			SuffixValue sv = svGen.next(dt);
-        			renaming.put(sv, p);
-        		}
-        	}
-        	Expression<Boolean> exprR = SMTUtil.renameVars(expr, renaming);
-
-        	ParameterValuation pars = ParameterValuation.fromPSymbolWord(path);
-        	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
-        	vals.putAll(pars);
-        	vals.putAll(consts);
-
-        	if (exprR.evaluateSMT(SMTUtil.compose(vals))) {
-        		candidate = path.prefix(prefix.length() + 1);
-        		SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), restrictionBuilder);
-        		return new SymbolicWord(candidate, suffix);
-        	}
+        	reprDataVals[i] = reprDataVal.get();
         }
-        throw new IllegalStateException("No CE transition found");
-    }
+        PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
+        Word<PSymbolInstance> uExtSul = u.append(psi);
 
-    public Set<DefaultQuery<PSymbolInstance, Boolean>> getCounterExamples() {
-    	Set<DefaultQuery<PSymbolInstance, Boolean>> ces = new LinkedHashSet<DefaultQuery<PSymbolInstance, Boolean>>();
-    	for (Map.Entry<SymbolicWord, SDT> e : candidateCEs.entrySet()) {
-    		SymbolicWord sw = e.getKey();
-    		SDT tqr = e.getValue();
-    		Map<Word<PSymbolInstance>, Boolean> cemaps = sulOracle.instantiate(sw.getPrefix(), sw.getSuffix(), tqr);
-    		for (Map.Entry<Word<PSymbolInstance>, Boolean> c : cemaps.entrySet()) {
-    			ces.add(new DefaultQuery<PSymbolInstance, Boolean>(c.getKey(), c.getValue()));
-    		}
-    	}
+        // check whether leaf of loc contains an extension of u that is equivalent to uExtSul after v
+		CTLeaf leaf = hyp.getLeaf(loc);
+		Iterator<Word<PSymbolInstance>> extensions = ct.getExtensions(u, action)
+				.stream()
+				.filter(w -> leaf.getPrefixes().contains(w))
+				.iterator();
+		while (extensions.hasNext()) {
+			Word<PSymbolInstance> uExtHyp = extensions.next();
+			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, v).toRegisterSDT(uExtHyp, consts);
+			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, v).toRegisterSDT(uExtSul, consts);
 
-    	return ces;
-    }
+			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
+				return Optional.empty();  // there is an equivalent extension, so no discrepancy
+			}
+		}
 
-    public void setHypothesisTreeOracle(TreeOracle hypOracle) {
-        this.hypOracle = hypOracle;
-    }
+		// no equivalent extension exists
+		Result res = new Result(uExtSul, ResultType.TRANSITION);
+		return Optional.of(res);
+	}
 
-    public void setHypothesis(Hypothesis hyp) {
-    	this.hypothesis = hyp;
-    }
+	/**
+	 * Check for a location discrepancy. This is done by checking whether there is some
+	 * {@code action}-extension of {@code u} in the leaf of {@code locNext} such that there
+	 * does not exist some short prefix in the leaf of {@code locNext} that is equivalent
+	 * to the {@code action}-extension of {@code u} after {@code v}.
+	 *
+	 * @param locNext the destination location
+	 * @param u short prefix in leaf prior to {@code locNext} in the run
+	 * @param action the symbol of the next transition
+	 * @param v the suffix after {@code u} and {@code action}
+	 * @return an {@code Optional} containing the result if there is a location discrepancy, or an empty {@code Optional} otherwise
+	 */
+	private Optional<Result> checkLocation(RALocation locNext,
+			Word<PSymbolInstance> u,
+			ParameterizedSymbol action,
+			SymbolicSuffix v) {
+		CTLeaf leafNext = hyp.getLeaf(locNext);
+		Iterator<Prefix> extensions = ct.getExtensions(u, action)
+				.stream()
+				.filter(w -> leafNext.getPrefixes().contains(w))
+				.map(w -> leafNext.getPrefix(w))
+				.iterator();
+		while (extensions.hasNext()) {
+			Prefix uExtended = extensions.next();
+			Bijection<DataValue> uExtBijection = uExtended.getRpBijection();
+			boolean noEquivU = true;
+			for (Prefix uNext : leafNext.getShortPrefixes()) {
+				Bijection<DataValue> uNextBijection = uNext.getRpBijection();
+				Bijection<DataValue> gamma = uNextBijection.compose(uExtBijection.inverse());
+				SDT uExtSDT = sulOracle.treeQuery(uExtended, v);
+				SDT uNextSDT = sulOracle.treeQuery(uNext, v);
+				if (SDT.equivalentUnderBijection(uNextSDT, uExtSDT, gamma) != null) {
+					noEquivU = false;
+					break;
+				}
+			}
+			if (noEquivU) {
+				Result res = new Result(uExtended, ResultType.LOCATION);
+				return Optional.of(res);
+			}
+		}
 
-    //public void setComponents(Map<Word<PSymbolInstance>, LocationComponent> components) {
-    //    this.components = components;
-    //}
+		return Optional.empty();
+	}
+
+	/**
+	 * Check whether {@code guard} is satisfied by the parameters of {@code symbol}, after renaming
+	 * the parameters of {@code guard} according to {@code renaming}.
+	 *
+	 * @param guard
+	 * @param renaming
+	 * @param symbol
+	 * @return {@code true} if {@code symbol} satisfies {@code guard}, renamed according to {@code renaming}
+	 */
+	private boolean isGuardSatisfied(Expression<Boolean> guard, Mapping<DataValue, DataValue> renaming, PSymbolInstance symbol) {
+		Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
+		DataValue[] vals = symbol.getParameterValues();
+		ParameterGenerator pgen = new ParameterGenerator();
+
+        ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+        Expression<Boolean> guardRenamed = rvv.apply(guard, renaming);
+
+		for (int i = 0; i < vals.length; i++) {
+			Parameter p = pgen.next(vals[i].getDataType());
+			mapping.put(p, vals[i]);
+		}
+		mapping.putAll(consts);
+
+		return solver.isSatisfiable(guardRenamed, mapping);
+	}
 }

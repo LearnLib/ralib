@@ -17,6 +17,7 @@
 package de.learnlib.ralib.smt;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Properties;
 
 import de.learnlib.ralib.data.DataValue;
@@ -24,6 +25,7 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.SolverContext;
+import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 
 /**
@@ -37,7 +39,7 @@ public class ConstraintSolver {
     private final static gov.nasa.jpf.constraints.api.ConstraintSolver solver =
             new NativeZ3SolverProvider().createSolver(new Properties());
 
-    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<? extends SymbolicDataValue, DataValue> val) {
         Expression<Boolean> test = SMTUtil.toExpression(expr, val);
         Boolean r = cache.get(test);
         if (r == null) {
@@ -48,4 +50,14 @@ public class ConstraintSolver {
         }
         return r;
     }
+
+    public Optional<Valuation> solve(Expression<Boolean> expr) {
+    	Valuation res = new Valuation();
+    	gov.nasa.jpf.constraints.api.ConstraintSolver.Result r = solver.solve(expr, res);
+    	if (r == gov.nasa.jpf.constraints.api.ConstraintSolver.Result.SAT) {
+    		return Optional.of(res);
+    	}
+    	return Optional.empty();
+    }
+
 }

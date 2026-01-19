@@ -24,10 +24,7 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -111,17 +108,10 @@ public class LearnPadlock extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                   dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, IN);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
-
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, true, IN);
-        ralambda.setSolver(solver);
-
-        ralambda.learn();
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -130,10 +120,10 @@ public class LearnPadlock extends RaLibTestSuite {
                 new PSymbolInstance(IN, new DataValue(DIGIT, BigDecimal.ZERO)),
                 new PSymbolInstance(IN, new DataValue(DIGIT, BigDecimal.ZERO)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
     }
 }

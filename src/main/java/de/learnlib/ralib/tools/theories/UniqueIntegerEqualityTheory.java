@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -12,12 +13,15 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.UniqueEqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements TypedTheory {
@@ -62,6 +66,13 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
         ret.add(getFreshValue(vals));
         return ret;
     }
+
+	@Override
+	public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
+			ParameterizedSymbol ps, Expression<Boolean> guard, int param,
+			Constants constants, ConstraintSolver solver) {
+		throw new RuntimeException("Not implemented");
+	}
 
     @Override
     public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,

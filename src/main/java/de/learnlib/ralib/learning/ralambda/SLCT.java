@@ -10,37 +10,37 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
+import de.learnlib.ralib.ct.CTAutomatonBuilder;
+import de.learnlib.ralib.ct.CTLeaf;
+import de.learnlib.ralib.ct.ClassificationTree;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.dt.DT;
-import de.learnlib.ralib.dt.DTHyp;
-import de.learnlib.ralib.dt.DTLeaf;
-import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.IOAutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
+import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
-public class RaDT implements RaLearningAlgorithm {
+public class SLCT implements RaLearningAlgorithm {
 
-    private final DT dt;
+	private final ClassificationTree ct;
 
-    private final Constants consts;
+	private final Constants consts;
 
-    private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples = new LinkedList<>();
+    private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples;
 
-    private DTHyp hyp = null;
+    private Hypothesis hyp;
 
     private final TreeOracle sulOracle;
 
@@ -51,47 +51,66 @@ public class RaDT implements RaLearningAlgorithm {
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
-    private QueryStatistics queryStats = null;
+    private QueryStatistics queryStats;
 
     private final boolean ioMode;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaDT.class);
+    private final ConstraintSolver solver;
 
-    public RaDT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
-            boolean ioMode, ParameterizedSymbol... inputs) {
-    	this.sulOracle = oracle;
-    	this.hypOracleFactory = hypOracleFactory;
-    	this.sdtLogicOracle = sdtLogicOracle;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SLCT.class);
+
+    public SLCT(TreeOracle sulOracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle,
+    		Constants consts, boolean ioMode, ConstraintSolver solver, ParameterizedSymbol ... inputs) {
     	this.consts = consts;
+    	this.sulOracle = sulOracle;
+    	this.sdtLogicOracle = sdtLogicOracle;
+    	this.hypOracleFactory = hypOracleFactory;
+    	this.solver = solver;
     	this.ioMode = ioMode;
-    	this.restrictionBuilder = oracle.getRestrictionBuilder();
-        this.suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
-        this.dt = new DT(oracle, ioMode, consts, inputs);
-        this.dt.initialize();
-    }
-
-    private void buildHypothesis() {
-        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        components.putAll(dt.getComponents());
-
-        AutomatonBuilder ab = new AutomatonBuilder(components, consts, dt);
-        hyp = (DTHyp) ab.toRegisterAutomaton();
+    	restrictionBuilder = sulOracle.getRestrictionBuilder();
+    	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
+    	counterexamples = new LinkedList<>();
+    	hyp = null;
+    	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
+    	ct.sift(RaStar.EMPTY_PREFIX);
     }
 
 	@Override
 	public void learn() {
-        if (hyp == null) {
-            buildHypothesis();
-        }
+		if (hyp == null) {
+			while (!checkClosedness());
+			buildHypothesis();
+		}
 
-        while (analyzeCounterExample());
+		while (analyzeCounterExample());
 
-        if (queryStats != null) {
-        	queryStats.hypothesisConstructed();
-        }
+		if (queryStats != null) {
+			queryStats.hypothesisConstructed();
+		}
 	}
 
-    private boolean analyzeCounterExample() {
+	private boolean checkClosedness() {
+		if (!ct.checkOutputClosed()) {
+			return false;
+		}
+		if (!ct.checkLocationClosedness()) {
+			return false;
+		}
+		if (!ct.checkTransitionClosedness()) {
+			return false;
+		}
+		if (!ct.checkRegisterClosedness()) {
+			return false;
+		}
+		return true;
+	}
+
+	private void buildHypothesis() {
+		CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, ioMode, solver);
+		hyp = ab.buildHypothesis();
+	}
+
+	private boolean analyzeCounterExample() {
         LOGGER.info(Category.PHASE, "Analyzing Counterexample");
         if (counterexamples.isEmpty()) {
             return false;
@@ -99,14 +118,16 @@ public class RaDT implements RaLearningAlgorithm {
 
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
 
-        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        components.putAll(dt.getComponents());
-        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle,
-                components, consts);
+        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<>();
+        for (CTLeaf leaf : ct.getLeaves()) {
+        	for (Word<PSymbolInstance> u : leaf.getPrefixes()) {
+        		components.put(u, leaf);
+        	}
+        }
+        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
 
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
 
-        // check if ce still is a counterexample ...
         boolean hypce = hyp.accepts(ce.getInput());
         boolean sulce = ce.getOutput();
         if (hypce == sulce) {
@@ -127,36 +148,26 @@ public class RaDT implements RaLearningAlgorithm {
         }
 
         Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
-        DTLeaf leaf = dt.getLeaf(accSeq);
-        dt.addSuffix(res.getSuffix(), leaf);
-        while(!dt.checkIOSuffixes());
-        while(!dt.checkVariableConsistency(suffixBuilder));
+        CTLeaf leaf = ct.getLeaf(accSeq);
+        assert leaf != null : "Prefix not in classification tree: " + accSeq;
+        ct.refine(leaf, res.getSuffix());
+
+        while(!checkClosedness());
+
         buildHypothesis();
         return true;
-    }
+	}
 
 	@Override
 	public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
         LOGGER.info(Category.EVENT, "adding counterexample: " + ce);
         counterexamples.add(ce);
-    }
+	}
 
 	@Override
 	public Hypothesis getHypothesis() {
-        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        components.putAll(dt.getComponents());
-        AutomatonBuilder ab;
-        if (ioMode) {
-            ab = new IOAutomatonBuilder(components, consts);
-        } else {
-            ab = new AutomatonBuilder(components, consts);
-        }
-        return ab.toRegisterAutomaton();
+		return hyp;
 	}
-
-    public DT getDT() {
-        return dt;
-    }
 
 	@Override
 	public void setStatisticCounter(QueryStatistics queryStats) {
@@ -165,7 +176,7 @@ public class RaDT implements RaLearningAlgorithm {
 
 	@Override
 	public QueryStatistics getQueryStatistics() {
-    	return queryStats;
+		return queryStats;
 	}
 
 	@Override
@@ -173,4 +184,7 @@ public class RaDT implements RaLearningAlgorithm {
 		return RaLearningAlgorithmName.RADT;
 	}
 
+	public ClassificationTree getCT() {
+		return ct;
+	}
 }

@@ -33,12 +33,9 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -82,7 +79,6 @@ public class IOHandlingTest extends RaLibTestSuite {
 			RALocation l1 = ra.addState(true);
 			RALocation l2 = ra.addState(true);
 			RALocation l3 = ra.addState(true);
-//	        RALocation ls = ra.addState(false);
 
 			// registers and parameters
 			RegisterGenerator rgen = new RegisterGenerator();
@@ -110,29 +106,16 @@ public class IOHandlingTest extends RaLibTestSuite {
 
 			// initial location
 			ra.addTransition(l0, IN, new InputTransition(trueGuard, IN, l0, l1, storeAssign));
-//	        ra.addTransition(l0, OK, new OutputTransition(outMapping, OK, l0, ls, noAssign));
-//	        ra.addTransition(l0, NOK, new OutputTransition(outMapping, NOK, l0, ls, noAssign));
 
 			// IN 0 location
-//	        ra.addTransition(l1, IN, new InputTransition(trueGuard, IN, l1, ls, noAssign));
 			ra.addTransition(l1, OK, new OutputTransition(outMapping, OK, l1, l2, copyAssign));
-//	        ra.addTransition(l1, NOK, new OutputTransition(outMapping, NOK, l1, ls, noAssign));
 
 			// IN 0 OK location
 			ra.addTransition(l2, IN, new InputTransition(okGuard, IN, l2, l1, copyAssign));
 			ra.addTransition(l2, IN, new InputTransition(nokGuard, IN, l2, l3, copyAssign));
-//	        ra.addTransition(l2, OK, new OutputTransition(outMapping, OK, l2, ls, noAssign));
-//	        ra.addTransition(l2, NOK, new OutputTransition(outMapping, NOK, l2, ls, noAssign));
 
 			// IN 0 OK in 1 location
-//	        ra.addTransition(l3, IN, new InputTransition(trueGuard, IN, l3, ls, noAssign));
-//	        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));
 			ra.addTransition(l3, NOK, new OutputTransition(outMapping, NOK, l3, l2, copyAssign));
-
-			// sink location
-//	        ra.addTransition(ls, IN, new InputTransition(trueGuard, IN, ls, ls, noAssign));
-//	        ra.addTransition(ls, OK, new OutputTransition(outMapping, OK, ls, ls, noAssign));
-//	        ra.addTransition(ls, NOK, new OutputTransition(outMapping, NOK, ls, ls, copyAssign));
 
 			return ra;
 		}
@@ -185,8 +168,6 @@ public class IOHandlingTest extends RaLibTestSuite {
 			ra.addTransition(l2, IN, new InputTransition(nokGuard, IN, l2, l3, copyAssign));
 
 			// IN 0 OUT fresh/0 in 1 location
-//		        ra.addTransition(l3, IN, new InputTransition(trueGuard, IN, l3, ls, noAssign));
-//		        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));
 			ra.addTransition(l3, NOK, new OutputTransition(nokOutputMapping, NOK, l3, l2, copyAssign));
 
 			return ra;
@@ -214,25 +195,21 @@ public class IOHandlingTest extends RaLibTestSuite {
 		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
-		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
-				teachers, consts, solver);
+		SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, IN, OK, NOK);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+		sllambda.learn();
 
-		ralambda.learn();
-
-		RegisterAutomaton hyp = ralambda.getHypothesis();
+		RegisterAutomaton hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
 				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)), new PSymbolInstance(NOK));
 
-		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		sllambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		ralambda.learn();
-		hyp = ralambda.getHypothesis();
+		sllambda.learn();
+		hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, OK, NOK);
@@ -261,29 +238,22 @@ public class IOHandlingTest extends RaLibTestSuite {
 		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
-		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
-				teachers, consts, solver);
+		SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, IN, NOK, OUT);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		sllambda.learn();
 
-		ralambda.learn();
-
-		RegisterAutomaton hyp = ralambda.getHypothesis();
+		RegisterAutomaton hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
-//		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-//				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
-//				new PSymbolInstance(NOK));
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
 				new PSymbolInstance(OUT, new DataValue(ID, BigDecimal.ZERO)), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)),
 				new PSymbolInstance(NOK));
 
-		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		sllambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		ralambda.learn();
-		hyp = ralambda.getHypothesis();
+		sllambda.learn();
+		hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);
@@ -312,26 +282,22 @@ public class IOHandlingTest extends RaLibTestSuite {
 		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
-		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
-				teachers, consts, solver);
+		SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, IN, NOK, OUT);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		sllambda.learn();
 
-		ralambda.learn();
-
-		RegisterAutomaton hyp = ralambda.getHypothesis();
+		RegisterAutomaton hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
 				new PSymbolInstance(OUT, new DataValue(ID, BigDecimal.ONE)), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)),
 				new PSymbolInstance(NOK));
 
-		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		sllambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		ralambda.learn();
-		hyp = ralambda.getHypothesis();
+		sllambda.learn();
+		hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);

@@ -23,16 +23,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDT;
@@ -46,7 +50,10 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
@@ -194,11 +201,13 @@ public abstract class InequalityTheoryWithEq implements Theory {
 	 * @param sdts - a mapping from SDT guards to their corresponding sub-SDTs
 	 * @param equivClasses - a mapping from data values to corresponding SDT guards
 	 * @param filteredOut - data values removed through suffix optimization
+	 * @param prior - suffix valuation for prior suffix values
 	 * @return a mapping from merged SDT guards to their respective sub-trees
 	 */
 	protected Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard, SDT> sdts,
 			Map<DataValue, SDTGuard> equivClasses,
-			Collection<DataValue> filteredOut) {
+			Collection<DataValue> filteredOut,
+			SuffixValuation prior) {
 		Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
 
 		List<DataValue> ecValuesSorted = sort(equivClasses.keySet());
@@ -237,10 +246,10 @@ public abstract class InequalityTheoryWithEq implements Theory {
 					currSdt = nextSdt;
 					continue;
 				} else {
-					if (equivalentWithRenaming(currSdt, currGuard, nextSdt, nextGuard)) {
+					if (equivalentWithRenaming(currSdt, currGuard, nextSdt, nextGuard, prior)) {
 						// if left guard is equality, check for equality with previous guard
 						if (currGuard instanceof SDTGuard.EqualityGuard && prevGuard != null &&
-								!equivalentWithRenaming(prevSdt, prevGuard, nextSdt, nextGuard)) {
+								!equivalentWithRenaming(prevSdt, prevGuard, nextSdt, nextGuard, prior)) {
 							keepMerging = false;
 						}
 					} else {
@@ -294,9 +303,10 @@ public abstract class InequalityTheoryWithEq implements Theory {
 	 * @param guard1
 	 * @param sdt2
 	 * @param guard2
+	 * @param prior
 	 * @return true if sdt1 is equivalent to sdt2, or can be under equality guard2, or vice versa
 	 */
-	private boolean equivalentWithRenaming(SDT sdt1, SDTGuard guard1, SDT sdt2, SDTGuard guard2) {
+	private boolean equivalentWithRenaming(SDT sdt1, SDTGuard guard1, SDT sdt2, SDTGuard guard2, SuffixValuation prior) {
 		if (guard1 != null && guard1 instanceof SDTGuard.EqualityGuard) {
 			Expression<Boolean> renaming = SDTGuard.toExpr(guard1);
 			return sdt1.isEquivalentUnderCondition(sdt2, renaming);
@@ -304,7 +314,17 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			Expression<Boolean> renaming = SDTGuard.toExpr(guard2);
 			return sdt2.isEquivalentUnderCondition(sdt1, renaming);
 		}
-		return sdt1.isEquivalent(sdt2, new Bijection<>());
+
+		// constrain suffix values
+		Expression<Boolean> guard1Expr = SDTGuard.toExpr(guard1);
+		Expression<Boolean> guard2Expr = SDTGuard.toExpr(guard2);
+		Expression<Boolean> condition = ExpressionUtil.or(guard1Expr, guard2Expr);
+		for (Map.Entry<SuffixValue, DataValue> e : prior.entrySet()) {
+			Expression<Boolean> expr = new NumericBooleanExpression(e.getKey(), NumericComparator.EQ, e.getValue());
+			condition = ExpressionUtil.and(condition, expr);
+		}
+
+		return sdt1.isEquivalentUnderCondition(sdt2, condition);
 	}
 
 	/**
@@ -435,7 +455,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         Collection<DataValue> filteredOut = new ArrayList<>();
         filteredOut.addAll(equivClasses.keySet());
         filteredOut.removeAll(filteredEquivClasses.keySet());
-        Map<SDTGuard, SDT> merged = mergeGuards(children, equivClasses, filteredOut);
+        Map<SDTGuard, SDT> merged = mergeGuards(children, equivClasses, filteredOut, suffixValues);
 
         Map<SDTGuard, SDT> reversed = new LinkedHashMap<>();
         List<SDTGuard> keys = new ArrayList<>(merged.keySet());
@@ -601,6 +621,47 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
         }
         return returnThis;
+    }
+
+    public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Expression<Boolean> guard, int param,
+            Constants constants, ConstraintSolver solver) {
+    	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
+    	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
+    	vals.addAll(vals.stream()
+    			.filter(w -> w.getDataType().equals(p.getDataType()))
+    			.collect(Collectors.toSet()));
+    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
+
+    	if (isSatisfiableWithEquality(guard, p, fresh, solver)) {
+    		return Optional.of(fresh);
+    	}
+
+    	List<Expression<Boolean>> diseqList = new LinkedList<>();
+    	vals.stream().forEach(d -> diseqList.add(new NumericBooleanExpression(p, NumericComparator.NE, d)));
+    	Expression<Boolean> diseqs = ExpressionUtil.and(diseqList.toArray(new Expression[diseqList.size()]));
+
+    	Optional<Valuation> valuation = solver.solve(ExpressionUtil.and(guard, diseqs));
+    	if (valuation.isPresent()) {
+    		BigDecimal dv = valuation.get().getValue(p);
+    		assert dv != null : "No valuation for " + p + " in " + valuation;
+    		DataValue ret = new DataValue(p.getDataType(), dv);
+    		return Optional.of(ret);
+    	}
+
+    	for (DataValue val : vals) {
+    		if (isSatisfiableWithEquality(guard, p, val, solver)) {
+    			return Optional.of(val);
+    		}
+    	}
+
+    	return Optional.empty();
+    }
+
+    private boolean isSatisfiableWithEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver) {
+    	ParameterValuation valuation = new ParameterValuation();
+    	valuation.put(p, val);
+    	return solver.isSatisfiable(guard, valuation);
     }
 
     public void useSuffixOptimization(boolean useSuffixOpt) {
