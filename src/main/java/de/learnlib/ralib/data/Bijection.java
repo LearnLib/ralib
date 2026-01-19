@@ -177,6 +177,6 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 				return i;
 			}
 		}
-		throw new IllegalArgumentException("No matching data value for " + dv + ": " + vals);
+		throw new IllegalArgumentException("No matching data value for " + dv + ": " + Arrays.toString(vals));
 	}
 }
