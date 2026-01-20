@@ -215,6 +215,13 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 		return other.expr.equals(expr);
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		hash = 89 * hash + (expr == null ? 0 : Objects.hashCode(expr));
+		return hash;
+	}
+
 //	public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> ... valuations) {
 //		Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
 //		for (SuffixValue sv : suffix.getValues()) {

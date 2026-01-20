@@ -3,6 +3,7 @@ package de.learnlib.ralib.theory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
@@ -95,5 +96,12 @@ public class FreshSuffixValue extends AbstractSuffixValueRestriction {
             return false;
         }
         return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		hash = 37 * hash + Objects.hashCode(getClass());
+		return hash;
 	}
 }

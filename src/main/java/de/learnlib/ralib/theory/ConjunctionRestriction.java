@@ -124,6 +124,13 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
 		ConjunctionRestriction other = (ConjunctionRestriction) obj;
 		return other.conjuncts.equals(conjuncts);
 	}
+	
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		hash = 61 * hash + conjuncts.hashCode();
+		return hash;
+	}
 
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> conjuncts) {
 		if (conjuncts.isEmpty()) {

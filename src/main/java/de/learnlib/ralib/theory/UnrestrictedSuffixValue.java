@@ -1,6 +1,7 @@
 package de.learnlib.ralib.theory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
@@ -65,5 +66,26 @@ public class UnrestrictedSuffixValue extends AbstractSuffixValueRestriction {
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
 		return true;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		hash = 37 * hash + Objects.hashCode(getClass());
+		return hash;
 	}
 }

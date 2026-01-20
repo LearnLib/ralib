@@ -134,6 +134,30 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction {
 	public Set<SDTGuardElement> getElements() {
 		return regs;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		if (!regs.equals(((EqualityRestriction) obj).regs)) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		hash = 37 * hash + ((regs == null) ? 0 : regs.hashCode());
+		return hash;
+	}
 
 	@Override
 	public String toString() {

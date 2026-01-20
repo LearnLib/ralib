@@ -131,6 +131,13 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction {
 		return other.disjuncts.equals(disjuncts);
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		hash = 61 * hash + disjuncts.hashCode();
+		return hash;
+	}
+	
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> disjuncts) {
 		if (disjuncts == null || disjuncts.isEmpty()) {
 			return new TrueRestriction(parameter);

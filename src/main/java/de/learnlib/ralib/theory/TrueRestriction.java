@@ -1,5 +1,7 @@
 package de.learnlib.ralib.theory;
 
+import java.util.Objects;
+
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -38,5 +40,26 @@ public class TrueRestriction extends SuffixValueRestriction {
 	@Override
 	public SuffixValueRestriction and(SuffixValueRestriction other) {
 		return other;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		hash = 37 * hash + Objects.hashCode(getClass());
+		return hash;
 	}
 }
