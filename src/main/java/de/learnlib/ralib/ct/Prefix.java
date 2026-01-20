@@ -2,6 +2,7 @@ package de.learnlib.ralib.ct;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
@@ -37,27 +38,53 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	private final Word<PSymbolInstance> prefix;
 	private Bijection<DataValue> rpBijection;
 	private final CTPath path;
+	public final Map<SymbolicSuffix, Bijection<DataValue>> pathBijections;
 
 	public Prefix(Word<PSymbolInstance> u, Bijection<DataValue> rpRenaming, CTPath path) {
 		this.prefix = u instanceof Prefix ? ((Prefix) u).getPrefix() : u;
 		this.rpBijection = rpRenaming;
 		this.path = path;
+		pathBijections = new LinkedHashMap<>();
+	}
+	
+	public Prefix(Word<PSymbolInstance> u, Bijection<DataValue> rpRenaming, CTPath path, Map<SymbolicSuffix, Bijection<DataValue>> pathBijections) {
+		this(u, rpRenaming, path);
+		this.pathBijections.putAll(pathBijections);
 	}
 
 	public Prefix(Word<PSymbolInstance> prefix, CTPath path) {
 		this(prefix, Bijection.identity(path.getMemorable()), path);
+		if (prefix instanceof Prefix p) {
+			pathBijections.putAll(p.pathBijections);
+		}
 	}
 
 	public Prefix(Prefix prefix, Bijection<DataValue> rpRenaming) {
-		this(prefix.prefix, rpRenaming, prefix.path);
+		this(prefix.prefix, rpRenaming, prefix.path, prefix.pathBijections);
 	}
-
-	public Prefix(Prefix other) {
-		this(other.prefix, other.rpBijection, other.path);
-	}
+//
+//	public Prefix(Prefix other) {
+//		this(other.prefix, other.rpBijection, other.path);
+//	}
 
 	public void setRpBijection(Bijection<DataValue> rpBijection) {
 		this.rpBijection = rpBijection;
+	}
+	
+	public void putBijection(SymbolicSuffix suffix, Bijection<DataValue> bijection) {
+		pathBijections.put(suffix, bijection);
+	}
+	
+	public Map<SymbolicSuffix, Bijection<DataValue>> getBijections() {
+		return pathBijections;
+	}
+	
+	public void putBijection(SymbolicSuffix suffix) {
+		putBijection(suffix, Bijection.identity(getRegisters()));
+	}
+	
+	public Bijection<DataValue> getBijection(SymbolicSuffix suffix) {
+		return pathBijections.get(suffix);
 	}
 
 	public SDT[] getSDTs(ParameterizedSymbol ps) {

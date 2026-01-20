@@ -209,7 +209,7 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
     		if (theory instanceof EqualityTheory) {
     			EqualityTheory et = (EqualityTheory) theory;
     			AbstractSuffixValueRestriction restr = et.restrictSuffixValue(s, u, uExtended.lastSymbol(), u.getRegisters(), missingRegisters);
-    			restrictions.put(s, restr);
+    			restrictions.put(s, restr.relabel(u.getRpBijection()));
     		} else {
     			restrictions.put(s, new TrueRestriction(s));
     		}

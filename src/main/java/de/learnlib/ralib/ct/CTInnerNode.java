@@ -28,7 +28,7 @@ public class CTInnerNode extends CTNode {
 	private final SymbolicSuffix suffix;
 	private final List<CTBranch> branches;
 
-	public CTInnerNode(CTNode parent, SymbolicSuffix suffix) {
+	public CTInnerNode(CTInnerNode parent, SymbolicSuffix suffix) {
 		super(parent);
 		this.suffix = suffix;
 		branches = new ArrayList<>();
@@ -50,6 +50,17 @@ public class CTInnerNode extends CTNode {
 		}
 		return null;
 	}
+	
+//	@Override
+//	protected List<CTBranch> getParentBranches() {
+//		List<CTBranch> branches = new ArrayList<>();
+//		if (getParent() != null) {
+//			branches.addAll(getParent().getParentBranches());
+//			CTBranch b = ((CTInnerNode) getParent()).getBranch(this);
+//			branches.add(b);
+//		}
+//		return branches;
+//	}
 
 	@Override
 	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
@@ -59,18 +70,30 @@ public class CTInnerNode extends CTNode {
 		for (CTBranch b : branches) {
 			Bijection<DataValue> vars = b.matches(path, solver);
 			if (vars != null) {
-				prefix = new Prefix(prefix, vars, path);
+				prefix = new Prefix(prefix, vars, path, prefix.getBijections());
+				prefix.putBijection(getSuffix(), vars);
 				return b.getChild().sift(prefix, oracle, solver, ioMode);
 			}
 		}
 
 		// no child with equivalent SDTs, create a new leaf
 		prefix = new Prefix(prefix, path);
+//		if (getParent() != null) {
+			prefix.putBijection(getSuffix());
+//		}
 		CTLeaf leaf = new CTLeaf(prefix, this);
 		CTBranch branch = new CTBranch(path, leaf);
 		branches.add(branch);
 		return leaf;
 	}
+	
+//	private CTBranch getParentBranch() {
+//		CTInnerNode parent = getParent();
+//		if (parent == null) {
+//			return null;
+//		}
+//		return parent.getBranch(this);
+//	}
 
 	/**
 	 * Replace {@code leaf} with a new {@link CTInnerNode} containing {@code suffix}.
@@ -89,6 +112,12 @@ public class CTInnerNode extends CTNode {
 	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode, ParameterizedSymbol[] inputs) {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
+		List<SymbolicSuffix> suffixes = getSuffixes();
+		if (suffix.toString().equals("((?ISendFrame[] !OFrame[int, int]))[true, (s2 == c2)]") && suffixes.size() == 6) {
+			int code1 = suffix.hashCode();
+			int code2 = suffixes.getLast().hashCode();
+			int code3 = code1 + code2;
+		}
 		assert !getSuffixes().contains(suffix) : "Duplicate suffix: " + suffix;
 
 		Set<ShortPrefix> shorts = leaf.getShortPrefixes();
@@ -126,13 +155,18 @@ public class CTInnerNode extends CTNode {
 	@Override
 	public List<SymbolicSuffix> getSuffixes() {
 		List<SymbolicSuffix> suffixes = new ArrayList<>();
-		suffixes.add(suffix);
-		if (getParent() == null) {
-			return suffixes;
+		if (getParent() != null) {
+			suffixes.addAll(getParent().getSuffixes());
 		}
-
-		suffixes.addAll(getParent().getSuffixes());
+		suffixes.add(suffix);
 		return suffixes;
+//		suffixes.add(suffix);
+//		if (getParent() == null) {
+//			return suffixes;
+//		}
+//
+//		suffixes.addAll(getParent().getSuffixes());
+//		return suffixes;
 	}
 
 	/**

@@ -12,9 +12,9 @@ import de.learnlib.ralib.smt.ConstraintSolver;
  * @author fredrik
  */
 public abstract class CTNode {
-	private final CTNode parent;
+	private final CTInnerNode parent;
 
-	public CTNode(CTNode parent) {
+	public CTNode(CTInnerNode parent) {
 		this.parent = parent;
 	}
 
@@ -22,7 +22,7 @@ public abstract class CTNode {
 	 *
 	 * @return immediate ancestor of this node
 	 */
-	public CTNode getParent() {
+	public CTInnerNode getParent() {
 		return parent;
 	}
 
@@ -30,6 +30,8 @@ public abstract class CTNode {
 	 * @return all symbolic suffixes from all the ancestor nodes.
 	 */
 	public abstract List<SymbolicSuffix> getSuffixes();
+	
+//	protected abstract List<CTBranch> getParentBranches();
 
 	/**
 	 *

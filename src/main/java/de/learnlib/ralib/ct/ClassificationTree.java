@@ -25,6 +25,7 @@ import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
@@ -346,16 +347,26 @@ public class ClassificationTree {
 
 			if (!consistentMemorable(ua_mem, u_mem, a_mem)) {
 				// memorables are missing, find suffix which reveals missing memorables
+				boolean found = false;
 				for (SymbolicSuffix v : leaf.getSuffixes()) {
 					Set<DataValue> s_mem = ua_pref.getSDT(v).getDataValues();
 					if (!consistentMemorable(s_mem, u_mem, a_mem)) {
 						DataValue[] missingRegs = missingRegisters(s_mem, u_mem, a_mem);   // registers to not optimize away
 						SymbolicSuffix av = extendSuffix(ua, v, missingRegs);
+
+//						SDT sdt = oracle.treeQuery(u, av);
+//						if (Collections.disjoint(Set.of(missingRegs), sdt.getDataValues())) {
+//							continue;
+//						}
 						refine(u_leaf, av);
-						break;
+//						found = true;
+//						break;
+						return false;
 					}
 				}
-				return false;
+//				if (found) {
+//					return false;
+//				}
 			}
 		}
 		return true;
@@ -651,15 +662,22 @@ public class ClassificationTree {
 	 * @return the last symbol of {@code ua} concatenated with {@code v}
 	 */
 	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> ua, SymbolicSuffix v, DataValue[] missingRegs) {
+		Word<PSymbolInstance> u = ua.prefix(ua.length() - 1);
 		if (suffixBuilder == null) {
 			PSymbolInstance a = ua.lastSymbol();
-			Word<PSymbolInstance> u = ua.prefix(ua.length() - 1);
 			SymbolicSuffix alpha = new SymbolicSuffix(u, Word.fromSymbols(a), restrBuilder);
 			return alpha.concat(v);
 		}
 
 		SDT u_sdt = prefixes.get(ua).getPrefix(ua).getSDT(v);
 		assert u_sdt != null : "SDT for symbolic suffix " + v + " does not exist for prefix " + ua;
+
+		if (restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
+			Prefix uPref = getLeaf(u).getPrefix(u);
+			Prefix uExtPref = getLeaf(ua).getPrefix(ua);
+			Prefix uRepr = getLeaf(u).getRepresentativePrefix();
+			return sllambdaRestrBuilder.extendSuffix(uPref, uExtPref, uRepr, v, u_sdt, Set.of(missingRegs));
+		}
 
 		return suffixBuilder.extendSuffix(ua, u_sdt, v, missingRegs);
 	}
@@ -674,10 +692,10 @@ public class ClassificationTree {
 	 */
 	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
 		assert !leaf.getShortPrefixes().isEmpty() : "No short prefix in leaf " + leaf;
-		Word<PSymbolInstance> u = leaf.getShortPrefixes().iterator().next();
+		ShortPrefix u = leaf.getShortPrefixes().iterator().next();
 		SDT sdt = oracle.treeQuery(u, av);
 		ParameterizedSymbol a = av.getActions().firstSymbol();
-		Branching branching = leaf.getBranching(a);
+		Branching branching = u.getBranching(a);
 		Branching newBranching = oracle.updateBranching(u, a, branching, sdt);
 		for (Expression<Boolean> guard : newBranching.getBranches().values()) {
 			if (!branching.getBranches().values().contains(guard)) {
@@ -727,9 +745,12 @@ public class ClassificationTree {
 	 * @return
 	 */
 	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> u1, Word<PSymbolInstance> u2, SymbolicSuffix v) {
-		SDT sdt1 = getLeaf(u1).getPrefix(u1).getSDT(v);
-		SDT sdt2 = getLeaf(u2).getPrefix(u2).getSDT(v);
-		return suffixBuilder.extendDistinguishingSuffix(u1, sdt1, u2, sdt2, v);
+//		SDT sdt1 = getLeaf(u1).getPrefix(u1).getSDT(v);
+//		SDT sdt2 = getLeaf(u2).getPrefix(u2).getSDT(v);
+//		return suffixBuilder.extendDistinguishingSuffix(u1, sdt1, u2, sdt2, v);
+		Word<ParameterizedSymbol> actions = v.getActions();
+		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(u1.lastSymbol().getBaseSymbol()), actions);
+		return new SymbolicSuffix(extended);
 	}
 
 	/**

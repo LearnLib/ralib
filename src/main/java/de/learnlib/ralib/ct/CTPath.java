@@ -7,12 +7,17 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SDTGuardElement;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.equality.EqualityRestriction;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.word.Word;
 
 /**
  * This data structure stores the SDTs from tree queries for a prefix along a path
@@ -139,18 +144,40 @@ public class CTPath {
 		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
 		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
 		r.putSDT(RaStar.EMPTY_SUFFIX, sdt);
+//		Bijection<DataValue> renaming = new Bijection<>();
+		SymbolicSuffix prevSuffix = RaStar.EMPTY_SUFFIX;
 		for (SymbolicSuffix s : suffixes) {
+			if (s.equals(RaStar.EMPTY_SUFFIX)) {
+				continue;
+			}
+			Bijection<DataValue> renaming = prefix.getBijection(prevSuffix);
+			SymbolicSuffix sRelabeled = s.relabel(renaming.inverse());
+			assert noUnmapped(sRelabeled, r.getMemorable()) : "Equality with unmapped data value";
 			sdt = prefix.getSDT(s);
 			if (sdt == null) {
-				sdt = oracle.treeQuery(prefix, s);
+				sdt = oracle.treeQuery(prefix, sRelabeled);
 			}
 
 			if (r.getSDT(s) == null) {
 				r.putSDT(s, sdt);
 			}
+			prevSuffix = s;
 		}
 
 		return r;
+	}
+
+	private static boolean noUnmapped(SymbolicSuffix suffix, Set<DataValue> memorable) {
+		for (AbstractSuffixValueRestriction r : suffix.getRestrictions().values()) {
+			if (r instanceof EqualityRestriction er) {
+				for (SDTGuardElement e : er.getElements()) {
+					if (e instanceof DataValue d && !memorable.contains(d)) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
     @Override
