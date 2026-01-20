@@ -9,6 +9,7 @@ import java.util.Set;
 
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RARun;
+import de.learnlib.ralib.automata.xml.RegisterAutomaton.Constants.Constant;
 import de.learnlib.ralib.ct.CTHypothesis;
 import de.learnlib.ralib.ct.CTLeaf;
 import de.learnlib.ralib.ct.ClassificationTree;
@@ -24,16 +25,23 @@ import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PermutationIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
+import de.learnlib.ralib.smt.ReplacingVarsVisitor;
+import de.learnlib.ralib.smt.VarsValuationVisitor;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -122,6 +130,7 @@ public class PrefixFinder {
 				for (Expression<Boolean> gSul : branching.guardSet()) {
 					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
 						renaming.putAll(uToRunRenaming);
+						gSul = conjunctionWithRestriction(gSul, uv, u, hyp.getRun(u).getValuation(u.size()).keySet(), consts);
 						if (isGuardSatisfied(gSul, renaming, symbol)) {
 							Optional<Result> res = checkTransition(run, i, u, action, gHyp, gSul);
 							if (res.isEmpty()) {
@@ -137,6 +146,43 @@ public class PrefixFinder {
 		}
 
 		throw new IllegalStateException("Found no counterexample in " + ce);
+	}
+	
+	private Expression<Boolean> conjunctionWithRestriction(Expression<Boolean> guard, SymbolicSuffix suffix, Word<PSymbolInstance> u, Set<Register> regs, Constants consts) {
+		DataType[] types = suffix.getActions().firstSymbol().getPtypes();
+		SuffixValueGenerator sgen = new SuffixValueGenerator();
+		
+		Set<SymbolicDataValue> vals = new LinkedHashSet<>();
+		DataValue[] uVals = DataWords.valsOf(u);
+		ParameterGenerator pgen = new ParameterGenerator();
+		ParameterValuation pmap = new ParameterValuation();
+		for (int i = 0; i < uVals.length; i++) {
+			Parameter p = pgen.next(uVals[i].getDataType());
+			vals.add(p);
+			pmap.put(p, uVals[i]);
+		}
+		vals.addAll(regs);
+		vals.addAll(consts.keySet());
+		
+		Expression[] restrictionExpressions = new Expression[types.length + 1];
+		for (int i = 0; i < types.length; i++) {
+			SuffixValue s = sgen.next(types[i]);
+			Parameter p = new Parameter(s.getDataType(), s.getId());
+			AbstractSuffixValueRestriction r = suffix.getRestriction(s);
+			Expression<Boolean> expr = r.toGuardExpression(vals);
+			
+			VarsValuationVisitor vvv = new VarsValuationVisitor();
+			expr = vvv.apply(expr, pmap);
+			
+			ReplacingVarsVisitor rvv = new ReplacingVarsVisitor();
+			VarMapping<SuffixValue, Parameter> mapping = new VarMapping<>();
+			mapping.put(s, p);
+			Expression<Boolean> renamedExpr = rvv.apply(expr, mapping);
+			restrictionExpressions[i] = renamedExpr;
+		}
+		restrictionExpressions[restrictionExpressions.length - 1] = guard;
+		Expression<Boolean> con = ExpressionUtil.and(restrictionExpressions);
+		return con;
 	}
 
 	/**
