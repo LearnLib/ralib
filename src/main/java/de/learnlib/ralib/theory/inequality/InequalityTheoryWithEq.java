@@ -170,7 +170,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 		List<DataValue> equivClasses = new ArrayList<>();
 		equivClasses.addAll(valueGuards.keySet());
 		EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
-		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values);
+		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
 
 		Map<DataValue, SDTGuard> ret = new LinkedHashMap<>();
 		for (Map.Entry<DataValue, SDTGuard> e : valueGuards.entrySet()) {

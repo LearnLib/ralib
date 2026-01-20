@@ -128,18 +128,18 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 "              []-TRUE: s2\n" +
                 "                    []-(s3=0[int])\n" +
                 "                     |    []-(s4=1[int])\n" +
-                "                     |     |    []-(s5=s1)\n" +
+                "                     |     |    []-TRUE: s5\n" +
                 "                     |     |          []-(s6=s2)\n" +
                 "                     |     |           |    [Leaf+]\n" +
                 "                     |     |           +-(s6!=s2)\n" +
                 "                     |     |                [Leaf-]\n" +
                 "                     |     +-(s4!=1[int])\n" +
-                "                     |          []-(s5=s1)\n" +
+                "                     |          []-TRUE: s5\n" +
                 "                     |                []-TRUE: s6\n" +
                 "                     |                      [Leaf-]\n" +
                 "                     +-(s3!=0[int])\n" +
                 "                          []-TRUE: s4\n" +
-                "                                []-(s5=s1)\n" +
+                "                                []-TRUE: s5\n" +
                 "                                      []-TRUE: s6\n" +
                 "                                            [Leaf-]\n";
 
@@ -246,9 +246,9 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         String expectedTree = "[]-+\n" +
 "  []-TRUE: s1\n" +
-"        []-(s2=s1)\n" +
+"        []-TRUE: s2\n" +
 "              []-TRUE: s3\n" +
-"                    []-(s4=s3)\n" +
+"                    []-TRUE: s4\n" +
 "                          [Leaf-]\n";
 
         checkTreeForSuffix(word.prefix(2), suffix, mto, expectedTree);

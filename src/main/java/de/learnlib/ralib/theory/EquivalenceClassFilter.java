@@ -3,6 +3,7 @@ package de.learnlib.ralib.theory;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -29,7 +30,8 @@ public class EquivalenceClassFilter {
 	}
 
 	public List<DataValue> toList(AbstractSuffixValueRestriction restr,
-			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, WordValuation valuation) {
+			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix,
+			WordValuation valuation, Constants consts) {
 
 		if (!useOptimization) {
 			return equivClasses;
@@ -60,6 +62,7 @@ public class EquivalenceClassFilter {
 				}
 			}
 		}
+		mapping.putAll(consts);
 
 		Expression<Boolean> expr = restr.toGuardExpression(mapping.keySet());
 		for (DataValue ec : equivClasses) {
