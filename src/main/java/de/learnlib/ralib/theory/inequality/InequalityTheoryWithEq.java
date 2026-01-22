@@ -475,11 +475,11 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     	List<DataValue> seen = new ArrayList<>();
     	for (PSymbolInstance psi : prefix) {
-    		DataValue dvs[] = psi.getParameterValues();
+		DataValue dvs[] = psi.getParameterValues();
     		DataType dts[] = psi.getBaseSymbol().getPtypes();
     		for (int i = 0; i < dvs.length; i++) {
     			//Register r = rgen.next(dts[i]);
-    			DataValue dv = safeCast(dvs[i]);
+			DataValue dv = dvs[i];
     			if (dv != null && !seen.contains(dv)) {
     				pot.put(dv, dv);
     				seen.add(dv);
@@ -489,7 +489,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     	for (Map.Entry<SuffixValue, DataValue> e : suffixValues.entrySet()) {
     		SuffixValue sv = e.getKey();
-    		DataValue dv = safeCast(e.getValue());
+		DataValue dv = e.getValue();
     		if (dv != null) {
     			pot.put(dv, sv);
     		}
@@ -497,7 +497,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     	for (Map.Entry<Constant, DataValue> e : consts.entrySet()) {
     		Constant c = e.getKey();
-    		DataValue dv = safeCast(e.getValue());
+		DataValue dv = e.getValue();
     		if (dv != null) {
     			pot.put(dv, c);
     		}
@@ -505,8 +505,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     	return pot;
     }
-
-    protected abstract DataValue safeCast(DataValue val);
 
     public abstract List<DataValue> getPotential(List<DataValue> vals);
 
@@ -681,7 +679,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	constVals = consts.values().toArray(constVals);
     	DataValue priorVals[] = new DataValue[prefixVals.length + constVals.length + suffixValue.getId() - 1];
     	DataType svType = suffixValue.getDataType();
-    	DataValue svDataValue = safeCast(suffixVals[suffixValue.getId()-1]);
+	DataValue svDataValue = suffixVals[suffixValue.getId()-1];
     	assert svDataValue != null;
 
     	System.arraycopy(prefixVals, 0, priorVals, 0, prefixVals.length);
@@ -695,7 +693,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	boolean foundFirst = false;
     	for (int i = 0; i < priorVals.length; i++) {
     		if (priorVals[i].getDataType().equals(svType)) {
-    			DataValue dv = safeCast(priorVals[i]);
+			DataValue dv = priorVals[i];
     			assert dv != null;
     			int comparison = comparator.compare(svDataValue, dv);
 
