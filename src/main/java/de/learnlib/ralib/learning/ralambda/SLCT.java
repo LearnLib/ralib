@@ -124,7 +124,7 @@ public class SLCT implements RaLearningAlgorithm {
         		components.put(u, leaf);
         	}
         }
-        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
+        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle, components);
 
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
 

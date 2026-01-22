@@ -18,7 +18,6 @@ package de.learnlib.ralib.theory.inequality;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,18 +65,15 @@ public abstract class InequalityTheoryWithEq implements Theory {
     boolean useSuffixOpt = false;
 
     /**
-     * Given a prefix and a potential, generate data values for each equivalence class.
+     * Given a potential, generate data values for each equivalence class.
      *
-     * @param prefix
      * @param suffixValue
      * @param potValuation
      * @param consts
      * @return A mapping from data values to their corresponding SDT guards
      */
-    private Map<DataValue, SDTGuard> generateEquivClasses(Word<PSymbolInstance> prefix,
-    		SuffixValue suffixValue,
-    		Map<DataValue, SDTGuardElement> potValuation,
-    		Constants consts) {
+    private Map<DataValue, SDTGuard> generateEquivClasses(SuffixValue suffixValue,
+               Map<DataValue, SDTGuardElement> potValuation, Constants consts) {
 
 	Map<DataValue, SDTGuardElement> filteredPotValuation = new LinkedHashMap<>(potValuation);
 	for (DataValue d : potValuation.keySet()) {
@@ -152,9 +148,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
      * @param prefix - the prefix
      * @param suffix - the suffix
      * @param suffixValue - the suffix value for which to apply optimizations
-     * @param potValuation - potential
-     * @param suffixVals - suffix valuation
-     * @param consts - constants
      * @param values - word valuation
      * @return valueGuards without data values that are filtered out due to optimizations
      */
@@ -162,9 +155,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			Word<PSymbolInstance> prefix,
 			SymbolicSuffix suffix,
 			SuffixValue suffixValue,
-			Map<DataValue, SDTGuardElement> potValuation,
-			SuffixValuation suffixVals,
-			Constants consts,
 			WordValuation values) {
 		List<DataValue> equivClasses = new ArrayList<>();
 		equivClasses.addAll(valueGuards.keySet());
@@ -431,8 +421,8 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	SuffixValue currentParam = suffix.getSuffixValue(pId);
     	Map<DataValue, SDTGuardElement> pot = getPotential(prefix, suffixValues, consts);
 
-        Map<DataValue, SDTGuard> equivClasses = generateEquivClasses(prefix, currentParam, pot, consts);
-        Map<DataValue, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, pot, suffixValues, consts, values);
+        Map<DataValue, SDTGuard> equivClasses = generateEquivClasses(currentParam, pot, consts);
+        Map<DataValue, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, values);
 
         Map<SDTGuard, SDT> children = new LinkedHashMap<>();
         for (Map.Entry<DataValue, SDTGuard> ec : filteredEquivClasses.entrySet()) {
@@ -469,8 +459,8 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     	List<DataValue> seen = new ArrayList<>();
     	for (PSymbolInstance psi : prefix) {
-		DataValue dvs[] = psi.getParameterValues();
-    		DataType dts[] = psi.getBaseSymbol().getPtypes();
+    		DataValue dvs[] = psi.getParameterValues();
+		//DataType dts[] = psi.getBaseSymbol().getPtypes();
     		for (int i = 0; i < dvs.length; i++) {
     			//Register r = rgen.next(dts[i]);
 			DataValue dv = dvs[i];
@@ -505,8 +495,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     public abstract NativeZ3Solver getSolver();
 
     private DataValue getRegisterValue(SDTGuardElement r,
-            List<DataValue> prefixValues, Constants constants,
-            SuffixValuation pval) {
+            Constants constants, SuffixValuation pval) {
         if (SDTGuardElement.isDataValue(r)) {
             return (DataValue) r;
         } else if (SDTGuardElement.isSuffixValue(r)) {
@@ -533,7 +522,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
         DataType type = param.getDataType();
         DataValue returnThis = null;
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        //List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
         if (guard instanceof SDTGuard.EqualityGuard eqGuard) {
             SDTGuardElement ereg = eqGuard.register();
@@ -563,21 +552,20 @@ public abstract class InequalityTheoryWithEq implements Theory {
                  if (!iGuard.isBiggerGuard()) {
                     SDTGuardElement r = iGuard.greaterElement();
                     if (SDTGuardElement.isSuffixValue(r) || SDTGuardElement.isConstant(r)) {
-                        DataValue regVal = getRegisterValue(r, prefixValues, constants, pval);
+                        DataValue regVal = getRegisterValue(r, constants, pval);
                         val.setValue( (Variable) r, regVal.getValue());
                     }
                 }
                 if (!iGuard.isSmallerGuard()) {
                     SDTGuardElement l =  iGuard.smallerElement();
                     if (SDTGuardElement.isSuffixValue(l) || SDTGuardElement.isConstant(l)) {
-                        DataValue regVal = getRegisterValue(l, prefixValues, constants, pval);
+                        DataValue regVal = getRegisterValue(l, constants, pval);
                         val.setValue( (Variable) l, regVal.getValue());
                     }
                 }
             /*} else if (guard instanceof SDTGuard.SDTIfGuard) {
                 SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
-                DataValue regVal = getRegisterValue(r,
-                        prefixValues, constants, pval);
+                DataValue regVal = getRegisterValue(r, constants, pval);
                 val.setValue(r, regVal.getValue());
 
             } else if (guard instanceof SDTGuard.SDTOrGuard) {

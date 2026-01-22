@@ -85,12 +85,6 @@ public class Assignment {
                 val.put(e.getKey(), registers.get((Register) valp));
             }
             else if (valp.isParameter()) {
-            	DataValue dv = parameters.get((Parameter) valp);
-            	for (Map.Entry<Parameter, DataValue> ep : parameters.entrySet()) {
-            		if (ep.getKey().equals(valp)) {
-            			dv = ep.getValue();
-            		}
-            	}
                 val.put(e.getKey(), parameters.get((Parameter) valp));
             }
             //TODO: check if we want to copy constant values into vars

@@ -192,7 +192,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
             SuffixValue p = new SuffixValue(type, i);
 
             // valuation
-            Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(pval, prefix, constants);
+            Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(pval, constants);
 
             // the map may contain no old values for p, in which case we use an empty set
             // (to avoid potential NPE when instantiating guards)
@@ -388,7 +388,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     }
 
     private Mapping<SymbolicDataValue, DataValue> buildValuation(SuffixValuation suffixValuation,
-            Word<PSymbolInstance> prefix, Constants constants) {
+            Constants constants) {
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<SymbolicDataValue, DataValue>();
         valuation.putAll(suffixValuation);
         valuation.putAll(constants);

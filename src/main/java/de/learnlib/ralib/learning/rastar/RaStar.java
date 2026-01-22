@@ -152,7 +152,7 @@ public class RaStar implements RaLearningAlgorithm {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         components.putAll(obs.getComponents());
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
-                sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
+                sulOracle, hypOracle, hyp, sdtLogicOracle, components);
 
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
 
