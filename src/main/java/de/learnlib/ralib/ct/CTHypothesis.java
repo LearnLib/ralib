@@ -1,7 +1,7 @@
 package de.learnlib.ralib.ct;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +98,7 @@ public class CTHypothesis extends Hypothesis {
 
 	@Override
 	protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
-		List<Transition> tseq = new LinkedList<>();
+		List<Transition> tseq = new ArrayList<>();
 		RARun run = getRun(dw);
 		for (int i = 1; i <= dw.size(); i++) {
 			tseq.add(run.getRATransition(i));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class RaStar implements RaLearningAlgorithm {
     private final Constants consts;
 
     private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples =
-            new LinkedList<>();
+            new ArrayDeque<>();
 
     private Hypothesis hyp = null;
 
@@ -132,7 +132,7 @@ public class RaStar implements RaLearningAlgorithm {
         } while (analyzeCounterExample());
 
         if (queryStats != null)
-        	queryStats.hypothesisConstructed();
+            queryStats.hypothesisConstructed();
     }
 
     @Override
@@ -168,13 +168,13 @@ public class RaStar implements RaLearningAlgorithm {
         //System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
 
         if (queryStats != null)
-        	queryStats.analyzingCounterExample();
+            queryStats.analyzingCounterExample();
 
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
 
         if (queryStats != null) {
-        	queryStats.processingCounterExample();
-        	queryStats.analyzeCE(ce.getInput());
+            queryStats.processingCounterExample();
+            queryStats.analyzeCE(ce.getInput());
         }
 
         obs.addSuffix(res.getSuffix());

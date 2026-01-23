@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.theory.equality;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +24,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -314,7 +314,7 @@ public abstract class EqualityTheory implements Theory {
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace("prefix values : " + prefixValues);
         DataType type = param.getDataType();
-        Deque<SDTGuard> guards = new LinkedList<>();
+        Deque<SDTGuard> guards = new ArrayDeque<>();
         guards.add(guard);
 
         while(!guards.isEmpty()) {
@@ -422,7 +422,7 @@ public abstract class EqualityTheory implements Theory {
     			.filter(v -> v.getDataType().equals(p.getDataType()))
     			.collect(Collectors.toSet()));
     	vals.addAll(constants.values());
-    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
+        DataValue fresh = getFreshValue(new ArrayList<>(vals));
 
     	if (isSatisfiableWithEquality(guard, p, fresh, solver, constants)) {
     		return Optional.of(fresh);

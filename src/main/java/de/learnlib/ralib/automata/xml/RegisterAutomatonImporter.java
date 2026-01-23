@@ -18,11 +18,11 @@ package de.learnlib.ralib.automata.xml;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -118,7 +118,7 @@ public class RegisterAutomatonImporter {
         }
 
         // determine input/output locations
-        List<RegisterAutomaton.Transitions.Transition> transitions = new LinkedList<>(a.getTransitions().getTransition());
+        List<RegisterAutomaton.Transitions.Transition> transitions = new ArrayList<>(a.getTransitions().getTransition());
         while(!transitions.isEmpty()) {
             ListIterator<Transition> iter = transitions.listIterator();
             while (iter.hasNext()) {
