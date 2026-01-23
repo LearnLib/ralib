@@ -1,8 +1,8 @@
 package de.learnlib.ralib.ct;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -205,7 +205,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 */
 	@Override
 	public Collection<PrefixContainer> getOtherPrefixes() {
-		Collection<PrefixContainer> prefs = new LinkedList<>();
+		Collection<PrefixContainer> prefs = new ArrayList<>();
 		prefs.addAll(prefixes);
 		prefs.remove(rp);
 		return prefs;

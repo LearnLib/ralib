@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -608,13 +607,13 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	vals.addAll(vals.stream()
     			.filter(w -> w.getDataType().equals(p.getDataType()))
     			.collect(Collectors.toSet()));
-    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
+        DataValue fresh = getFreshValue(new ArrayList<>(vals));
 
     	if (isSatisfiableWithEquality(guard, p, fresh, solver)) {
     		return Optional.of(fresh);
     	}
 
-    	List<Expression<Boolean>> diseqList = new LinkedList<>();
+        List<Expression<Boolean>> diseqList = new ArrayList<>();
     	vals.stream().forEach(d -> diseqList.add(new NumericBooleanExpression(p, NumericComparator.NE, d)));
     	Expression<Boolean> diseqs = ExpressionUtil.and(diseqList.toArray(new Expression[diseqList.size()]));
 

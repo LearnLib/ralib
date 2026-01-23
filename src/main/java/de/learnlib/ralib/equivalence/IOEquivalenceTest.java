@@ -223,6 +223,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
         this.sys2 = a;
 
+        @SuppressWarnings("JdkObsolete")
         LinkedList<Triple> q = new LinkedList<>();
         Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
                 sys1.getInitialRegisters(), sys2.getInitialRegisters(),
@@ -259,7 +260,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                             executeStep(t, w.lastSymbol(), next);
 
                     //log.trace(w + " = " + out.getFirst() + " : " + out.getSecond());
-                    if (out.getFirst()== null) {
+                    if (out.getFirst() == null) {
                         throw new IllegalStateException();
                     }
                     // book keep the trace

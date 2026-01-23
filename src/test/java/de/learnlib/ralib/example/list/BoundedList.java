@@ -8,6 +8,7 @@ import java.util.LinkedList;
  * @author Paul Fiterau
  *
  */
+@SuppressWarnings("JdkObsolete")  // for the use of LinkedList
 public class BoundedList {
 	public static final int DEFAULT_MAX_CAPACITY = 3;
 	public static final boolean DEFAULT_USE_NULL= false;

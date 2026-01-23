@@ -1,7 +1,7 @@
 package de.learnlib.ralib.learning.ralambda;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.Map;
 
 import de.learnlib.query.DefaultQuery;
@@ -58,7 +58,7 @@ public class SLLambda implements RaLearningAlgorithm {
     	this.solver = solver;
     	restrictionBuilder = sulOracle.getRestrictionBuilder();
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
-    	counterexamples = new LinkedList<>();
+        counterexamples = new ArrayDeque<>();
     	hyp = null;
     	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.initialize();
