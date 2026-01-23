@@ -199,6 +199,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
         this.sys2 = a;
 
+        @SuppressWarnings("JdkObsolete")
         LinkedList<Triple> q = new LinkedList<>();
         Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
                 sys1.getInitialRegisters(), sys2.getInitialRegisters(),
@@ -207,7 +208,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         q.offer(start);
 
         if (Boolean.logicalXor(sys1.getInitialState().isAccepting(), sys2.getInitialState().isAccepting())) {
-        	return new DefaultQuery<>(Word.epsilon(), sys1.getInitialState().isAccepting());
+            return new DefaultQuery<>(Word.epsilon(), sys1.getInitialState().isAccepting());
         }
 
         LinkedHashMap<Tuple,ArrayList<Tuple>> visited = new LinkedHashMap<>();

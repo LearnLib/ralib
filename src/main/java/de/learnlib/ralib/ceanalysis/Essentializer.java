@@ -16,8 +16,10 @@
  */
 package de.learnlib.ralib.ceanalysis;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -46,7 +48,7 @@ public class Essentializer {
         final Word<ParameterizedSymbol> acts = DataWords.actsOf(in);
         DataValue[] vals = DataWords.valsOf(in);
 
-        IDX: for (int index=vals.length-1; index>=0; index--) {
+        IDX: for (int index = vals.length-1; index >= 0; index--) {
             final DataValue v = vals[index];
             final LinkedList<Integer> indices = indexesOf(vals, v);
             // is index unique or first?
@@ -67,8 +69,8 @@ public class Essentializer {
                 Integer[] sublist = subListFrom(indices, index);
                 // TODO: special case implementation for equalities
                 // TODO: use theory / sdt construction instead
-                for (int c=0; c<(1<<sublist.length)-1; c++) {
-                    for (int i=0; i<sublist.length; i++) {
+                for (int c = 0; c < (1<<sublist.length)-1; c++) {
+                    for (int i = 0; i < sublist.length; i++) {
                         vals[sublist[i]] = (c & (1<<i)) == 0 ? fresh : v;
                     }
                     instantiated = DataWords.instantiate(acts, vals);
@@ -77,7 +79,7 @@ public class Essentializer {
                         continue IDX;
                     }
                 }
-                for (int i=0; i<sublist.length; i++) {
+                for (int i = 0; i < sublist.length; i++) {
                     vals[sublist[i]] = v;
                 }
             }
@@ -87,7 +89,7 @@ public class Essentializer {
     }
 
     private Integer[] subListFrom(LinkedList<Integer> list, Integer i) {
-        LinkedList<Integer> sublist = new LinkedList<>();
+        List<Integer> sublist = new ArrayList<>();
         for (Integer index : list) {
             if (index > i) {
                 sublist.add(index);
@@ -96,9 +98,10 @@ public class Essentializer {
         return sublist.toArray(new Integer[] {});
     }
 
+    @SuppressWarnings("JdkObsolete")
     private LinkedList<Integer> indexesOf(DataValue[] vals, DataValue v) {
         LinkedList<Integer> list = new LinkedList<>();
-        for (int i=0; i< vals.length; i++) {
+        for (int i = 0; i < vals.length; i++) {
             if (vals[i].equals(v)) {
                 list.add(i);
             }

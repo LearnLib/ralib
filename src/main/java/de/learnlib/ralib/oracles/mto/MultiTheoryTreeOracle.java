@@ -16,12 +16,12 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -499,7 +499,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     }
 
     private SDT makeRejectingSDT(SymbolicSuffix suffix) {
-    	Queue<DataType> types = new LinkedList<>();
+        Queue<DataType> types = new ArrayDeque<>();
     	for (ParameterizedSymbol ps : suffix.getActions()) {
     		for (DataType type : ps.getPtypes()) {
     			types.offer(type);
