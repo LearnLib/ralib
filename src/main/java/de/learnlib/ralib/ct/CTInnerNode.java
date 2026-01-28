@@ -113,13 +113,6 @@ public class CTInnerNode extends CTNode {
 			leaves.put(u, l);
 		}
 
-		// make sure all short prefixes of leaf are still short
-		for (ShortPrefix u : shorts) {
-			if (!(u instanceof ShortPrefix)) {
-				leaves.get(u).elevatePrefix(u, oracle, inputs);
-			}
-		}
-
 		return leaves;
 	}
 
