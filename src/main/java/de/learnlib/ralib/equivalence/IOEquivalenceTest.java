@@ -57,16 +57,16 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         private final T1 first;
         private final T2 second;
 
-        public Pair(T1 first, T2 second) {
+        Pair(T1 first, T2 second) {
             this.first = first;
             this.second = second;
         }
 
-        public T1 getFirst() {
+        T1 getFirst() {
             return first;
         }
 
-        public T2 getSecond() {
+        T2 getSecond() {
             return second;
         }
     }
@@ -83,7 +83,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         RegisterValuation sys1reg;
         RegisterValuation sys2reg;
 
-        public Tuple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2) {
+        Tuple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = RegisterValuation.copyOf(r1);
@@ -179,7 +179,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
 
-        public Triple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2, Word<PSymbolInstance> w, Word<PSymbolInstance> t) {
+        Triple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2, Word<PSymbolInstance> w, Word<PSymbolInstance> t) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = RegisterValuation.copyOf(r1);
@@ -223,6 +223,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
         this.sys2 = a;
 
+        @SuppressWarnings("JdkObsolete")
         LinkedList<Triple> q = new LinkedList<>();
         Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
                 sys1.getInitialRegisters(), sys2.getInitialRegisters(),
@@ -259,7 +260,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                             executeStep(t, w.lastSymbol(), next);
 
                     //log.trace(w + " = " + out.getFirst() + " : " + out.getSecond());
-                    if (out.getFirst()== null) {
+                    if (out.getFirst() == null) {
                         throw new IllegalStateException();
                     }
                     // book keep the trace

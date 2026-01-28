@@ -346,10 +346,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         DataType type = new DataType("int");
         InputSymbol a = new InputSymbol("a", type);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
-        teachers.put(type, dit);
-
         SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
         SuffixValue s1 = sgen.next(type);
         SuffixValue s2 = sgen.next(type);
@@ -501,7 +497,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     @Test
-    private void testSDTPrune() {
+    public void testSDTPrune() {
         DataType type = new DataType("int");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();

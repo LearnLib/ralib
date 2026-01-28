@@ -22,7 +22,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
@@ -56,22 +55,19 @@ public class CounterexampleAnalysis {
 
     private final Map<Word<PSymbolInstance>, LocationComponent> components;
 
-    private final Constants consts;
-
     private enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CounterexampleAnalysis.class);
 
     public CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle,
             Hypothesis hypothesis, SDTLogicOracle sdtOracle,
-            Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts) {
+            Map<Word<PSymbolInstance>, LocationComponent> components) {
 
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
         this.hypothesis = hypothesis;
         this.sdtOracle = sdtOracle;
         this.components = components;
-        this.consts = consts;
         this.restrictionBuilder = sulOracle.getRestrictionBuilder();
     }
 
@@ -143,13 +139,13 @@ public class CounterexampleAnalysis {
         Branching branchHyp = c.getBranching(action);
 
         //System.out.println("Branching Hyp:");
-        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchHyp.getBranches().entrySet()) {
+        //for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchHyp.getBranches().entrySet()) {
             //System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+        //}
         //System.out.println("Branching Sys:");
-        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchSul.getBranches().entrySet()) {
+        //for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchSul.getBranches().entrySet()) {
             //System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+        //}
 
         for (Expression<Boolean> guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;

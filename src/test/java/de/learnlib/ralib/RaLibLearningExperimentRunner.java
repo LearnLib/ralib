@@ -41,8 +41,6 @@ public class RaLibLearningExperimentRunner {
 	/**
 	 * RA Learning Algorithm default settings
 	 */
-	private boolean useOldAnalyzer = false;
-
 	private boolean ioMode = false;
 
 	/**
@@ -93,10 +91,6 @@ public class RaLibLearningExperimentRunner {
             this.ioMode = ioMode;
 	}
 
-	public void setUseOldAnalyzer(boolean useOldAnalyzer) {
-            this.useOldAnalyzer = useOldAnalyzer;
-	}
-
 	public void setEqOracle(IOEquivalenceOracle eqOracle) {
             this.eqOracle = eqOracle;
 	}
@@ -116,8 +110,7 @@ public class RaLibLearningExperimentRunner {
 
 			MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-			TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> TestUtil.createSimulatorMTO(hyp, teachers, consts,
-					solver);
+			TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> TestUtil.createSimulatorMTO(hyp, teachers, consts, solver);
 
 			RaLearningAlgorithm learner = null;
 			switch (algorithmName) {
