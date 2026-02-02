@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -232,33 +232,36 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
 
     static Set<SDTGuardElement> getComparands(SDTGuard in, SDTGuardElement dv) {
         Set<SDTGuardElement> comparands = new LinkedHashSet<>();
-        switch (in) {
-            case SDTGuard.EqualityGuard g:
+        return switch (in) {
+            case SDTGuard.EqualityGuard g -> {
                 if (g.parameter.equals(dv)) comparands.add(g.register);
                 if (g.register.equals(dv)) comparands.add(g.parameter);
-                return comparands;
-            case SDTGuard.DisequalityGuard g:
+                yield comparands;
+            }
+            case SDTGuard.DisequalityGuard g -> {
                 if (g.parameter.equals(dv)) comparands.add(g.register);
                 if (g.register.equals(dv)) comparands.add(g.parameter);
-                return comparands;
-            case SDTGuard.IntervalGuard g:
+                yield comparands;
+            }
+            case SDTGuard.IntervalGuard g -> {
                 if (dv.equals(g.smallerElement) || dv.equals(g.greaterElement)) comparands.add(g.parameter);
                 if (dv.equals(g.parameter)) {
                 	if (g.smallerElement != null) comparands.add(g.smallerElement);
                 	if (g.greaterElement != null) comparands.add(g.greaterElement);
                 }
-                return comparands;
-            case SDTGuard.SDTAndGuard g:
+                yield comparands;
+            }
+            case SDTGuard.SDTAndGuard g -> {
                 g.conjuncts.forEach((x) -> comparands.addAll(getComparands(x, dv)));
-                return comparands;
-            case SDTGuard.SDTOrGuard g:
+                yield comparands;
+            }
+            case SDTGuard.SDTOrGuard g -> {
                 g.disjuncts.forEach((x) -> comparands.addAll(getComparands(x, dv)));
-                return comparands;
-            case SDTGuard.SDTTrueGuard g:
-                return comparands;
-            default:	// needed only for Java 17?
-                throw new RuntimeException("should not be reachable");
-        }
+                yield comparands;
+            }
+            case SDTGuard.SDTTrueGuard g ->
+                comparands;
+        };
     }
 
     private static <T extends SDTGuardElement> T newValueIfExists(SDTRelabeling relabelling, T oldValue) {
@@ -268,81 +271,81 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
     }
 
     static SDTGuard relabel(SDTGuard in, SDTRelabeling remap) {
-        switch (in) {
-            case SDTGuard.EqualityGuard g:
-                return new SDTGuard.EqualityGuard(newValueIfExists(remap, g.parameter),
+        return switch (in) {
+            case SDTGuard.EqualityGuard g ->
+                new SDTGuard.EqualityGuard(newValueIfExists(remap, g.parameter),
                         newValueIfExists(remap, g.register));
-            case SDTGuard.DisequalityGuard g:
-                return new SDTGuard.DisequalityGuard(newValueIfExists(remap, g.parameter),
+            case SDTGuard.DisequalityGuard g ->
+                new SDTGuard.DisequalityGuard(newValueIfExists(remap, g.parameter),
                         newValueIfExists(remap, g.register));
-            case SDTGuard.IntervalGuard g:
-                return new SDTGuard.IntervalGuard(newValueIfExists(remap, g.parameter),
+            case SDTGuard.IntervalGuard g ->
+                new SDTGuard.IntervalGuard(newValueIfExists(remap, g.parameter),
                         newValueIfExists(remap, g.smallerElement), newValueIfExists(remap, g.greaterElement), g.smallerEqual, g.greaterEqual);
-            case SDTGuard.SDTAndGuard g:
-                return new SDTGuard.SDTAndGuard(newValueIfExists(remap, g.parameter),
+            case SDTGuard.SDTAndGuard g ->
+                new SDTGuard.SDTAndGuard(newValueIfExists(remap, g.parameter),
                         g.conjuncts.stream().map(ig -> relabel(ig, remap)).toList());
-            case SDTGuard.SDTOrGuard g:
-                return new SDTGuard.SDTOrGuard(newValueIfExists(remap, g.parameter),
+            case SDTGuard.SDTOrGuard g ->
+                new SDTGuard.SDTOrGuard(newValueIfExists(remap, g.parameter),
                         g.disjuncts.stream().map(ig -> relabel(ig, remap)).toList());
-            case SDTGuard.SDTTrueGuard g:
-                return new SDTGuard.SDTTrueGuard(newValueIfExists(remap, g.parameter));
-            default:	// needed only for Java 17?
-                throw new RuntimeException("should not be reachable");
-        }
+            case SDTGuard.SDTTrueGuard g ->
+                new SDTGuard.SDTTrueGuard(newValueIfExists(remap, g.parameter));
+        };
     }
 
     static Expression<Boolean> toExpr(SDTGuard in) {
-        switch (in) {
-            case SDTGuard.EqualityGuard g:
-                return new NumericBooleanExpression(g.register.asExpression(), NumericComparator.EQ, g.parameter);
-            case SDTGuard.DisequalityGuard g:
-                return new NumericBooleanExpression(g.register.asExpression(), NumericComparator.NE, g.parameter);
-            case SDTGuard.IntervalGuard g:
-                if (g.smallerElement == null)  return new NumericBooleanExpression(g.parameter,
+        return switch (in) {
+            case SDTGuard.EqualityGuard g ->
+                new NumericBooleanExpression(g.register.asExpression(), NumericComparator.EQ, g.parameter);
+            case SDTGuard.DisequalityGuard g ->
+                new NumericBooleanExpression(g.register.asExpression(), NumericComparator.NE, g.parameter);
+            case SDTGuard.IntervalGuard g -> {
+                if (g.smallerElement == null)
+                    yield new NumericBooleanExpression(g.parameter,
                         g.greaterEqual ? NumericComparator.LE : NumericComparator.LT, g.greaterElement.asExpression());
-                if (g.greaterElement == null) return new NumericBooleanExpression(g.parameter,
+                if (g.greaterElement == null)
+                    yield new NumericBooleanExpression(g.parameter,
                         g.smallerEqual ? NumericComparator.GE : NumericComparator.GT, g.smallerElement.asExpression());
                 Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter,
                         g.smallerEqual ? NumericComparator.GE : NumericComparator.GT, g.smallerElement.asExpression());
                 Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter,
                         g.greaterEqual ? NumericComparator.LE : NumericComparator.LT, g.greaterElement.asExpression());
-                return ExpressionUtil.and(smaller, bigger);
-            case SDTGuard.SDTAndGuard g:
+                yield ExpressionUtil.and(smaller, bigger);
+            }
+            case SDTGuard.SDTAndGuard g -> {
                 List<Expression<Boolean>> andList = g.conjuncts.stream().map( x -> toExpr(x)).toList();
-                if (andList.isEmpty()) return ExpressionUtil.TRUE;
-                if (andList.size() == 1) return andList.get(0);
-                return ExpressionUtil.and(andList.toArray(new Expression[]{}));
-            case SDTGuard.SDTOrGuard g:
+                if (andList.isEmpty()) yield ExpressionUtil.TRUE;
+                if (andList.size() == 1) yield andList.get(0);
+                yield ExpressionUtil.and(andList.toArray(new Expression[]{}));
+            }
+            case SDTGuard.SDTOrGuard g -> {
                 List<Expression<Boolean>> orList = g.disjuncts.stream().map( x -> toExpr(x)).toList();
-                if (orList.isEmpty()) return ExpressionUtil.TRUE;
-                if (orList.size() == 1) return orList.get(0);
-                return ExpressionUtil.or(orList.toArray(new Expression[]{}));
-            case SDTGuard.SDTTrueGuard g:
-                return ExpressionUtil.TRUE;
-            default:	// needed only for Java 17?
-                throw new RuntimeException("should not be reachable");
-        }
+                if (orList.isEmpty()) yield ExpressionUtil.TRUE;
+                if (orList.size() == 1) yield orList.get(0);
+                yield ExpressionUtil.or(orList.toArray(new Expression[]{}));
+            }
+            case SDTGuard.SDTTrueGuard g ->
+                ExpressionUtil.TRUE;
+        };
     }
 
     static SDTGuard toDeqGuard(SDTGuard in) {
-        switch (in) {
-            case SDTGuard.EqualityGuard g:
-                return new SDTGuard.DisequalityGuard(g.parameter, g.register);
-            case SDTGuard.DisequalityGuard g:
-                return new SDTGuard.EqualityGuard(g.parameter, g.register);
-            case SDTGuard.IntervalGuard g:
+        return switch (in) {
+            case SDTGuard.EqualityGuard g ->
+                new SDTGuard.DisequalityGuard(g.parameter, g.register);
+            case SDTGuard.DisequalityGuard g ->
+                new SDTGuard.EqualityGuard(g.parameter, g.register);
+            case SDTGuard.IntervalGuard g -> {
                 // FIXME: copied from old implementation but does not seem to make sense
                 assert !g.isIntervalGuard();
                 SDTGuardElement r = g.isSmallerGuard() ? g.greaterElement : g.smallerElement;
-                return new DisequalityGuard(g.parameter,r);
-            case SDTGuard.SDTAndGuard g:
+                yield new DisequalityGuard(g.parameter,r);
+            }
+            case SDTGuard.SDTAndGuard g ->
                 throw new RuntimeException("not refactored yet");
-            case SDTGuard.SDTOrGuard g:
+            case SDTGuard.SDTOrGuard g ->
                 throw new RuntimeException("not refactored yet");
-            case SDTGuard.SDTTrueGuard g:
+            case SDTGuard.SDTTrueGuard g ->
                 throw new RuntimeException("not refactored yet");
-            default:	// needed only for Java 17?
-                throw new RuntimeException("should not be reachable");
-        }
+        };
     }
 }
