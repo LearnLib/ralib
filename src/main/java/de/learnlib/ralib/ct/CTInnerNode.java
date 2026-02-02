@@ -91,8 +91,6 @@ public class CTInnerNode extends CTNode {
 		assert b != null : "Node is not the parent of leaf " + leaf;
 		assert !getSuffixes().contains(suffix) : "Duplicate suffix: " + suffix;
 
-		Set<ShortPrefix> shorts = leaf.getShortPrefixes();
-
 		// replace leaf with a new inner node, with same path as leaf
 		CTInnerNode newNode = new CTInnerNode(this, suffix);
 		CTBranch newBranch = new CTBranch(b.getRepresentativePath(), newNode);
@@ -112,7 +110,6 @@ public class CTInnerNode extends CTNode {
 			l = sift(u, oracle, solver, ioMode);
 			leaves.put(u, l);
 		}
-
 		return leaves;
 	}
 
