@@ -265,12 +265,4 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 			}
 		};
 	}
-
-	@Override
-	protected DataValue safeCast(DataValue dv) {
-		if (dv.getValue() instanceof BigDecimal) {
-			return new DataValue(dv.getDataType(), (BigDecimal) dv.getValue());
-		}
-		return null;
-	}
 }
