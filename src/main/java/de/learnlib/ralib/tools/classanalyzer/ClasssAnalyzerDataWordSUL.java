@@ -138,7 +138,6 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
         //updateSeen(retVal);
         return new PSymbolInstance(in.getOutput(), retVal);
-
     }
 
     private void updateSeen(DataValue... vals) {
