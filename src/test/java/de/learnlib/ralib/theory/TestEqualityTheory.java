@@ -56,7 +56,7 @@ public class TestEqualityTheory extends RaLibTestSuite {
 
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
 
-        Map<DataType, Theory> theories = new LinkedHashMap();
+        Map<DataType, Theory> theories = new LinkedHashMap<>();
         theories.put(T_UID, new IntegerEqualityTheory(T_UID));
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 

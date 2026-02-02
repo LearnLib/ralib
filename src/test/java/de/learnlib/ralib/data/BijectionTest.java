@@ -19,7 +19,7 @@ public class BijectionTest extends RaLibTestSuite {
 		Register r2 = new Register(DT, 2);
 		Register r3 = new Register(DT, 3);
 
-		Bijection bi1 = new Bijection();
+		Bijection<Register> bi1 = new Bijection<>();
 		bi1.put(r1, r2);
 		bi1.put(r2, r1);
 
@@ -30,11 +30,11 @@ public class BijectionTest extends RaLibTestSuite {
 		Assert.assertTrue(bi1.get(r1).equals(r2));
 		Assert.assertTrue(bi1.get(r2).equals(r3));
 
-		Bijection bi2 = bi1.inverse();
+		Bijection<Register> bi2 = bi1.inverse();
 		Assert.assertTrue(bi2.get(r2).equals(r1));
 		Assert.assertTrue(bi2.get(r3).equals(r2));
 
-		Bijection bi3 = new Bijection();
+		Bijection<Register> bi3 = new Bijection<>();
 		bi3.putAll(bi2);
 		Assert.assertTrue(bi3.get(r2).equals(r1));
 		Assert.assertTrue(bi3.get(r3).equals(r2));
@@ -47,11 +47,11 @@ public class BijectionTest extends RaLibTestSuite {
 		Register r3 = new Register(DT, 3);
 		Register r4 = new Register(DT, 4);
 
-		Bijection bi1 = new Bijection();
+		Bijection<Register> bi1 = new Bijection<>();
 		bi1.put(r1, r2);
 		bi1.put(r2, r3);
 
-		Bijection bi2 = new Bijection();
+		Bijection<Register> bi2 = new Bijection<>();
 		bi2.put(r2, r3);
 		bi2.put(r3, r4);
 
@@ -71,7 +71,7 @@ public class BijectionTest extends RaLibTestSuite {
 		map.put(r1, r3);
 		map.put(r2, r3);
 
-		Bijection bi = new Bijection();
+		Bijection<Register> bi = new Bijection<>();
 		boolean exceptionCaught = false;
 		try {
 			bi.putAll(map);

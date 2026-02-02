@@ -91,8 +91,8 @@ public class TestTreeOracle extends RaLibTestSuite {
             @Override
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
 
-                // given a collection of queries, process each one (with Bool replies)
-                for (Query q : clctn) {
+                // given a collection of queries, process each one (with Boolean replies)
+                for (Query<PSymbolInstance, Boolean> q : clctn) {
                     Word<PSymbolInstance> trace = q.getInput();
 
                     if (trace.length() != 2) {
@@ -116,7 +116,7 @@ public class TestTreeOracle extends RaLibTestSuite {
         Theory userTheory = new IntegerEqualityTheory(userType);
         Theory passTheory = new IntegerEqualityTheory(passType);
 
-        Map<DataType, Theory> theories = new LinkedHashMap();
+        Map<DataType, Theory> theories = new LinkedHashMap<>();
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
 
