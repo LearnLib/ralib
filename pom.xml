@@ -255,7 +255,7 @@
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>--should-stop=ifError=FLOW</arg>
                         <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
-			<arg>-Xplugin:ErrorProne -Xep:ObjectToString:OFF -Xep:EqualsGetClass:OFF -Xep:BigDecimalEquals:OFF -Xep:ReferenceEquality:OFF -Xep:ArrayAsKeyOfSetOrMap:OFF -Xep:IterableAndIterator:OFF -Xep:StatementSwitchToExpressionSwitch:OFF -Xep:AddressSelection:OFF -Xep:EmptyBlockTag:OFF -Xep:MissingSummary:OFF -Xep:NonApiType:OFF -Xep:StringSplitter:OFF -Xep:WaitNotInLoop:OFF -Xep:StringConcatToTextBlock:OFF</arg>
+			<arg>-Xplugin:ErrorProne -Xep:ObjectToString:OFF -Xep:EqualsGetClass:OFF -Xep:BigDecimalEquals:OFF -Xep:ReferenceEquality:OFF -Xep:ArrayAsKeyOfSetOrMap:OFF -Xep:EmptyBlockTag:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:OFF -Xep:StringConcatToTextBlock:OFF</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>

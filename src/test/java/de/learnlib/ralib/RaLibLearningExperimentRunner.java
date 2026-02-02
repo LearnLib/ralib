@@ -112,20 +112,17 @@ public class RaLibLearningExperimentRunner {
 
 			TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> TestUtil.createSimulatorMTO(hyp, teachers, consts, solver);
 
-			RaLearningAlgorithm learner = null;
-			switch (algorithmName) {
-			case RASTAR:
-				learner = new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
-				break;
-			case RALAMBDA:
-				learner = new SLLambda(mto, teachers, consts, ioMode, solver, actionSymbols);
-				break;
-			case RADT:
-			    learner = new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
-			    break;
-			default:
-				throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));
-			}
+			RaLearningAlgorithm learner;
+			learner = switch (algorithmName) {
+			case RASTAR ->
+			    new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
+			case RALAMBDA ->
+			    new SLLambda(mto, teachers, consts, ioMode, solver, actionSymbols);
+			case RADT ->
+			    new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
+			default ->
+			    throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));
+			};
 			DefaultQuery<PSymbolInstance, Boolean> ce = null;
 			IOEquivalenceOracle eqOracle;
 			if (this.eqOracle == null) {

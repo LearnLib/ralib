@@ -244,19 +244,16 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
 
-            switch (this.learner) {
-                case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
-                    this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-                    break;
-                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-                    this.rastar = new SLLambda(mto, teachers, consts, true, solver, actions);
-                    break;
-                case AbstractToolWithRandomWalk.LEARNER_RADT:
-                    this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
-                    break;
-                default:
+            this.rastar = switch (this.learner) {
+                case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
+                    new RaStar(mto, hypFactory, mlo, consts, true, actions);
+                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
+                    new SLLambda(mto, teachers, consts, true, solver, actions);
+                case AbstractToolWithRandomWalk.LEARNER_RADT ->
+                    new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
+                default ->
                     throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
-            }
+            };
 
             if (findCounterexamples) {
 

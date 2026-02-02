@@ -151,14 +151,14 @@ public class SLLambda implements RaLearningAlgorithm {
         	queryStats.processingCounterExample();
 
         switch (res.result()) {
-        case TRANSITION:
+            case TRANSITION -> {
         	assert !ct.getPrefixes().contains(res.prefix()) : "Duplicate prefix: " + res.prefix();
         	ct.sift(res.prefix());
-        	break;
-        case LOCATION:
+	    }
+            case LOCATION -> {
         	assert !ct.getShortPrefixes().contains(res.prefix()) : "Prefix already short: " + res.prefix();
         	ct.expand(res.prefix());
-        	break;
+	    }
         }
 
         boolean closedAndConsistent = false;
