@@ -157,7 +157,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             String className = OPTION_TARGET.parse(config);
             this.target = Class.forName(className);
 
-            String[] mcStrings = OPTION_METHODS.parse(config).split("\\+");
+            String[] mcStrings = OPTION_METHODS.parse(config).split("\\+", -1);
             for (String mcs : mcStrings) {
                 MethodConfig mc = new MethodConfig(mcs, this.target, this.types);
                 this.methods.put(mc.getInput(), mc);
