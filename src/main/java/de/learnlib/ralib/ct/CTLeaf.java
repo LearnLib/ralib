@@ -148,7 +148,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 		shortPrefixes.add(sp);
 		prefixes.add(sp);
 
-		if (prefix == rp) {
+		if (prefix.equals(rp)) {
 			rp = sp;
 		}
 		return sp;
@@ -158,7 +158,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	public String toString() {
 		String str = "{RP:[" + rp.toString() + "]";
 		for (Prefix u : prefixes) {
-			if (u != rp) {
+			if (!u.equals(rp)) {
 				str = str + ", " + (u instanceof ShortPrefix ? "SP:[" : "[") + u.toString() + "]";
 			}
 		}
