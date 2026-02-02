@@ -112,7 +112,7 @@ public class MethodConfig {
 
     private Pair<Class<?>, String> parseParamConfig(String config) throws ClassNotFoundException {
         System.out.println("param config: " + config);
-        String[] parts = config.trim().split(":");
+        String[] parts = config.trim().split(":", -1);
         Class<?> cl;
         if (parts[0].trim().equals("boolean")) {
             cl = boolean.class;
