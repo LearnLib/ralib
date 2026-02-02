@@ -88,6 +88,7 @@ public class Essentializer {
         return DataWords.instantiate(acts, vals);
     }
 
+    @SuppressWarnings("NonApiType")
     private Integer[] subListFrom(LinkedList<Integer> list, Integer i) {
         List<Integer> sublist = new ArrayList<>();
         for (Integer index : list) {
@@ -98,7 +99,7 @@ public class Essentializer {
         return sublist.toArray(new Integer[] {});
     }
 
-    @SuppressWarnings("JdkObsolete")
+    @SuppressWarnings({"NonApiType", "JdkObsolete"})
     private LinkedList<Integer> indexesOf(DataValue[] vals, DataValue v) {
         LinkedList<Integer> list = new LinkedList<>();
         for (int i = 0; i < vals.length; i++) {
