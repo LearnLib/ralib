@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -132,13 +132,12 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         }
 
         assert ret instanceof BigDecimal : "The class analyzer only works for BigDecimal values!";
-        DataValue retVal = (isFresh(in.getRetType(), ret))
+        DataValue retVal = isFresh(in.getRetType(), ret)
                 ? registerFreshValue(in.getRetType(), ret)
-                : new DataValue(in.getRetType(), (BigDecimal) ret);
+                : new DataValue(in.getRetType(), (BigDecimal)ret);
 
         //updateSeen(retVal);
         return new PSymbolInstance(in.getOutput(), retVal);
-
     }
 
     private void updateSeen(DataValue... vals) {

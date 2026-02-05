@@ -157,7 +157,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             String className = OPTION_TARGET.parse(config);
             this.target = Class.forName(className);
 
-            String[] mcStrings = OPTION_METHODS.parse(config).split("\\+");
+            String[] mcStrings = OPTION_METHODS.parse(config).split("\\+", -1);
             for (String mcs : mcStrings) {
                 MethodConfig mc = new MethodConfig(mcs, this.target, this.types);
                 this.methods.put(mc.getInput(), mc);
@@ -244,19 +244,16 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
 
-            switch (this.learner) {
-                case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
-                    this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-                    break;
-                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-                    this.rastar = new SLLambda(mto, teachers, consts, true, solver, actions);
-                    break;
-                case AbstractToolWithRandomWalk.LEARNER_RADT:
-                    this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
-                    break;
-                default:
+            this.rastar = switch (this.learner) {
+                case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
+                    new RaStar(mto, hypFactory, mlo, consts, true, actions);
+                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
+                    new SLLambda(mto, teachers, consts, true, solver, actions);
+                case AbstractToolWithRandomWalk.LEARNER_RADT ->
+                    new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
+                default ->
                     throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
-            }
+            };
 
             if (findCounterexamples) {
 

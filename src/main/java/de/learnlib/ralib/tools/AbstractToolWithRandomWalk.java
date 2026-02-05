@@ -185,7 +185,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
         this.learner = OPTION_LEARNER.parse(config);
 
-        String[] parsed = OPTION_TEACHERS.parse(config).split("\\+");
+        String[] parsed = OPTION_TEACHERS.parse(config).split("\\+", -1);
         for (String s : parsed) {
             Pair<String, TypedTheory> pair = parseTeacherConfig(s);
             teacherClasses.put(pair.getFirst(), pair.getSecond());
@@ -197,7 +197,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     private Pair<String, TypedTheory> parseTeacherConfig(String config)
             throws ConfigurationException {
         try {
-            String[] parts = config.trim().split(":");
+            String[] parts = config.trim().split(":", -1);
             Class<?> cl = Class.forName(parts[1].trim());
 
             TypedTheory th = (TypedTheory) cl.getDeclaredConstructor().newInstance();
