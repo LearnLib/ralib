@@ -88,7 +88,7 @@ public class GreaterSuffixValue extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
-	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
 		return this;
 	}
 	

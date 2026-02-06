@@ -1,6 +1,8 @@
 package de.learnlib.ralib.ct;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -9,6 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Sets;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
@@ -338,36 +342,55 @@ public class ClassificationTree {
 				continue;
 			}
 			Word<PSymbolInstance> u = ua.prefix(ua.size() - 1);
+			Prefix u_pref = getLeaf(u).getPrefix(u);
 			Prefix ua_pref = leaf.getPrefix(ua);
 			CTLeaf u_leaf = prefixes.get(u);
 
 			Set<DataValue> ua_mem = leaf.getPrefix(ua).getRegisters();
 			Set<DataValue> u_mem = prefixes.get(u).getPrefix(u).getRegisters();
-			Set<DataValue> a_mem = actionRegisters(ua);
-
-			if (!consistentMemorable(ua_mem, u_mem, a_mem)) {
-				// memorables are missing, find suffix which reveals missing memorables
-				boolean found = false;
+//			Set<DataValue> a_mem = actionRegisters(ua);
+			
+			Set<DataValue> missingRegs = missingMemorable(ua_mem, u_mem, u);
+			if (!missingRegs.isEmpty()) {
 				for (SymbolicSuffix v : leaf.getSuffixes()) {
-					Set<DataValue> s_mem = ua_pref.getSDT(v).getDataValues();
-					if (!consistentMemorable(s_mem, u_mem, a_mem)) {
-						DataValue[] missingRegs = missingRegisters(s_mem, u_mem, a_mem);   // registers to not optimize away
-						SymbolicSuffix av = extendSuffix(ua, v, missingRegs);
-
-//						SDT sdt = oracle.treeQuery(u, av);
-//						if (Collections.disjoint(Set.of(missingRegs), sdt.getDataValues())) {
-//							continue;
-//						}
+					Set<DataValue> v_mem = ua_pref.getSDT(v).getDataValues();
+					Set<DataValue> vMissingRegs = missingMemorable(v_mem, u_mem, u);
+					if (!vMissingRegs.isEmpty()) {
+						// found a suffix with missing memorables
+						SymbolicSuffix av = extendSuffixRegister(ua, v, vMissingRegs);
+						SDT sdt = oracle.treeQuery(u, av.relabel(u_pref.getRpBijection().inverse().toVarMapping()));
+						if (Collections.disjoint(vMissingRegs, sdt.getDataValues())) {
+							continue;
+						}
 						refine(u_leaf, av);
-//						found = true;
-//						break;
 						return false;
 					}
 				}
-//				if (found) {
-//					return false;
-//				}
 			}
+
+//			if (!consistentMemorable(ua_mem, u_mem, a_mem)) {
+//				// memorables are missing, find suffix which reveals missing memorables
+//				boolean found = false;
+//				for (SymbolicSuffix v : leaf.getSuffixes()) {
+//					Set<DataValue> s_mem = ua_pref.getSDT(v).getDataValues();
+//					if (!consistentMemorable(s_mem, u_mem, a_mem)) {
+//						DataValue[] missingRegs = missingRegisters(s_mem, u_mem, a_mem);   // registers to not optimize away
+//						SymbolicSuffix av = extendSuffixRegister(ua, v, missingRegs);
+//
+////						SDT sdt = oracle.treeQuery(u, av);
+////						if (Collections.disjoint(Set.of(missingRegs), sdt.getDataValues())) {
+////							continue;
+////						}
+//						refine(u_leaf, av);
+////						found = true;
+////						break;
+//						return false;
+//					}
+//				}
+////				if (found) {
+////					return false;
+////				}
+//			}
 		}
 		return true;
 	}
@@ -415,7 +438,7 @@ public class ClassificationTree {
 						if (uExtLeaf != uOtherExtLeaf) {
 							// inconsistent, refine leaf with extended suffix
 							SymbolicSuffix v = lca(uExtLeaf, uOtherExtLeaf).getSuffix();
-							SymbolicSuffix av = extendSuffix(uExtension, uOtherExtension.get(), v);
+							SymbolicSuffix av = extendSuffixLocation(uExtension, uOtherExtension.get(), v);
 							refine(l, av);
 							return false;
 						}
@@ -445,23 +468,23 @@ public class ClassificationTree {
 			for (ParameterizedSymbol action : inputs) {
 				Set<Word<PSymbolInstance>> extensions = getExtensions(u, action);
 				for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : u.getBranching(action).getBranches().entrySet()) {
-					Word<PSymbolInstance> uA = e.getKey();
+					Word<PSymbolInstance> uElse = e.getKey();
 					Expression<Boolean> g = e.getValue();
-					for (Word<PSymbolInstance> uB : extensions) {
-						if (uB.equals(uA)) {
+					for (Word<PSymbolInstance> uIf : extensions) {
+						if (uIf.equals(uElse)) {
 							continue;
 						}
 
 						// check if guard for uA is satisfiable under mapping of uB
 						Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
-						mapping.putAll(actionValuation(uB));
+						mapping.putAll(actionValuation(uIf));
 						mapping.putAll(consts);
 						if (solver.isSatisfiable(g, mapping)) {
 							// check transition consistency A
-							Optional<SymbolicSuffix> av = transitionConsistentA(uA, uB);
+							Optional<SymbolicSuffix> av = transitionConsistentA(uIf, uElse);
 							if (av.isEmpty()) {
 								// check transition consistency B
-								av = transitionConsistentB(uA, uB);
+								av = transitionConsistentB(uIf, uElse);
 							}
 							if (av.isPresent()) {
 								refine(getLeaf(u), av.get());
@@ -475,36 +498,37 @@ public class ClassificationTree {
 		return true;
 	}
 
-	private Optional<SymbolicSuffix> transitionConsistentA(Word<PSymbolInstance> uA, Word<PSymbolInstance> uB) {
-		Word<PSymbolInstance> u = uA.prefix(uA.length() - 1);
-		CTLeaf uALeaf = getLeaf(uA);
-		CTLeaf uBLeaf = getLeaf(uB);
+	private Optional<SymbolicSuffix> transitionConsistentA(Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse) {
+		Word<PSymbolInstance> u = uIf.prefix(uIf.length() - 1);
+		CTLeaf uALeaf = getLeaf(uIf);
+		CTLeaf uBLeaf = getLeaf(uElse);
 		if (uALeaf != uBLeaf) {
 			CTLeaf uLeaf = getLeaf(u);
 			assert uLeaf != null : "Prefix is not short: " + u;
 			SymbolicSuffix v = lca(uALeaf, uBLeaf).getSuffix();
-			SymbolicSuffix av = extendSuffix(uA, uB, v);
+			SymbolicSuffix av = extendSuffixTransition(uIf, uElse, v);
 			return Optional.of(av);
 		}
 		return Optional.empty();
 	}
 
-	private Optional<SymbolicSuffix> transitionConsistentB(Word<PSymbolInstance> uA, Word<PSymbolInstance> uB) {
-		Prefix pA = getLeaf(uA).getPrefix(uA);
-		Prefix pB = getLeaf(uB).getPrefix(uB);
-		for (SymbolicSuffix v : getLeaf(uB).getSuffixes()) {
-			SDT sdtA = pA.getSDT(v).toRegisterSDT(uA, consts);
-			SDT sdtB = pB.getSDT(v).toRegisterSDT(uB, consts);
+	private Optional<SymbolicSuffix> transitionConsistentB(Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse) {
+		Prefix pA = getLeaf(uIf).getPrefix(uIf);
+		Prefix pB = getLeaf(uElse).getPrefix(uElse);
+		for (SymbolicSuffix v : getLeaf(uElse).getSuffixes()) {
+			SDT sdtA = pA.getSDT(v).toRegisterSDT(uIf, consts);
+			SDT sdtB = pB.getSDT(v).toRegisterSDT(uElse, consts);
 			if (!SDT.equivalentUnderId(sdtA, sdtB)) {
-				CTLeaf uLeaf = getLeaf(uA.prefix(uA.length() - 1));
+				CTLeaf uLeaf = getLeaf(uIf.prefix(uIf.length() - 1));
 				assert uLeaf != null;
 
 				// find registers that should not be removed through optimization
-				Register[] regs = inequivalentMapping(rpRegBijection(pA.getRpBijection(), pA), rpRegBijection(pB.getRpBijection(), pB));
-				DataValue[] regVals = regsToDvs(regs, uA);
-
-				SymbolicSuffix av = extendSuffix(uA, v, regVals);
-				if (suffixRevealsNewGuard(av, getLeaf(uA.prefix(uA.length() - 1)))) {
+//				Register[] regs = inequivalentMapping(rpRegBijection(pA.getRpBijection(), pA), rpRegBijection(pB.getRpBijection(), pB));
+//				DataValue[] regVals = regsToDvs(regs, uA);
+//
+//				SymbolicSuffix av = extendSuffix(uA, v, regVals);
+				SymbolicSuffix av = extendSuffixTransition(uIf, uElse, v);
+				if (suffixRevealsNewGuard(av, getLeaf(uIf.prefix(uIf.length() - 1)))) {
 					return Optional.of(av);
 				}
 			}
@@ -547,8 +571,9 @@ public class ClassificationTree {
 								SDT uaSDT = e.getValue();
 								if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma) == null) {
 									// one-symbol extension uExtended does not exhibit symmetry under gamma
-									DataValue[] regs = gamma.keySet().toArray(new DataValue[gamma.size()]);
-									SymbolicSuffix av = extendSuffix(uExtended, v, regs);
+//									DataValue[] regs = gamma.keySet().toArray(new DataValue[gamma.size()]);
+//									SymbolicSuffix av = extendSuffixRegister(uExtended, v, regs);
+									SymbolicSuffix av = new SymbolicSuffix(DataWords.concatenate(Word.fromSymbols(uExtended.lastSymbol().getBaseSymbol()), v.getActions()));
 									refine(getLeaf(u), av);
 									return false;
 								}
@@ -606,6 +631,15 @@ public class ClassificationTree {
 		}
 		return h;
 	}
+	
+	private Set<DataValue> missingMemorable(Set<DataValue> ua_mem, Set<DataValue> u_mem, Word<PSymbolInstance> u) {
+		Set<DataValue> uVals = new LinkedHashSet<>();
+		uVals.addAll(Arrays.asList(DataWords.valsOf(u)));
+		Set<DataValue> diff = new LinkedHashSet<>(ua_mem);
+		diff.removeAll(u_mem);
+		uVals.removeAll(u_mem);
+		return Sets.intersection(uVals, diff);
+	}
 
 	/**
 	 *
@@ -661,7 +695,7 @@ public class ClassificationTree {
 	 * @param missingRegs the register which should not be removed through suffix optimizations
 	 * @return the last symbol of {@code ua} concatenated with {@code v}
 	 */
-	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> ua, SymbolicSuffix v, DataValue[] missingRegs) {
+	private SymbolicSuffix extendSuffixRegister(Word<PSymbolInstance> ua, SymbolicSuffix v, Set<DataValue> missingRegs) {
 		Word<PSymbolInstance> u = ua.prefix(ua.length() - 1);
 		if (suffixBuilder == null) {
 			PSymbolInstance a = ua.lastSymbol();
@@ -676,10 +710,10 @@ public class ClassificationTree {
 			Prefix uPref = getLeaf(u).getPrefix(u);
 			Prefix uExtPref = getLeaf(ua).getPrefix(ua);
 			Prefix uRepr = getLeaf(u).getRepresentativePrefix();
-			return sllambdaRestrBuilder.extendSuffix(uPref, uExtPref, uRepr, v, u_sdt, Set.of(missingRegs));
+			return sllambdaRestrBuilder.extendSuffix(uPref, uExtPref, uRepr, v, u_sdt, missingRegs);
 		}
 
-		return suffixBuilder.extendSuffix(ua, u_sdt, v, missingRegs);
+		return suffixBuilder.extendSuffix(ua, u_sdt, v, missingRegs.toArray(new DataValue[missingRegs.size()]));
 	}
 
 	/**
@@ -693,7 +727,7 @@ public class ClassificationTree {
 	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
 		assert !leaf.getShortPrefixes().isEmpty() : "No short prefix in leaf " + leaf;
 		ShortPrefix u = leaf.getShortPrefixes().iterator().next();
-		SDT sdt = oracle.treeQuery(u, av);
+		SDT sdt = oracle.treeQuery(u, av.relabel(u.getRpBijection().inverse().toVarMapping()));
 		ParameterizedSymbol a = av.getActions().firstSymbol();
 		Branching branching = u.getBranching(a);
 		Branching newBranching = oracle.updateBranching(u, a, branching, sdt);
@@ -744,12 +778,45 @@ public class ClassificationTree {
 	 * @param v
 	 * @return
 	 */
-	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> u1, Word<PSymbolInstance> u2, SymbolicSuffix v) {
-//		SDT sdt1 = getLeaf(u1).getPrefix(u1).getSDT(v);
-//		SDT sdt2 = getLeaf(u2).getPrefix(u2).getSDT(v);
+	private SymbolicSuffix extendSuffixLocation(Word<PSymbolInstance> u1Ext, Word<PSymbolInstance> u2Ext, SymbolicSuffix v) {
+		SDT sdt1 = getLeaf(u1Ext).getPrefix(u1Ext).getSDT(v);
+		SDT sdt2 = getLeaf(u2Ext).getPrefix(u2Ext).getSDT(v);
 //		return suffixBuilder.extendDistinguishingSuffix(u1, sdt1, u2, sdt2, v);
+		if (restrBuilder != null && restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
+			Word<PSymbolInstance> u1 = u1Ext.prefix(u1Ext.size() - 1);
+			Word<PSymbolInstance> u2 = u2Ext.prefix(u2Ext.size() - 1);
+			CTLeaf leaf = getLeaf(u1);
+			assert leaf == getLeaf(u2);
+			Prefix u1Pref = leaf.getPrefix(u1);
+			Prefix u2Pref = leaf.getPrefix(u2);
+			Prefix u1ExtPref = getLeaf(u1Ext).getPrefix(u1Ext);
+			Prefix u2ExtPref = getLeaf(u2Ext).getPrefix(u2Ext);
+			Prefix reprPref = leaf.getRepresentativePrefix();
+			return sllambdaRestrBuilder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, reprPref, v, sdt1, sdt2);
+		}
+		
 		Word<ParameterizedSymbol> actions = v.getActions();
-		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(u1.lastSymbol().getBaseSymbol()), actions);
+		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(u1Ext.lastSymbol().getBaseSymbol()), actions);
+		return new SymbolicSuffix(extended);
+	}
+	
+	private SymbolicSuffix extendSuffixTransition(Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse, SymbolicSuffix v) {
+		CTLeaf leafIf = getLeaf(uIf);
+		CTLeaf leafElse = getLeaf(uElse);
+		Prefix uIfPref = leafIf.getPrefix(uIf);
+		Prefix uElsePref = leafElse.getPrefix(uElse);
+		SDT sdtIf = uIfPref.getSDT(v);
+		SDT sdtElse = uElsePref.getSDT(v);
+		if (restrBuilder != null && restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
+			Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
+			CTLeaf uLeaf = getLeaf(u);
+			Prefix uPref = uLeaf.getPrefix(u);
+			Prefix reprPref = uLeaf.getRepresentativePrefix();
+			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, reprPref, v, sdtIf, sdtElse);
+		}
+		
+		Word<ParameterizedSymbol> actions = v.getActions();
+		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(uIf.lastSymbol().getBaseSymbol()), actions);
 		return new SymbolicSuffix(extended);
 	}
 

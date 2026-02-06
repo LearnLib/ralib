@@ -174,25 +174,35 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
-	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
-		if (bijection.isEmpty()) {
+	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
+		if (renaming.isEmpty()) {
 			return this;
 		}
-		T first = bijection.keySet().iterator().next();
-		if (first instanceof DataValue) {
+		K firstKey = renaming.keySet().iterator().next();
+		V firstValue = renaming.values().iterator().next();
+		if (firstKey instanceof DataValue && firstValue instanceof SDTGuardElement) {
 			ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
-			Mapping<DataValue, DataValue> map = new Mapping<>();
-			bijection.forEach((k,v) -> map.put((DataValue) k, (DataValue) v));
+//			Mapping<DataValue, Expression<?>> map = new Mapping<>();
+			Mapping<DataValue, SDTGuardElement> map = new Mapping<>();
+			renaming.forEach((k,v) -> map.put((DataValue) k, (SDTGuardElement) v));
 			Expression<Boolean> expr = rvv.apply(this.expr, map);
 			return new SuffixValueRestriction(parameter, expr);
-		} else if (first instanceof SymbolicDataValue) {
-			ReplacingVarsVisitor rvv = new ReplacingVarsVisitor();
-			VarMapping<SymbolicDataValue, SymbolicDataValue> map = new VarMapping<>();
-			bijection.forEach((k,v) -> map.put((SymbolicDataValue) k, (SymbolicDataValue) v));
-			Expression<Boolean> expr = rvv.apply(this.expr, map);
-			return new SuffixValueRestriction(parameter, expr);
+		} else if (firstKey instanceof SymbolicDataValue) {
+			if (firstValue instanceof SymbolicDataValue) {
+				ReplacingVarsVisitor rvv = new ReplacingVarsVisitor();
+				VarMapping<SymbolicDataValue, SymbolicDataValue> map = new VarMapping<>();
+				renaming.forEach((k,v) -> map.put((SymbolicDataValue) k, (SymbolicDataValue) v));
+				Expression<Boolean> expr = rvv.apply(this.expr, map);
+				return new SuffixValueRestriction(parameter, expr);
+			} else if (firstValue instanceof DataValue) {
+				VarsValuationVisitor vvv = new VarsValuationVisitor();
+				Mapping<SymbolicDataValue, DataValue> map = new Mapping<>();
+				renaming.forEach((k,v) -> map.put((SymbolicDataValue) k, (DataValue) v));
+				Expression<Boolean> expr = vvv.apply(this.expr, map);
+				return new SuffixValueRestriction(parameter, expr);
+			}
 		}
-		throw new RuntimeException("Unknown parameter type");
+		throw new RuntimeException("Unsupported parameter type");
 	}
 
 	@Override

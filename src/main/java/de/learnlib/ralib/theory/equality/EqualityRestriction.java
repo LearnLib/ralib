@@ -1,6 +1,9 @@
 package de.learnlib.ralib.theory.equality;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,12 +15,13 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
+import de.learnlib.ralib.theory.ElementRestriction;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-public class EqualityRestriction extends AbstractSuffixValueRestriction {
+public class EqualityRestriction extends AbstractSuffixValueRestriction implements ElementRestriction {
 
 	private Set<SDTGuardElement> regs;
 
@@ -106,11 +110,11 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
-	public <T extends TypedValue> EqualityRestriction relabel(Bijection<T> bijection) {
+	public <K extends TypedValue, V extends TypedValue> EqualityRestriction relabel(Mapping<K, V> renaming) {
 		Set<SDTGuardElement> regs = new LinkedHashSet<>();
 		for (SDTGuardElement r : this.regs) {
-			if (bijection.containsKey(r)) {
-				TypedValue t = bijection.get(r);
+			if (renaming.containsKey(r)) {
+				TypedValue t = renaming.get(r);
 				assert t instanceof SDTGuardElement;
 				SDTGuardElement casted = (SDTGuardElement) t;
 				regs.add(casted);
@@ -131,8 +135,54 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction {
 		return false;
 	}
 
-	public Set<SDTGuardElement> getElements() {
-		return regs;
+//	public Set<SDTGuardElement> getElements() {
+//		return regs;
+//	}
+	
+	@Override
+	public boolean containsElement(Expression<BigDecimal> element) {
+		for (SDTGuardElement e : regs) {
+			Expression<BigDecimal> cast = SDTGuardElement.castToExpression(e);
+			if (element.equals(cast)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public Set<Expression<BigDecimal>> getElements() {
+		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
+		regs.forEach(r -> ret.add(r.asExpression()));
+		return ret;
+	}
+	
+	public Set<SDTGuardElement> getGuardElements() {
+		return new LinkedHashSet<>(regs);
+	}
+	
+	@Override
+	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
+		if (!(by instanceof SDTGuardElement)) {
+			throw new IllegalArgumentException("Not a valid type for this restriction");
+		}
+		Set<SDTGuardElement> nregs = new LinkedHashSet<>();
+		for (SDTGuardElement e : regs) {
+			if (e.asExpression().equals(replace)) {
+				nregs.add((SDTGuardElement) by);
+			}
+		}
+		return new EqualityRestriction(getParameter(), nregs);
+	}
+	
+	@Override
+	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
+		return Arrays.asList(this);
+	}
+	
+	@Override
+	public EqualityRestriction cast() {
+		return this;
 	}
 	
 	@Override
@@ -165,10 +215,6 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction {
 			return "";
 		}
 
-//		final String eqStart = "(" + parameter.toString() + " == ";
-//		final String eqEnd = ")";
-//		final String delim = ", ";
-//		String str = eqStart;
 		String str = "";
 		int i = 0;
 		for (SDTGuardElement r : regs) {

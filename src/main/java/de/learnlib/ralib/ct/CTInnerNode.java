@@ -10,6 +10,7 @@ import java.util.Set;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -64,7 +65,8 @@ public class CTInnerNode extends CTNode {
 
 	@Override
 	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
-		CTPath path = CTPath.computePath(oracle, prefix, getSuffixes(), ioMode);
+		List<SymbolicSuffix> suffixes = getSuffixes();
+		CTPath path = CTPath.computePath(oracle, prefix, suffixes, ioMode);
 
 		// find a matching branch and sift to child
 		for (CTBranch b : branches) {
@@ -77,10 +79,21 @@ public class CTInnerNode extends CTNode {
 		}
 
 		// no child with equivalent SDTs, create a new leaf
-		prefix = new Prefix(prefix, path);
-//		if (getParent() != null) {
-			prefix.putBijection(getSuffix());
+//		int suffixId = suffixes.indexOf(getSuffix());
+//		Bijection<DataValue> bi = suffixId >= 1 ? prefix.getBijection(suffixes.get(suffixId - 1)) : null;
+//		if (bi == null) {
+//			assert getSuffix().equals(RaStar.EMPTY_SUFFIX);
+//			bi = new Bijection<>();
 //		}
+//		for (DataValue d : path.getMemorable()) {
+//			if (!bi.keySet().contains(d)) {
+//				bi.put(d, d);
+//			}
+//		}
+		prefix = new Prefix(prefix, path);
+//		prefix = new Prefix(prefix, bi, path, prefix.getBijections());
+//		prefix.putBijection(getSuffix(), bi);
+		prefix.putBijection(suffix);
 		CTLeaf leaf = new CTLeaf(prefix, this);
 		CTBranch branch = new CTBranch(path, leaf);
 		branches.add(branch);
@@ -113,11 +126,6 @@ public class CTInnerNode extends CTNode {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
 		List<SymbolicSuffix> suffixes = getSuffixes();
-		if (suffix.toString().equals("((?ISendFrame[] !OFrame[int, int]))[true, (s2 == c2)]") && suffixes.size() == 6) {
-			int code1 = suffix.hashCode();
-			int code2 = suffixes.getLast().hashCode();
-			int code3 = code1 + code2;
-		}
 		assert !getSuffixes().contains(suffix) : "Duplicate suffix: " + suffix;
 
 		Set<ShortPrefix> shorts = leaf.getShortPrefixes();

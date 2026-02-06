@@ -1,14 +1,20 @@
 package de.learnlib.ralib.theory;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
+import de.learnlib.ralib.theory.equality.EqualityRestriction;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -51,7 +57,9 @@ public abstract class AbstractSuffixValueRestriction {
 
 	public abstract boolean revealsRegister(SymbolicDataValue r);
 
-	public abstract <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection);
+	public abstract <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming);
+	
+//	public abstract AbstractSuffixValueRestriction relabel(SDTRelabeling relabeling);
 
 	/**
 	 * Generate a generic restriction using Fresh, Unrestricted and Equal restriction types
@@ -124,7 +132,7 @@ public abstract class AbstractSuffixValueRestriction {
 	public abstract boolean isTrue();
 
 	public abstract boolean isFalse();
-
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(parameter);
@@ -174,6 +182,95 @@ public abstract class AbstractSuffixValueRestriction {
 			SuffixValue s = new SuffixValue(e.getKey().getDataType(), e.getKey().getId() + shift);
 			AbstractSuffixValueRestriction r = e.getValue().shift(shift);
 			ret.put(s, r);
+		}
+		return ret;
+	}
+	
+	public static Map<SuffixValue, AbstractSuffixValueRestriction> replaceRestriction(Map<SuffixValue, AbstractSuffixValueRestriction> restr, AbstractSuffixValueRestriction replace, AbstractSuffixValueRestriction with) {
+		SuffixValue param = replace.getParameter();
+		if (!with.getParameter().equals(param)) {
+			throw new IllegalArgumentException("Restriction parameters do not match");
+		}
+		
+		Map<SuffixValue, AbstractSuffixValueRestriction> replaced = new LinkedHashMap<>();
+		
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restr.entrySet()) {
+			AbstractSuffixValueRestriction r = e.getValue();
+			if (e.getKey().equals(param)) {
+				if (r.equals(replace)) {
+					replaced.put(e.getKey(), with);
+				} else if (r instanceof RestrictionContainer rc) {
+					replaced.put(e.getKey(), rc.replace(replace, with));
+				} else {
+					replaced.put(e.getKey(), r);
+				}
+			} else {
+				replaced.put(e.getKey(), r);
+			}
+		}
+		
+//		replaced.putAll(restr);
+//		
+//		AbstractSuffixValueRestriction old = restr.get(param);
+//		if (old == null) {
+//			return replaced;
+//		}
+//		
+//		if (old.equals(replace)) {
+//			replaced.remove(param);
+//			replaced.put(param, with);
+//		} else if (old instanceof RestrictionContainer rc && rc.contains(replace)) {
+//			AbstractSuffixValueRestriction nrc = rc.replace(replace, with);
+//			replaced.remove(param);
+//			replaced.put(param, nrc);
+//		}
+		
+		return replaced;
+	}
+	
+	public static <K extends TypedValue, V extends TypedValue> Map<SuffixValue, AbstractSuffixValueRestriction> relabel(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Mapping<K, V> renaming) {
+		Map<SuffixValue, AbstractSuffixValueRestriction> renamed = new LinkedHashMap<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			renamed.put(e.getKey(), e.getValue().relabel(renaming));
+		}
+		return renamed;
+	}
+	
+//	public static Optional<SuffixValue> get(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
+//		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+//			AbstractSuffixValueRestriction r = e.getValue();
+//			if (r instanceof ElementRestriction er && er.containsElement(element)) {
+//				return Optional.of(e.getKey());
+//			}
+//		}
+//		return Optional.empty();
+//	}
+	
+	public static boolean containsElement(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
+		for (AbstractSuffixValueRestriction r : restrictions.values()) {
+			if (r instanceof ElementRestriction er && er.containsElement(element)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static Set<Expression<BigDecimal>> getElements(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
+		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
+		for (AbstractSuffixValueRestriction r : restrictions.values()) {
+			if (r instanceof ElementRestriction er) {
+				ret.addAll(er.getElements());
+			}
+		}
+		return ret;
+	}
+	
+	public static List<ElementRestriction> getRestrictionsOnElement(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
+		List<ElementRestriction> ret = new ArrayList<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			if (e.getValue() instanceof ElementRestriction er && er.containsElement(element)) {
+				ret.addAll(er.getRestrictions(element));
+			}
 		}
 		return ret;
 	}

@@ -28,6 +28,7 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
@@ -282,7 +283,7 @@ public class SymbolicSuffix {
     	return new SymbolicSuffix(actions, concatRestr);
     }
 
-    public <T extends TypedValue> SymbolicSuffix relabel(Bijection<T> renaming) {
+    public <K extends TypedValue, V extends TypedValue> SymbolicSuffix relabel(Mapping<K, V> renaming) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> renamed = new LinkedHashMap<>();
     	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
     		renamed.put(e.getKey(), e.getValue().relabel(renaming));

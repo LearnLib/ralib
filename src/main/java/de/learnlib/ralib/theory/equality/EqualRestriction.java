@@ -1,5 +1,8 @@
 package de.learnlib.ralib.theory.equality;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -7,10 +10,12 @@ import java.util.Set;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SDTGuardElement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
+import de.learnlib.ralib.theory.ElementRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
@@ -18,7 +23,7 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 
-public class EqualRestriction extends AbstractSuffixValueRestriction {
+public class EqualRestriction extends AbstractSuffixValueRestriction implements ElementRestriction {
 	private final SuffixValue equalParam;
 
 	public EqualRestriction(SuffixValue param, SuffixValue equalParam) {
@@ -70,6 +75,38 @@ public class EqualRestriction extends AbstractSuffixValueRestriction {
 		}
 		return new UnrestrictedSuffixValue(parameter);
 	}
+	
+	@Override
+	public boolean containsElement(Expression<BigDecimal> element) {
+		return equalParam.equals(element);
+	}
+	
+	@Override
+	public Set<Expression<BigDecimal>> getElements() {
+		return Set.of(equalParam);
+	}
+	
+	@Override
+	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
+		if (!(by instanceof SuffixValue)) {
+			throw new IllegalArgumentException("Not a valid type for this restriction");
+		}
+		
+		if (equalParam.asExpression().equals(replace)) {
+			return new EqualRestriction(getParameter(), (SuffixValue) by);
+		}
+		return this;
+	}
+
+	@Override
+	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
+		return Arrays.asList(this);
+	}
+	
+	@Override
+	public EqualRestriction cast() {
+		return this;
+	}
 
 	@Override
 	public String toString() {
@@ -109,7 +146,13 @@ public class EqualRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
-	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
+		for (Map.Entry<K, V> e : renaming.entrySet()) {
+			if (e.getKey().equals(equalParam)) {
+				assert e.getValue() instanceof SDTGuardElement;
+				return new EqualityRestriction(parameter, Set.of((SDTGuardElement) e.getValue()));
+			}
+		}
 		return this;
 	}
 }

@@ -1,22 +1,26 @@
 package de.learnlib.ralib.theory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
+public class ConjunctionRestriction extends AbstractSuffixValueRestriction implements RestrictionContainer, ElementRestriction {
 
 	private Collection<AbstractSuffixValueRestriction> conjuncts;
 
@@ -25,6 +29,13 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
 		this.conjuncts = new ArrayList<>();
 		boolean hasFalse = false;
 		for (AbstractSuffixValueRestriction restr : conjuncts) {
+			if (restr instanceof ConjunctionRestriction cr) {
+				for (AbstractSuffixValueRestriction r : cr.conjuncts) {
+					if (!this.conjuncts.contains(r)) {
+						this.conjuncts.add(r);
+					}
+				}
+			}
 			if (this.conjuncts.contains(restr)) {
 				continue;
 			}
@@ -44,6 +55,10 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
 		super(other, shift);
 		conjuncts = new ArrayList<>();
 		other.conjuncts.forEach(r -> conjuncts.add(r.shift(shift)));
+	}
+	
+	protected Collection<AbstractSuffixValueRestriction> getConjuncts() {
+		return conjuncts;
 	}
 
 	@Override
@@ -91,23 +106,120 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
-	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
 		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
-		conjuncts.forEach(r -> relabeled.add(r.relabel(bijection)));
+		conjuncts.forEach(r -> relabeled.add(r.relabel(renaming)));
+//		for (AbstractSuffixValueRestriction r : conjuncts) {
+//			relabeled.add(r.relabel(renaming));
+//		}
 		return create(parameter, relabeled);
 	}
 
 	@Override
+	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
+		List<ElementRestriction> restrictions = new ArrayList<>();
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r instanceof ElementRestriction er && er.containsElement(element)) {
+				restrictions.addAll(er.getRestrictions(element));
+			}
+		}
+		return restrictions;
+	}
+
+	@Override
+	public boolean containsElement(Expression<BigDecimal> element) {
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r instanceof ElementRestriction er && er.containsElement(element)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public Set<Expression<BigDecimal>> getElements() {
+		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r instanceof ElementRestriction er) {
+				ret.addAll(er.getElements());
+			}
+		}
+		return ret;
+	}
+
+	@Override
+	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
+		Collection<AbstractSuffixValueRestriction> replaced = new ArrayList<>();
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r instanceof ElementRestriction er && er.containsElement(replace)) {
+				replaced.add(er.replaceElement(replace, by));
+			} else {
+				replaced.add(r);
+			}
+		}
+		return create(getParameter(), replaced);
+	}
+	
+	@Override
+	public boolean contains(AbstractSuffixValueRestriction restr) {
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r.equals(restr)) {
+				return true;
+			}
+			if (r instanceof RestrictionContainer rc && rc.contains(restr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public AbstractSuffixValueRestriction replace(AbstractSuffixValueRestriction replace, AbstractSuffixValueRestriction with) {
+		Collection<AbstractSuffixValueRestriction> replaced = new ArrayList<>();
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r.equals(replace)) {
+				if (with instanceof ConjunctionRestriction cr) {
+					replaced.addAll(cr.conjuncts);
+				} else {
+					replaced.add(with);
+				}
+			} else if (r instanceof RestrictionContainer rc && rc.contains(replace)) {
+				AbstractSuffixValueRestriction nrc = rc.replace(replace, with);
+				if (nrc instanceof ConjunctionRestriction cr) {
+					replaced.addAll(cr.getConjuncts());
+				} else {
+					replaced.add(nrc);
+				}
+			} else {
+				replaced.add(r);
+			}
+		}
+		return create(getParameter(), replaced);
+	}
+	
+	@Override
+	public ConjunctionRestriction cast() {
+		return this;
+	}
+	
+//	@Override
+//	public AbstractSuffixValueRestriction relabel(SDTRelabeling relabeling) {
+//		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
+//		conjuncts.forEach(r -> relabeled.add(r.relabel(relabeling)));
+//		return create(parameter, relabeled);
+//	}
+
+	@Override
 	public String toString() {
 		Iterator<AbstractSuffixValueRestriction> it = conjuncts.iterator();
-		String str = "";
+		String str = "(";
 		while (it.hasNext()) {
 			str = str + it.next().toString();
 			if (it.hasNext()) {
 				str = str + " AND ";
 			}
 		}
-		return str;
+		return str + ")";
 	}
 
 	@Override
@@ -149,4 +261,5 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, AbstractSuffixValueRestriction ... conjuncts) {
 		return create(parameter, Arrays.asList(conjuncts));
 	}
+
 }

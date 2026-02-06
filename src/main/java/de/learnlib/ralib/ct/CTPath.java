@@ -1,6 +1,10 @@
 package de.learnlib.ralib.ct;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,15 +12,20 @@ import java.util.Set;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SDTGuardElement;
+import de.learnlib.ralib.data.SDTRelabeling;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
+import de.learnlib.ralib.theory.ElementRestriction;
 import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.TrueRestriction;
 import de.learnlib.ralib.theory.equality.EqualityRestriction;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -31,6 +40,7 @@ import net.automatalib.word.Word;
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;
 	private final MemorableSet memorable;
+	private final List<SymbolicSuffix> suffixes;
 
 	private boolean ioMode;
 
@@ -38,12 +48,14 @@ public class CTPath {
 		this.sdts = new LinkedHashMap<>();
 		this.memorable = new MemorableSet();
 		this.ioMode = ioMode;
+		this.suffixes = new ArrayList<>();
 	}
 
 	public void putSDT(SymbolicSuffix suffix, SDT sdt) {
 		assert !sdts.containsKey(suffix);
 		sdts.put(suffix, sdt);
 		memorable.addAll(sdt.getDataValues());
+		suffixes.add(suffix);
 	}
 
 	public MemorableSet getMemorable() {
@@ -57,7 +69,18 @@ public class CTPath {
 	public Map<SymbolicSuffix, SDT> getSDTs() {
 		return sdts;
 	}
-
+	
+	public SymbolicSuffix getPrior(SymbolicSuffix suffix) {
+		int index = suffixes.indexOf(suffix);
+		if (index < 0) {
+			throw new IllegalArgumentException("No occurrence of " + suffix);
+		}
+		if (index == 0) {
+			return RaStar.EMPTY_SUFFIX;
+		}
+		return suffixes.get(index - 1);
+	}
+	
 	public boolean isAccepting() {
 		SDT s = sdts.get(RaStar.EMPTY_SUFFIX);
 		return s.isAccepting();
@@ -151,8 +174,9 @@ public class CTPath {
 				continue;
 			}
 			Bijection<DataValue> renaming = prefix.getBijection(prevSuffix);
-			SymbolicSuffix sRelabeled = s.relabel(renaming.inverse());
-			assert noUnmapped(sRelabeled, r.getMemorable()) : "Equality with unmapped data value";
+			SymbolicSuffix sRelabeled = s.relabel(renaming.inverse().toVarMapping());
+			PSymbolInstance action = prefix.size() > 0 ? prefix.lastSymbol() : null;
+			assert noUnmapped(action, sRelabeled, r.getMemorable()) : "Equality with unmapped data value";
 			sdt = prefix.getSDT(s);
 			if (sdt == null) {
 				sdt = oracle.treeQuery(prefix, sRelabeled);
@@ -167,11 +191,12 @@ public class CTPath {
 		return r;
 	}
 
-	private static boolean noUnmapped(SymbolicSuffix suffix, Set<DataValue> memorable) {
+	private static boolean noUnmapped(PSymbolInstance action, SymbolicSuffix suffix, Set<DataValue> memorable) {
+		List<DataValue> actionVals = action == null ? new ArrayList<>() : Arrays.asList(action.getParameterValues());
 		for (AbstractSuffixValueRestriction r : suffix.getRestrictions().values()) {
-			if (r instanceof EqualityRestriction er) {
-				for (SDTGuardElement e : er.getElements()) {
-					if (e instanceof DataValue d && !memorable.contains(d)) {
+			if (r instanceof ElementRestriction er) {
+				for (Expression<BigDecimal> e : er.getElements()) {
+					if (e instanceof DataValue d && !memorable.contains(d) && !actionVals.contains(d)) {
 						return false;
 					}
 				}
