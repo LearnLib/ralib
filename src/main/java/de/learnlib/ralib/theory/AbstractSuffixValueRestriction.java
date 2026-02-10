@@ -15,6 +15,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.theory.equality.EqualityRestriction;
+import de.learnlib.ralib.theory.equality.UnmappedEqualityRestriction;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -270,6 +271,17 @@ public abstract class AbstractSuffixValueRestriction {
 		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
 			if (e.getValue() instanceof ElementRestriction er && er.containsElement(element)) {
 				ret.addAll(er.getRestrictions(element));
+			}
+		}
+		return ret;
+	}
+	
+	public static Set<SuffixValue> unmappedSuffixValues(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
+		Set<SuffixValue> ret = new LinkedHashSet<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			if (e.getValue() instanceof UnmappedEqualityRestriction ||
+					(e.getValue() instanceof RestrictionContainer rc && rc.containsUnmapped())) {
+				ret.add(e.getKey());
 			}
 		}
 		return ret;

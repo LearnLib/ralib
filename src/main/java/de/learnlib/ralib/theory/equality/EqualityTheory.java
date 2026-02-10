@@ -1431,8 +1431,8 @@ public abstract class EqualityTheory implements Theory {
     	
     	Bijection<DataValue> u1Renaming = uExt1.getBijection(uExt1.getPath().getPrior(suffix));
     	Bijection<DataValue> u2Renaming = uExt2.getBijection(uExt2.getPath().getPrior(suffix));
-    	SDT sdt1Renamed = sdt1.relabel(SDTRelabeling.fromBijection(u1Renaming));
-    	SDT sdt2Renamed = sdt2.relabel(SDTRelabeling.fromBijection(u2Renaming));
+//    	SDT sdt1Renamed = sdt1.relabel(SDTRelabeling.fromBijection(u1Renaming));
+//    	SDT sdt2Renamed = sdt2.relabel(SDTRelabeling.fromBijection(u2Renaming));
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = suffix.getRestrictions();
 //    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = EqualityTheory.restrictSDTs(sdt1Renamed, sdt2Renamed, suffix.getRestrictions(), solver);
     	ret = AbstractSuffixValueRestriction.shift(ret, symb1.getBaseSymbol().getArity());
@@ -1449,21 +1449,32 @@ public abstract class EqualityTheory implements Theory {
     		
     		Set<SDTGuardElement> suffixVals = potentiallyEqualSuffixValues(d, symb1Vals);
     		
-    		if (!u1Vals.contains(d1) && !u2Vals.contains(d2)) {
-    			// only in actions
-    			assert symb1Vals.contains(d1) && symb2Vals.contains(d2) : "Fresh data value in restriction";
+    		if (!u1Vals.contains(d1) || !u2Vals.contains(d2)) {
+    			assert symb1Vals.contains(d1) && symb2Vals.contains(d2);
     			ret = replaceEqualityRestriction(ret, d, suffixVals);
-    		} else if (rp1.containsKey(d1) && rp2.containsKey(d2)) {
-    			// mapped in both prefixes
-    			if (symb1Vals.contains(d1) || symb2Vals.contains(d2)) {
-        			Set<SDTGuardElement> eqVals = new LinkedHashSet<>(suffixVals);
-        			eqVals.add(d1);
-    				ret = replaceEqualityRestriction(ret, d, eqVals);
-    			}
-    		} else {
-    			ret = replaceEqualityRestriction(ret, d, Set.of());
+    		} else if (u1Vals.contains(d1) && u2Vals.contains(d2) && (symb1Vals.contains(d1) || symb2Vals.contains(d2))) {
+    			Set<SDTGuardElement> eqVals = new LinkedHashSet<>(suffixVals);
+    			eqVals.add(d);
+    			ret = replaceEqualityRestriction(ret, d, eqVals);
     		}
+    		
+//    		if (!u1Vals.contains(d1) && !u2Vals.contains(d2)) {
+//    			// only in actions
+//    			assert symb1Vals.contains(d1) && symb2Vals.contains(d2) : "Fresh data value in restriction";
+//    			ret = replaceEqualityRestriction(ret, d, suffixVals);
+//    		} else if (rp1.containsKey(d1) && rp2.containsKey(d2)) {
+//    			// mapped in both prefixes
+//    			if (symb1Vals.contains(d1) || symb2Vals.contains(d2)) {
+//        			Set<SDTGuardElement> eqVals = new LinkedHashSet<>(suffixVals);
+//        			eqVals.add(d1);
+//    				ret = replaceEqualityRestriction(ret, d, eqVals);
+//    			}
+//    		} else {
+//    			ret = replaceEqualityRestriction(ret, d, Set.of());
+//    		}
     	}
+    	
+    	ret = replaceUnmappedEqualityRestrictions(ret);
     	
     	return AbstractSuffixValueRestriction.relabel(ret, rp1.toVarMapping());
     }
@@ -1474,7 +1485,7 @@ public abstract class EqualityTheory implements Theory {
     	List<DataValue> symbVals = Arrays.asList(symb.getParameterValues());
     	
     	Bijection<DataValue> renaming = uExt.getBijection(uExt.getPath().getPrior(suffix));
-    	SDT sdtRenamed = sdt.relabel(SDTRelabeling.fromBijection(renaming));
+//    	SDT sdtRenamed = sdt.relabel(SDTRelabeling.fromBijection(renaming));
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = suffix.getRestrictions();
 //    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = EqualityTheory.restrictSDT(sdtRenamed, missingRegs, suffix.getRestrictions(), solver);
     	ret = AbstractSuffixValueRestriction.shift(ret, symb.getBaseSymbol().getArity());
@@ -1496,10 +1507,12 @@ public abstract class EqualityTheory implements Theory {
     			ret = replaceEqualityRestriction(ret, d, suffixVals);
     		} else if (symbVals.contains(dRenamed)) {
     			Set<SDTGuardElement> eqVals = new LinkedHashSet<>(suffixVals);
-    			eqVals.add(dRenamed);
+    			eqVals.add(d);
     			ret = replaceEqualityRestriction(ret, dRenamed, eqVals);
     		}
     	}
+    	
+    	ret = replaceUnmappedEqualityRestrictions(ret);
     	
     	return AbstractSuffixValueRestriction.relabel(ret, rp.toVarMapping());
     }
@@ -1515,7 +1528,8 @@ public abstract class EqualityTheory implements Theory {
     }
     
     private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceEqualityRestriction(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, DataValue d, Set<SDTGuardElement> elements) {
-    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = restrictions;
+    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
+    	ret.putAll(restrictions);
     	Set<ElementRestriction> handled = new LinkedHashSet<>();
     	for (ElementRestriction er : AbstractSuffixValueRestriction.getRestrictionsOnElement(restrictions, d)) {
     		if (handled.contains(er)) {
@@ -1534,6 +1548,15 @@ public abstract class EqualityTheory implements Theory {
     			ret = AbstractSuffixValueRestriction.replaceRestriction(ret, replace, by);
     		}
     		handled.add(er);
+    	}
+    	return ret;
+    }
+    
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceUnmappedEqualityRestrictions(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
+    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
+    	ret.putAll(restrictions);
+    	for (SuffixValue suffixValue : AbstractSuffixValueRestriction.unmappedSuffixValues(restrictions)) {
+    		ret.put(suffixValue, new TrueRestriction(suffixValue));
     	}
     	return ret;
     }

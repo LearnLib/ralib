@@ -17,6 +17,7 @@ import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
+import de.learnlib.ralib.theory.equality.UnmappedEqualityRestriction;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -167,6 +168,16 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 				return true;
 			}
 			if (r instanceof RestrictionContainer rc && rc.contains(restr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean containsUnmapped() {
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r instanceof UnmappedEqualityRestriction) {
 				return true;
 			}
 		}
