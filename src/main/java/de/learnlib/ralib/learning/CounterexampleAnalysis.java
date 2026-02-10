@@ -99,7 +99,7 @@ public class CounterexampleAnalysis {
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
         SDT resHyp = hypOracle.treeQuery(location, symSuffix);
-        SDT resSul = sulOracle.treeQuery(location, symSuffix);
+        SDT resSUL = sulOracle.treeQuery(location, symSuffix);
 
         LOGGER.trace("------------------------------------------------------");
         LOGGER.trace("Computing index: {}", idx);
@@ -108,7 +108,7 @@ public class CounterexampleAnalysis {
         LOGGER.trace("Location: {}", location);
         LOGGER.trace("Transition: {}", transition);
         LOGGER.trace("SDT HYP: {}", resHyp);
-        LOGGER.trace("SDT SYS: {}", resSul);
+        LOGGER.trace("SDT SYS: {}", resSUL);
         LOGGER.trace("------------------------------------------------------");
 
         LocationComponent c = components.get(location);
@@ -116,17 +116,17 @@ public class CounterexampleAnalysis {
         //System.out.println(c.getBranching(act).getBranches());
         Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
 
-        boolean hasCE = sdtOracle.hasCounterexample(location, resHyp, resSul, g, transition);
+        boolean hasCE = sdtOracle.hasCounterexample(location, resHyp, resSUL, g, transition);
 
         if (!hasCE) {
             return IndexResult.NO_CE;
         }
 
-        Set<DataValue> pSul = resSul.getDataValues();
+        Set<DataValue> pSUL = resSUL.getDataValues();
         Set<DataValue> pHyp = c.getPrimePrefix().getAssignment().keySet();
 
-        boolean sulHasMoreRegs = !pHyp.containsAll(pSul);
-        boolean hypRefinesTransition = hypRefinesTransitions(location, act, resSul);
+        boolean sulHasMoreRegs = !pHyp.containsAll(pSUL);
+        boolean hypRefinesTransition = hypRefinesTransitions(location, act, resSUL);
 
 //        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
 //        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
@@ -138,7 +138,7 @@ public class CounterexampleAnalysis {
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix,
                                           ParameterizedSymbol action, SDT sdtSUL) {
 
-        Branching branchSul = sulOracle.getInitialBranching(prefix, action, sdtSUL);
+        Branching branchSUL = sulOracle.getInitialBranching(prefix, action, sdtSUL);
         LocationComponent c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
 
@@ -147,14 +147,14 @@ public class CounterexampleAnalysis {
             //System.out.println(e.getKey() + " -> " + e.getValue());
         }
         //System.out.println("Branching Sys:");
-        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchSul.getBranches().entrySet()) {
+        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchSUL.getBranches().entrySet()) {
             //System.out.println(e.getKey() + " -> " + e.getValue());
         }
 
         for (Expression<Boolean> guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
-            for (Expression<Boolean> guardSul : branchSul.getBranches().values()) {
-                if (sdtOracle.doesRefine(guardHyp, guardSul, new Mapping<>())) {
+            for (Expression<Boolean> guardSUL : branchSUL.getBranches().values()) {
+                if (sdtOracle.doesRefine(guardHyp, guardSUL, new Mapping<>())) {
                     refines = true;
                     break;
                 }

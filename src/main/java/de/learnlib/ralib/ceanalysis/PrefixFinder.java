@@ -110,11 +110,11 @@ public class PrefixFinder {
 				Set<Mapping<DataValue, DataValue>> uToRunExtendedRenamings = extendedValuationRenamings(sdt, uVals, run, i);
 
 				Branching branching = sulOracle.getInitialBranching(u, action, sdt);
-				for (Expression<Boolean> gSul : branching.guardSet()) {
+				for (Expression<Boolean> gSUL : branching.guardSet()) {
 					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
 						renaming.putAll(uToRunRenaming);
-						if (isGuardSatisfied(gSul, renaming, symbol)) {
-							Optional<Result> res = checkTransition(locNext, u, action, vNext, gHyp, gSul);
+						if (isGuardSatisfied(gSUL, renaming, symbol)) {
+							Optional<Result> res = checkTransition(locNext, u, action, vNext, gHyp, gSUL);
 							if (res.isEmpty()) {
 								res = checkLocation(locNext, u, action, vNext);
 							}
@@ -278,9 +278,9 @@ public class PrefixFinder {
         	reprDataVals[i] = reprDataVal.get();
         }
         PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
-        Word<PSymbolInstance> uExtSul = u.append(psi);
+        Word<PSymbolInstance> uExtSUL = u.append(psi);
 
-        // check whether leaf of loc contains an extension of u that is equivalent to uExtSul after v
+        // check whether leaf of loc contains an extension of u that is equivalent to uExtSUL after v
 		CTLeaf leaf = hyp.getLeaf(loc);
 		Iterator<Word<PSymbolInstance>> extensions = ct.getExtensions(u, action)
 				.stream()
@@ -289,15 +289,15 @@ public class PrefixFinder {
 		while (extensions.hasNext()) {
 			Word<PSymbolInstance> uExtHyp = extensions.next();
 			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, v).toRegisterSDT(uExtHyp, consts);
-			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, v).toRegisterSDT(uExtSul, consts);
+			SDT uExtSULSDT = sulOracle.treeQuery(uExtSUL, v).toRegisterSDT(uExtSUL, consts);
 
-			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
+			if (SDT.equivalentUnderId(uExtHypSDT, uExtSULSDT)) {
 				return Optional.empty();  // there is an equivalent extension, so no discrepancy
 			}
 		}
 
 		// no equivalent extension exists
-		Result res = new Result(uExtSul, ResultType.TRANSITION);
+		Result res = new Result(uExtSUL, ResultType.TRANSITION);
 		return Optional.of(res);
 	}
 

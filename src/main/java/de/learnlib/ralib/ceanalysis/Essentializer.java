@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2026 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,7 @@ public class Essentializer {
     }
 
     public Word<PSymbolInstance> essentialEq(Word<PSymbolInstance> in) {
-        final boolean refOutSul = sulOracle.answerQuery(in);
+        final boolean refOutSUL = sulOracle.answerQuery(in);
         final boolean refOutHyp = hypOracle.answerQuery(in);
         final Word<ParameterizedSymbol> acts = DataWords.actsOf(in);
         DataValue[] vals = DataWords.valsOf(in);
@@ -57,7 +57,7 @@ public class Essentializer {
             DataValue fresh = theory.getFreshValue(Arrays.asList(vals));
             vals[index] = fresh;
             Word<PSymbolInstance> instantiated = DataWords.instantiate(acts, vals);
-            if(refOutSul == sulOracle.answerQuery(instantiated) &&
+            if(refOutSUL == sulOracle.answerQuery(instantiated) &&
                refOutHyp == hypOracle.answerQuery(instantiated)) {
                 continue;
             }
@@ -72,7 +72,7 @@ public class Essentializer {
                         vals[sublist[i]] = (c & (1<<i)) == 0 ? fresh : v;
                     }
                     instantiated = DataWords.instantiate(acts, vals);
-                    if (refOutSul == sulOracle.answerQuery(instantiated) &&
+                    if (refOutSUL == sulOracle.answerQuery(instantiated) &&
                     	refOutHyp == hypOracle.answerQuery(instantiated)) {
                         continue IDX;
                     }

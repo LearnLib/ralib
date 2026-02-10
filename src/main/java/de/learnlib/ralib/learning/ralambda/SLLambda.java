@@ -27,9 +27,9 @@ import net.automatalib.word.Word;
 
 public class SLLambda implements RaLearningAlgorithm {
 
-	private final ClassificationTree ct;
+    private final ClassificationTree ct;
 
-	private final Constants consts;
+    private final Constants consts;
 
     private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples;
 
@@ -121,8 +121,8 @@ public class SLLambda implements RaLearningAlgorithm {
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
         Word<PSymbolInstance> ceWord = ce.getInput();
         boolean accHyp = hyp.accepts(ceWord);
-        boolean accSul = ce.getOutput();
-        if (accHyp == accSul) {
+        boolean accSUL = ce.getOutput();
+        if (accHyp == accSUL) {
         	// not a ce, dequeue it
         	counterexamples.poll();
         	return true;
