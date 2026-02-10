@@ -93,7 +93,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
     	if (!isValid(prefix)) {
-    		return makeRejectingSDT(suffix);
+    		return SDT.makeRejectingSDT(suffix);
     	}
         SDT sdt = treeQuery(prefix, suffix, new WordValuation(), constants, new SuffixValuation());
         //System.out.println(sdt);
@@ -504,28 +504,28 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     	return true;
     }
 
-    private SDT makeRejectingSDT(SymbolicSuffix suffix) {
-    	Queue<DataType> types = new LinkedList<>();
-    	for (ParameterizedSymbol ps : suffix.getActions()) {
-    		for (DataType type : ps.getPtypes()) {
-    			types.offer(type);
-    		}
-    	}
-    	return makeRejectingSDT(1, types);
-    }
-
-    private SDT makeRejectingSDT(int param, Queue<DataType> types) {
-    	if (types.isEmpty()) {
-    		return SDTLeaf.REJECTING;
-    	}
-
-    	DataType type = types.poll();
-    	SuffixValue sv = new SuffixValue(type, param);
-    	SDTGuard g = new SDTGuard.SDTTrueGuard(sv);
-
-    	Map<SDTGuard, SDT> child = new LinkedHashMap<>();
-    	child.put(g, makeRejectingSDT(param+1, types));
-
-    	return new SDT(child);
-    }
+//    private SDT makeRejectingSDT(SymbolicSuffix suffix) {
+//    	Queue<DataType> types = new LinkedList<>();
+//    	for (ParameterizedSymbol ps : suffix.getActions()) {
+//    		for (DataType type : ps.getPtypes()) {
+//    			types.offer(type);
+//    		}
+//    	}
+//    	return makeRejectingSDT(1, types);
+//    }
+//
+//    private SDT makeRejectingSDT(int param, Queue<DataType> types) {
+//    	if (types.isEmpty()) {
+//    		return SDTLeaf.REJECTING;
+//    	}
+//
+//    	DataType type = types.poll();
+//    	SuffixValue sv = new SuffixValue(type, param);
+//    	SDTGuard g = new SDTGuard.SDTTrueGuard(sv);
+//
+//    	Map<SDTGuard, SDT> child = new LinkedHashMap<>();
+//    	child.put(g, makeRejectingSDT(param+1, types));
+//
+//    	return new SDT(child);
+//    }
 }

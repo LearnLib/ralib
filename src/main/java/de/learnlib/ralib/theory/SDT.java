@@ -22,12 +22,15 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.Negation;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -521,4 +524,28 @@ public class SDT {
 		return sdt1.isEquivalentUnderCondition(sdt2, ExpressionUtil.TRUE);
 	}
 
+    public static SDT makeRejectingSDT(SymbolicSuffix suffix) {
+    	Queue<DataType> types = new LinkedList<>();
+    	for (ParameterizedSymbol ps : suffix.getActions()) {
+    		for (DataType type : ps.getPtypes()) {
+    			types.offer(type);
+    		}
+    	}
+    	return makeRejectingSDT(1, types);
+    }
+
+    public static SDT makeRejectingSDT(int param, Queue<DataType> types) {
+    	if (types.isEmpty()) {
+    		return SDTLeaf.REJECTING;
+    	}
+
+    	DataType type = types.poll();
+    	SuffixValue sv = new SuffixValue(type, param);
+    	SDTGuard g = new SDTGuard.SDTTrueGuard(sv);
+
+    	Map<SDTGuard, SDT> child = new LinkedHashMap<>();
+    	child.put(g, makeRejectingSDT(param+1, types));
+
+    	return new SDT(child);
+    }
 }

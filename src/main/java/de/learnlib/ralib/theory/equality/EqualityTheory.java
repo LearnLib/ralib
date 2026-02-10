@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -150,6 +151,30 @@ public abstract class EqualityTheory implements Theory {
 		EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
 		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
 		
+		if (freshValues) {
+			ParameterizedSymbol act = computeSymbol(suffix, currentId);
+			if (act.getArity() > 0 && act instanceof OutputSymbol out) {
+		        int idx = computeLocalIndex(suffix, currentId);
+		        Word<PSymbolInstance> query = buildQuery(prefix, suffix, values);
+		        Word<PSymbolInstance> trace = ioOracle.trace(query);
+
+		        if (!trace.isEmpty() && trace.lastSymbol().getBaseSymbol().equals(act)) {
+		            DataValue d = trace.lastSymbol().getParameterValues()[idx];
+		            if (d instanceof FreshValue) {
+		            	filteredEquivClasses = Arrays.asList(fresh);
+		            }
+		        } else {
+		        	Queue<DataType> types = new LinkedList<>();
+		        	DataType[] suffixTypes = DataWords.typesOf(suffix.getActions());
+		        	for (int i = currentId - 1; i < suffixTypes.length; i++) {
+		        		types.offer(suffixTypes[i]);
+		        	}
+		        	return SDT.makeRejectingSDT(currentId, types);
+//		        	return SDT.makeRejectingSDT(suffix);
+		        }
+			}
+		}
+		
 		if (!filteredEquivClasses.contains(fresh)) {
 			fresh = Collections.max(filteredEquivClasses, (d1,d2) -> d1.compareTo(d2));
 		}
@@ -236,6 +261,18 @@ public abstract class EqualityTheory implements Theory {
     	List<SDTGuard> deqList = new ArrayList<>();
     	eqGuards.forEach(eq -> deqList.add(new SDTGuard.DisequalityGuard(suffixValue, eq.register())));
     	return new SDTGuard.SDTAndGuard(suffixValue, deqList);
+    }
+    
+    private boolean isFreshDataValue(ParameterizedSymbol act, int pId, Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values) {
+        int idx = computeLocalIndex(suffix, pId);
+        Word<PSymbolInstance> query = buildQuery(prefix, suffix, values);
+        Word<PSymbolInstance> trace = ioOracle.trace(query);
+
+        if (!trace.isEmpty() && trace.lastSymbol().getBaseSymbol().equals(act)) {
+            DataValue d = trace.lastSymbol().getParameterValues()[idx];
+            return d instanceof FreshValue;
+        }
+        return false;
     }
     
 //    private Map<DataValue, SDTGuard> generateEquivClasses(SuffixValue suffixValue, Map<DataValue, SDTGuardElement> pot) {
