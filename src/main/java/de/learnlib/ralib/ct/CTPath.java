@@ -4,16 +4,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SDTGuardElement;
-import de.learnlib.ralib.data.SDTRelabeling;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -22,11 +18,8 @@ import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.ElementRestriction;
 import de.learnlib.ralib.theory.SDT;
-import de.learnlib.ralib.theory.TrueRestriction;
-import de.learnlib.ralib.theory.equality.EqualityRestriction;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
-import net.automatalib.word.Word;
 
 /**
  * This data structure stores the SDTs from tree queries for a prefix along a path
@@ -69,7 +62,7 @@ public class CTPath {
 	public Map<SymbolicSuffix, SDT> getSDTs() {
 		return sdts;
 	}
-	
+
 	public SymbolicSuffix getPrior(SymbolicSuffix suffix) {
 		int index = suffixes.indexOf(suffix);
 		if (index < 0) {
@@ -80,7 +73,7 @@ public class CTPath {
 		}
 		return suffixes.get(index - 1);
 	}
-	
+
 	public boolean isAccepting() {
 		SDT s = sdts.get(RaStar.EMPTY_SUFFIX);
 		return s.isAccepting();

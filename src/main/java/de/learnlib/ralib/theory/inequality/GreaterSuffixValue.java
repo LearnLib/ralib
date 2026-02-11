@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -91,7 +90,7 @@ public class GreaterSuffixValue extends AbstractSuffixValueRestriction {
 	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
 		return this;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
@@ -105,7 +104,7 @@ public class GreaterSuffixValue extends AbstractSuffixValueRestriction {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = super.hashCode();

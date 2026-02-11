@@ -349,7 +349,7 @@ public class ClassificationTree {
 			Set<DataValue> ua_mem = leaf.getPrefix(ua).getRegisters();
 			Set<DataValue> u_mem = prefixes.get(u).getPrefix(u).getRegisters();
 //			Set<DataValue> a_mem = actionRegisters(ua);
-			
+
 			Set<DataValue> missingRegs = missingMemorable(ua_mem, u_mem, u);
 			if (!missingRegs.isEmpty()) {
 				for (SymbolicSuffix v : leaf.getSuffixes()) {
@@ -631,7 +631,7 @@ public class ClassificationTree {
 		}
 		return h;
 	}
-	
+
 	private Set<DataValue> missingMemorable(Set<DataValue> ua_mem, Set<DataValue> u_mem, Word<PSymbolInstance> u) {
 		Set<DataValue> uVals = new LinkedHashSet<>();
 		uVals.addAll(Arrays.asList(DataWords.valsOf(u)));
@@ -794,12 +794,12 @@ public class ClassificationTree {
 			Prefix reprPref = leaf.getRepresentativePrefix();
 			return sllambdaRestrBuilder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, reprPref, v, sdt1, sdt2);
 		}
-		
+
 		Word<ParameterizedSymbol> actions = v.getActions();
 		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(u1Ext.lastSymbol().getBaseSymbol()), actions);
 		return new SymbolicSuffix(extended);
 	}
-	
+
 	private SymbolicSuffix extendSuffixTransition(Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse, SymbolicSuffix v) {
 		CTLeaf leafIf = getLeaf(uIf);
 		CTLeaf leafElse = getLeaf(uElse);
@@ -814,7 +814,7 @@ public class ClassificationTree {
 			Prefix reprPref = uLeaf.getRepresentativePrefix();
 			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, reprPref, v, sdtIf, sdtElse);
 		}
-		
+
 		Word<ParameterizedSymbol> actions = v.getActions();
 		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(uIf.lastSymbol().getBaseSymbol()), actions);
 		return new SymbolicSuffix(extended);

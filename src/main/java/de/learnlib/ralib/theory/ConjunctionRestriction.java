@@ -10,10 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
@@ -57,7 +55,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		conjuncts = new ArrayList<>();
 		other.conjuncts.forEach(r -> conjuncts.add(r.shift(shift)));
 	}
-	
+
 	protected Collection<AbstractSuffixValueRestriction> getConjuncts() {
 		return conjuncts;
 	}
@@ -136,7 +134,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Set<Expression<BigDecimal>> getElements() {
 		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
@@ -160,7 +158,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return create(getParameter(), replaced);
 	}
-	
+
 	@Override
 	public boolean contains(AbstractSuffixValueRestriction restr) {
 		for (AbstractSuffixValueRestriction r : conjuncts) {
@@ -173,7 +171,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean containsUnmapped() {
 		for (AbstractSuffixValueRestriction r : conjuncts) {
@@ -207,12 +205,12 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return create(getParameter(), replaced);
 	}
-	
+
 	@Override
 	public ConjunctionRestriction cast() {
 		return this;
 	}
-	
+
 //	@Override
 //	public AbstractSuffixValueRestriction relabel(SDTRelabeling relabeling) {
 //		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
@@ -247,7 +245,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		ConjunctionRestriction other = (ConjunctionRestriction) obj;
 		return other.conjuncts.equals(conjuncts);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = super.hashCode();

@@ -10,10 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
@@ -63,7 +61,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		disjuncts = new ArrayList<>();
 		other.disjuncts.forEach(r -> disjuncts.add(r.shift(shift)));
 	}
-	
+
 	protected Collection<AbstractSuffixValueRestriction> getDisjuncts() {
 		return disjuncts;
 	}
@@ -118,7 +116,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		disjuncts.forEach(r -> relabeled.add(r.relabel(renaming)));
 		return create(parameter, relabeled);
 	}
-	
+
 	@Override
 	public boolean containsElement(Expression<BigDecimal> element) {
 		for (AbstractSuffixValueRestriction r : disjuncts) {
@@ -128,7 +126,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Set<Expression<BigDecimal>> getElements() {
 		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
@@ -139,7 +137,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return ret;
 	}
-	
+
 	@Override
 	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
 		Collection<AbstractSuffixValueRestriction> replaced = new ArrayList<>();
@@ -152,7 +150,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return create(getParameter(), replaced);
 	}
-	
+
 	@Override
 	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
 		List<ElementRestriction> restrictions = new ArrayList<>();
@@ -176,7 +174,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean containsUnmapped() {
 		for (AbstractSuffixValueRestriction r : disjuncts) {
@@ -210,13 +208,13 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 		return create(getParameter(), replaced);
 	}
-	
+
 	@Override
 	public DisjunctionRestriction cast() {
 		return this;
 	}
-	
-	
+
+
 //	@Override
 //	public AbstractSuffixValueRestriction relabel(SDTRelabeling relabeling) {
 //		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
@@ -258,7 +256,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		hash = 61 * hash + disjuncts.hashCode();
 		return hash;
 	}
-	
+
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> disjuncts) {
 		if (disjuncts == null || disjuncts.isEmpty()) {
 			return new TrueRestriction(parameter);

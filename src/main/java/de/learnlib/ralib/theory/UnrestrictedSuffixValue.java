@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -81,7 +80,7 @@ public class UnrestrictedSuffixValue extends AbstractSuffixValueRestriction {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = super.hashCode();

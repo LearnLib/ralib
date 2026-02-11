@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import java.util.Map;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.SymbolicSuffix;

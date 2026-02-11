@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.oracles;
 
-import java.util.Map;
 
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;

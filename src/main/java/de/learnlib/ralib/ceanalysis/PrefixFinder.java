@@ -9,7 +9,6 @@ import java.util.Set;
 
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RARun;
-import de.learnlib.ralib.automata.xml.RegisterAutomaton.Constants.Constant;
 import de.learnlib.ralib.ct.CTHypothesis;
 import de.learnlib.ralib.ct.CTLeaf;
 import de.learnlib.ralib.ct.ClassificationTree;
@@ -147,11 +146,11 @@ public class PrefixFinder {
 
 		throw new IllegalStateException("Found no counterexample in " + ce);
 	}
-	
+
 	private Expression<Boolean> conjunctionWithRestriction(Expression<Boolean> guard, SymbolicSuffix suffix, Word<PSymbolInstance> u, Set<Register> regs, Constants consts) {
 		DataType[] types = suffix.getActions().firstSymbol().getPtypes();
 		SuffixValueGenerator sgen = new SuffixValueGenerator();
-		
+
 		Set<SymbolicDataValue> vals = new LinkedHashSet<>();
 		DataValue[] uVals = DataWords.valsOf(u);
 		ParameterGenerator pgen = new ParameterGenerator();
@@ -163,17 +162,17 @@ public class PrefixFinder {
 		}
 		vals.addAll(regs);
 		vals.addAll(consts.keySet());
-		
+
 		Expression[] restrictionExpressions = new Expression[types.length + 1];
 		for (int i = 0; i < types.length; i++) {
 			SuffixValue s = sgen.next(types[i]);
 			Parameter p = new Parameter(s.getDataType(), s.getId());
 			AbstractSuffixValueRestriction r = suffix.getRestriction(s);
 			Expression<Boolean> expr = r.toGuardExpression(vals);
-			
+
 			VarsValuationVisitor vvv = new VarsValuationVisitor();
 			expr = vvv.apply(expr, pmap);
-			
+
 			ReplacingVarsVisitor rvv = new ReplacingVarsVisitor();
 			VarMapping<SuffixValue, Parameter> mapping = new VarMapping<>();
 			mapping.put(s, p);

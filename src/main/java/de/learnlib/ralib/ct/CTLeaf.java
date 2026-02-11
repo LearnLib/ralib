@@ -31,7 +31,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	private Prefix rp;
 	private final Set<ShortPrefix> shortPrefixes;
 	private final Set<Prefix> prefixes;
-	
+
 	public CTLeaf(Prefix rp, CTInnerNode parent) {
 		super(parent);
 		if (parent == null) {
@@ -50,7 +50,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	public List<SymbolicSuffix> getSuffixes() {
 		return getParent().getSuffixes();
 	}
-	
+
 	/**
 	 * @return all prefixes contained within this leaf
 	 */

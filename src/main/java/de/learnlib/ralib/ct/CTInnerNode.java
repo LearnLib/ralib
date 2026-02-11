@@ -10,7 +10,6 @@ import java.util.Set;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -51,7 +50,7 @@ public class CTInnerNode extends CTNode {
 		}
 		return null;
 	}
-	
+
 //	@Override
 //	protected List<CTBranch> getParentBranches() {
 //		List<CTBranch> branches = new ArrayList<>();
@@ -99,7 +98,7 @@ public class CTInnerNode extends CTNode {
 		branches.add(branch);
 		return leaf;
 	}
-	
+
 //	private CTBranch getParentBranch() {
 //		CTInnerNode parent = getParent();
 //		if (parent == null) {

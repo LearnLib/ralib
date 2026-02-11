@@ -1,6 +1,5 @@
 package de.learnlib.ralib.learning;
 
-import java.util.Map;
 
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;

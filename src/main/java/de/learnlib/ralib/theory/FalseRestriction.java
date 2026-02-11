@@ -56,7 +56,7 @@ public class FalseRestriction extends SuffixValueRestriction {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = super.hashCode();

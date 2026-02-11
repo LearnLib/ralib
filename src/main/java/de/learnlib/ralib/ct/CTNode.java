@@ -30,7 +30,7 @@ public abstract class CTNode {
 	 * @return all symbolic suffixes from all the ancestor nodes.
 	 */
 	public abstract List<SymbolicSuffix> getSuffixes();
-	
+
 //	protected abstract List<CTBranch> getParentBranches();
 
 	/**

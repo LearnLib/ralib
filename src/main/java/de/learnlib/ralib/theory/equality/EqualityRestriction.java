@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SDTGuardElement;
@@ -138,7 +137,7 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 //	public Set<SDTGuardElement> getElements() {
 //		return regs;
 //	}
-	
+
 	@Override
 	public boolean containsElement(Expression<BigDecimal> element) {
 		for (SDTGuardElement e : regs) {
@@ -149,18 +148,18 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Set<Expression<BigDecimal>> getElements() {
 		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
 		regs.forEach(r -> ret.add(r.asExpression()));
 		return ret;
 	}
-	
+
 	public Set<SDTGuardElement> getGuardElements() {
 		return new LinkedHashSet<>(regs);
 	}
-	
+
 	@Override
 	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
 		if (!(by instanceof SDTGuardElement)) {
@@ -174,17 +173,17 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 		}
 		return new EqualityRestriction(getParameter(), nregs);
 	}
-	
+
 	@Override
 	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
 		return Arrays.asList(this);
 	}
-	
+
 	@Override
 	public EqualityRestriction cast() {
 		return this;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
@@ -201,7 +200,7 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 		}
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = super.hashCode();

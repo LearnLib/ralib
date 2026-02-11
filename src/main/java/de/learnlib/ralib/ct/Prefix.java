@@ -46,7 +46,7 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 		this.path = path;
 		pathBijections = new LinkedHashMap<>();
 	}
-	
+
 	public Prefix(Word<PSymbolInstance> u, Bijection<DataValue> rpRenaming, CTPath path, Map<SymbolicSuffix, Bijection<DataValue>> pathBijections) {
 		this(u, rpRenaming, path);
 		this.pathBijections.putAll(pathBijections);
@@ -70,19 +70,19 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	public void setRpBijection(Bijection<DataValue> rpBijection) {
 		this.rpBijection = rpBijection;
 	}
-	
+
 	public void putBijection(SymbolicSuffix suffix, Bijection<DataValue> bijection) {
 		pathBijections.put(suffix, bijection);
 	}
-	
+
 	public Map<SymbolicSuffix, Bijection<DataValue>> getBijections() {
 		return pathBijections;
 	}
-	
+
 	public void putBijection(SymbolicSuffix suffix) {
 		putBijection(suffix, Bijection.identity(getRegisters()));
 	}
-	
+
 	public Bijection<DataValue> getBijection(SymbolicSuffix suffix) {
 		return pathBijections.get(suffix);
 	}

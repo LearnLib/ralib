@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +65,7 @@ import net.automatalib.word.Word;
 public abstract class EqualityTheory implements Theory {
 
 //	public boolean useMoreEfficientSuffixOptimization = true;
-	
+
 	protected boolean useSuffixOpt = false;
 
     protected boolean useNonFreeOptimization;
@@ -93,7 +92,7 @@ public abstract class EqualityTheory implements Theory {
     public List<DataValue> getPotential(List<DataValue> vals) {
         return vals;
     }
-    
+
     // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT. Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard.EqualityGuard, SDT> eqs, SDTGuard.SDTAndGuard deqGuard, SDT deqSdt) {
@@ -133,24 +132,24 @@ public abstract class EqualityTheory implements Theory {
 
         return retMap;
     }
-    
+
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values,
             Constants consts, SuffixValuation suffixValues, MultiTheoryTreeOracle oracle) {
     	int currentId = values.size() + 1;
-    	
+
     	SuffixValue suffixValue = suffix.getSuffixValue(currentId);
-    	
+
     	Map<DataValue, SDTGuardElement> pot = getPotential(suffixValue.getDataType(), prefix, suffixValues, consts);
     	List<DataValue> potVals = new ArrayList<>();
     	pot.keySet().forEach(d -> potVals.add(d));
     	DataValue fresh = getFreshValue(potVals);
-    	
+
     	List<DataValue> equivClasses = new ArrayList<>(potVals);
     	equivClasses.add(fresh);
 		EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
 		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
-		
+
 		if (freshValues) {
 			ParameterizedSymbol act = computeSymbol(suffix, currentId);
 			if (act.getArity() > 0 && act instanceof OutputSymbol out) {
@@ -174,66 +173,66 @@ public abstract class EqualityTheory implements Theory {
 		        }
 			}
 		}
-		
+
 		if (!filteredEquivClasses.contains(fresh)) {
 			fresh = Collections.max(filteredEquivClasses, (d1,d2) -> d1.compareTo(d2));
 		}
-		
+
     	Map<DataValue, SDT> ifSdts = new LinkedHashMap<>();
     	SDT elseSdt = null;
-    	for (DataValue d : filteredEquivClasses) {    		
+    	for (DataValue d : filteredEquivClasses) {
     		WordValuation nextValuation = new WordValuation();
     		nextValuation.putAll(values);
     		nextValuation.put(currentId, d);
     		SuffixValuation nextSuffixValuation = new SuffixValuation();
     		nextSuffixValuation.putAll(suffixValues);
     		nextSuffixValuation.put(suffixValue, d);
-    		
+
     		SDT sdt = oracle.treeQuery(prefix, suffix, nextValuation, consts, nextSuffixValuation);
-    		
+
     		if (d.equals(fresh)) {
     			elseSdt = sdt;
     		} else {
     			ifSdts.put(d, sdt);
     		}
     	}
-    	
+
     	Map<SDTGuard.EqualityGuard, SDT> eqChildren = getIfGuards(suffixValue, ifSdts, pot, elseSdt);
     	SDTGuard elseGuard = getElseGuard(suffixValue, eqChildren.keySet());
-    	
+
     	Map<SDTGuard, SDT> children = new LinkedHashMap<>();
     	children.putAll(eqChildren);
     	children.put(elseGuard, elseSdt);
     	return new SDT(children);
     }
-    
+
     private Map<DataValue, SDTGuardElement> getPotential(DataType type, Word<PSymbolInstance> prefix, SuffixValuation suffixValues, Constants consts) {
     	Map<DataValue, SDTGuardElement> pot = new LinkedHashMap<>();
-    	
+
     	DataValue[] vals = DataWords.valsOf(prefix);
     	for (DataValue val : vals) {
     		if (val.getDataType().equals(type) && !consts.containsValue(val)) {
     			pot.put(val, val);
     		}
     	}
-    	
+
     	for (Map.Entry<SuffixValue, DataValue> e : suffixValues.entrySet()) {
     		DataValue d = e.getValue();
     		if (d != null && d.getDataType().equals(type) && !pot.containsKey(d)) {
     			pot.put(d, e.getKey());
     		}
     	}
-    	
+
     	for (Map.Entry<Constant, DataValue> e : consts.entrySet()) {
     		DataValue d = e.getValue();
     		if (d != null && d.getDataType().equals(type)) {
     			pot.put(d, e.getKey());
     		}
     	}
-    	
+
     	return pot;
     }
-    
+
     private Map<SDTGuard.EqualityGuard, SDT> getIfGuards(SuffixValue suffixValue, Map<DataValue, SDT> sdts, Map<DataValue, SDTGuardElement> pot, SDT elseSdt) {
     	Map<SDTGuard.EqualityGuard, SDT> ifGuards = new LinkedHashMap<>();
     	for (Map.Entry<DataValue, SDT> e : sdts.entrySet()) {
@@ -249,7 +248,7 @@ public abstract class EqualityTheory implements Theory {
     	}
     	return ifGuards;
     }
-    
+
     private SDTGuard getElseGuard(SuffixValue suffixValue, Set<SDTGuard.EqualityGuard> eqGuards) {
     	if (eqGuards.isEmpty()) {
     		return new SDTGuard.SDTTrueGuard(suffixValue);
@@ -262,7 +261,7 @@ public abstract class EqualityTheory implements Theory {
     	eqGuards.forEach(eq -> deqList.add(new SDTGuard.DisequalityGuard(suffixValue, eq.register())));
     	return new SDTGuard.SDTAndGuard(suffixValue, deqList);
     }
-    
+
     private boolean isFreshDataValue(ParameterizedSymbol act, int pId, Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values) {
         int idx = computeLocalIndex(suffix, pId);
         Word<PSymbolInstance> query = buildQuery(prefix, suffix, values);
@@ -274,14 +273,14 @@ public abstract class EqualityTheory implements Theory {
         }
         return false;
     }
-    
+
 //    private Map<DataValue, SDTGuard> generateEquivClasses(SuffixValue suffixValue, Map<DataValue, SDTGuardElement> pot) {
 //    	Map<DataValue, SDTGuard> equiv = new LinkedHashMap<>();
 //    	for (Map.Entry<DataValue, SDTGuardElement> e : pot.entrySet()) {
 //    		SDTGuard g = new SDTGuard.EqualityGuard(suffixValue, e.getValue());
 //    	}
 //    	return equiv;
-//    
+//
 
 //    private Map<DataValue, SDTGuard> filterEquivClasses(Map<DataValue, SDTGuard> valueGuards,
 //			Word<PSymbolInstance> prefix,
@@ -966,11 +965,11 @@ public abstract class EqualityTheory implements Theory {
     	List<DataValue> uVals = Arrays.asList(DataWords.valsOf(u));
     	DataValue[] actionVals = action.getParameterValues();
     	int index = suffixValue.getId() - 1;
-    	
+
     	if (consts.containsValue(actionVals[index])) {
     		return SuffixValueRestriction.equalityRestriction(suffixValue, consts.getAllKeysForValue(actionVals[index]).iterator().next());
     	}
-    	
+
     	Set<SuffixValue> prior = new LinkedHashSet<>();
     	for (int i = 0; i < index; i++) {
     		if (actionVals[index].equals(actionVals[i])) {
@@ -978,23 +977,23 @@ public abstract class EqualityTheory implements Theory {
     			prior.add(s);
     		}
     	}
-    	
+
     	AbstractSuffixValueRestriction eq = uVals.contains(actionVals[index]) ?
     			(memorable.contains(actionVals[index]) ?
     					SuffixValueRestriction.equalityRestriction(suffixValue, actionVals[index]) :
     						new UnmappedEqualityRestriction(suffixValue)) :
     							null;
-    	
+
     	if (prior.isEmpty()) {
     		return eq == null ? new FreshSuffixValue(suffixValue) : eq;
     	}
-    	
+
     	AbstractSuffixValueRestriction eqPrior = SuffixValueRestriction.equalityRestriction(suffixValue, prior);
-    	
+
     	if (eq == null) {
     		return eqPrior;
     	}
-    	
+
     	return DisjunctionRestriction.create(suffixValue, eq, eqPrior);
 
 //    	if (uVals.contains(actionVals[index])) {
@@ -1213,7 +1212,7 @@ public abstract class EqualityTheory implements Theory {
     	}
     	return null;
     }
-    
+
     private static List<AbstractSuffixValueRestriction> pathToRestrictions(List<SDTGuard> path, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
     	List<AbstractSuffixValueRestriction> ret = new ArrayList<>();
     	for (SDTGuard guard : path) {
@@ -1416,19 +1415,19 @@ public abstract class EqualityTheory implements Theory {
     	}
     	return false;
     }
-    
+
     public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDTs(SDT sdt1, SDT sdt2, Prefix uExt1, Prefix uExt2, Bijection<DataValue> rp1, Bijection<DataValue> rp2, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb1 = uExt1.lastSymbol();
     	PSymbolInstance symb2 = uExt2.lastSymbol();
     	if (!symb1.getBaseSymbol().equals(symb2.getBaseSymbol())) {
     		throw new IllegalArgumentException("One-symbol extensions do not match");
     	}
-    	
+
     	List<DataValue> u1Vals = Arrays.asList(DataWords.valsOf(uExt1.prefix(uExt1.size() - 1)));
     	List<DataValue> u2Vals = Arrays.asList(DataWords.valsOf(uExt2.prefix(uExt2.size() - 1)));
     	List<DataValue> symb1Vals = Arrays.asList(symb1.getParameterValues());
     	List<DataValue> symb2Vals = Arrays.asList(symb2.getParameterValues());
-    	
+
     	Bijection<DataValue> u1Renaming = uExt1.getBijection(uExt1.getPath().getPrior(suffix));
     	Bijection<DataValue> u2Renaming = uExt2.getBijection(uExt2.getPath().getPrior(suffix));
 //    	SDT sdt1Renamed = sdt1.relabel(SDTRelabeling.fromBijection(u1Renaming));
@@ -1436,7 +1435,7 @@ public abstract class EqualityTheory implements Theory {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = suffix.getRestrictions();
 //    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = EqualityTheory.restrictSDTs(sdt1Renamed, sdt2Renamed, suffix.getRestrictions(), solver);
     	ret = AbstractSuffixValueRestriction.shift(ret, symb1.getBaseSymbol().getArity());
-    	
+
     	Set<DataValue> vals = new LinkedHashSet<>();
     	AbstractSuffixValueRestriction.getElements(ret).stream().filter(e -> e instanceof DataValue).forEach(e -> vals.add((DataValue) e));
     	for (DataValue d : vals) {
@@ -1446,9 +1445,9 @@ public abstract class EqualityTheory implements Theory {
     		DataValue d1 = u1Renaming.inverse().get(d);
     		DataValue d2 = u2Renaming.inverse().get(d);
     		assert d1 != null && d2 != null : "Unmapped data values in restriction";
-    		
+
     		Set<SDTGuardElement> suffixVals = potentiallyEqualSuffixValues(d, symb1Vals);
-    		
+
     		if (!u1Vals.contains(d1) || !u2Vals.contains(d2)) {
     			assert symb1Vals.contains(d1) && symb2Vals.contains(d2);
     			ret = replaceEqualityRestriction(ret, d, suffixVals);
@@ -1457,7 +1456,7 @@ public abstract class EqualityTheory implements Theory {
     			eqVals.add(d);
     			ret = replaceEqualityRestriction(ret, d, eqVals);
     		}
-    		
+
 //    		if (!u1Vals.contains(d1) && !u2Vals.contains(d2)) {
 //    			// only in actions
 //    			assert symb1Vals.contains(d1) && symb2Vals.contains(d2) : "Fresh data value in restriction";
@@ -1473,35 +1472,35 @@ public abstract class EqualityTheory implements Theory {
 //    			ret = replaceEqualityRestriction(ret, d, Set.of());
 //    		}
     	}
-    	
+
     	ret = replaceUnmappedEqualityRestrictions(ret);
-    	
+
     	return AbstractSuffixValueRestriction.relabel(ret, rp1.toVarMapping());
     }
-    
+
     public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix uExt, Bijection<DataValue> rp, Constants consts, Set<DataValue> missingRegs, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb = uExt.lastSymbol();
     	List<DataValue> uVals = Arrays.asList(DataWords.valsOf(uExt.prefix(uExt.size() - 1)));
     	List<DataValue> symbVals = Arrays.asList(symb.getParameterValues());
-    	
+
     	Bijection<DataValue> renaming = uExt.getBijection(uExt.getPath().getPrior(suffix));
 //    	SDT sdtRenamed = sdt.relabel(SDTRelabeling.fromBijection(renaming));
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = suffix.getRestrictions();
 //    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = EqualityTheory.restrictSDT(sdtRenamed, missingRegs, suffix.getRestrictions(), solver);
     	ret = AbstractSuffixValueRestriction.shift(ret, symb.getBaseSymbol().getArity());
-    	
+
     	Set<DataValue> vals = new LinkedHashSet<>();
     	AbstractSuffixValueRestriction.getElements(ret).stream().filter(e -> e instanceof DataValue).forEach(e -> vals.add((DataValue) e));
     	for (DataValue d : vals) {
     		if (consts.containsValue(d)) {
     			continue;
     		}
-    		
+
     		Set<SDTGuardElement> suffixVals = potentiallyEqualSuffixValues(d, symbVals);
-    		
+
     		DataValue dRenamed = renaming.inverse().get(d);
     		assert dRenamed != null : "Unmapped data value in restriction";
-    		
+
     		if (!rp.containsKey(dRenamed)) {
     			assert symbVals.contains(dRenamed) : "Missing register present in restriction";
     			ret = replaceEqualityRestriction(ret, d, suffixVals);
@@ -1511,12 +1510,12 @@ public abstract class EqualityTheory implements Theory {
     			ret = replaceEqualityRestriction(ret, dRenamed, eqVals);
     		}
     	}
-    	
+
     	ret = replaceUnmappedEqualityRestrictions(ret);
-    	
+
     	return AbstractSuffixValueRestriction.relabel(ret, rp.toVarMapping());
     }
-    
+
     private static Set<SDTGuardElement> potentiallyEqualSuffixValues(DataValue d, List<DataValue> vals) {
     	Set<SDTGuardElement> ret = new LinkedHashSet<>();
     	for (int i = 0; i < vals.size(); i++) {
@@ -1526,7 +1525,7 @@ public abstract class EqualityTheory implements Theory {
     	}
     	return ret;
     }
-    
+
     private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceEqualityRestriction(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, DataValue d, Set<SDTGuardElement> elements) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
     	ret.putAll(restrictions);
@@ -1551,7 +1550,7 @@ public abstract class EqualityTheory implements Theory {
     	}
     	return ret;
     }
-    
+
     private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceUnmappedEqualityRestrictions(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
     	ret.putAll(restrictions);

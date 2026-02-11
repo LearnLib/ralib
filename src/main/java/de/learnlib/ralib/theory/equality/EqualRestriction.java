@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SDTGuardElement;
@@ -75,23 +74,23 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 		}
 		return new UnrestrictedSuffixValue(parameter);
 	}
-	
+
 	@Override
 	public boolean containsElement(Expression<BigDecimal> element) {
 		return equalParam.equals(element);
 	}
-	
+
 	@Override
 	public Set<Expression<BigDecimal>> getElements() {
 		return Set.of(equalParam);
 	}
-	
+
 	@Override
 	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
 		if (!(by instanceof SuffixValue)) {
 			throw new IllegalArgumentException("Not a valid type for this restriction");
 		}
-		
+
 		if (equalParam.asExpression().equals(replace)) {
 			return new EqualRestriction(getParameter(), (SuffixValue) by);
 		}
@@ -102,7 +101,7 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
 		return Arrays.asList(this);
 	}
-	
+
 	@Override
 	public EqualRestriction cast() {
 		return this;

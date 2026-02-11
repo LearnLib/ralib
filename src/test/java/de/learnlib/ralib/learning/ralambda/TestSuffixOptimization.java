@@ -8,53 +8,32 @@ import static de.learnlib.ralib.example.repeater.RepeaterSUL.OECHO;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.TINT;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.Sets;
 
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.CacheDataWordOracle;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.ct.CTPath;
-import de.learnlib.ralib.ct.Prefix;
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SDTRelabeling;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.example.repeater.RepeaterSUL;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
-import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
-import de.learnlib.ralib.theory.DisjunctionRestriction;
-import de.learnlib.ralib.theory.FreshSuffixValue;
-import de.learnlib.ralib.theory.SDT;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTLeaf;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.TrueRestriction;
-import de.learnlib.ralib.theory.equality.EqualityRestriction;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -310,7 +289,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    	System.out.println(uExtSdt);
 //    	System.out.println(actual);
 //    }
-    
+
 //    @Test
 //    public void testActionParameterRenaming() {
 //    	IntegerEqualityTheory iet = new IntegerEqualityTheory(TINT);
@@ -347,7 +326,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    	Word<PSymbolInstance> u1Ext = Word.fromSymbols(a2, a3, b23);
 //    	Word<PSymbolInstance> u2Ext = Word.fromSymbols(a4, a5, b45);
 //    	Word<PSymbolInstance> uExtRepr = Word.fromSymbols(a0, a1);
-//    	
+//
 ////    	Bijection<DataValue> uReprB = new Bijection<>();
 ////    	uReprB.put(d7, d7);
 //    	Bijection<DataValue> u1B = new Bijection<>();
@@ -372,7 +351,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    			new SDTGuard.SDTTrueGuard(s1), new SDT(Map.of(
 //    					new SDTGuard.EqualityGuard(s2, d5), SDTLeaf.REJECTING,
 //    					new SDTGuard.DisequalityGuard(s2, d5), SDTLeaf.REJECTING))));
-//    	
+//
 //    	SDT sdtPriorRepr = new SDT(Map.of(
 //    			new SDTGuard.EqualityGuard(s1, d0), new SDT(Map.of(
 //    					new SDTGuard.EqualityGuard(s2, d1), SDTLeaf.ACCEPTING,
@@ -381,24 +360,24 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    					new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
 //    	SDT sdtPrior1 = sdtPriorRepr.relabel(SDTRelabeling.fromBijection(u1ExtB.inverse()));
 //    	SDT sdtPrior2 = sdtPriorRepr.relabel(SDTRelabeling.fromBijection(u2ExtB.inverse()));
-//    	
+//
 //    	SDT sdtRepr = new SDT(Map.of(
 //    			new SDTGuard.EqualityGuard(s1, d7), SDTLeaf.ACCEPTING,
 //    			new SDTGuard.DisequalityGuard(s1, d7), SDTLeaf.REJECTING));
 //    	SDT sdt1 = sdtRepr.relabel(SDTRelabeling.fromBijection(u1B.inverse()));
 //    	SDT sdt2 = sdtRepr.relabel(SDTRelabeling.fromBijection(u2B.inverse()));
-//    	
+//
 //    	Map<SuffixValue, AbstractSuffixValueRestriction> origRestr = new LinkedHashMap<>();
 //    	origRestr.put(s1, new EqualityRestriction(s1, Set.of(d0)));
 //    	origRestr.put(s2, DisjunctionRestriction.create(s2,
 //    			new EqualityRestriction(s2, Set.of(d0)),
 //    			new EqualityRestriction(s2, Set.of(d1)),
 //    			new FreshSuffixValue(s2)));
-//    	
+//
 //    	SymbolicSuffix suffixRepr = new SymbolicSuffix(Word.fromSymbols(A));
 //    	SymbolicSuffix suffixPrior = new SymbolicSuffix(Word.fromSymbols(A, A));
 //    	SymbolicSuffix suffix = new SymbolicSuffix(Word.fromSymbols(A, A), origRestr);
-//    	
+//
 ////    	CTPath uReprP = new CTPath(false);
 ////    	uReprP.putSDT(suffixRepr, sdtRepr);
 ////    	Prefix pRepr = new Prefix(uRepr, uReprB, uReprP);
@@ -414,18 +393,18 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    	u2ExtP.putSDT(suffix, sdtExt2);
 ////    	CTPath uExtReprP = new CTPath(false);
 ////    	uExtReprP.putSDT(suffixPrior, sdtPriorRepr);
-//    	
+//
 //    	Prefix u1Pref = new Prefix(u1, u1B, u1P);
 //    	Prefix u2Pref = new Prefix(u2, u2B, u2P);
 //    	Prefix u1ExtPref = new Prefix(u1Ext, u1ExtB, u1ExtP);
 //    	u1ExtPref.putBijection(suffixPrior, u1ExtB);
 //    	Prefix u2ExtPref = new Prefix(u2Ext, u2ExtB, u2ExtP);
 //    	u2ExtPref.putBijection(suffixPrior, u2ExtB);
-//    	
+//
 //    	SymbolicSuffix actual = builder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, null, suffix, sdtExt1, sdtExt2);
 //    	Assert.assertEquals(actual.toString(), "((?b[int, int] ?a[int] ?a[int]))[(s1 == 7[int]), Unmapped(s2), (s3 == s1) OR (s3 == s2) OR (s3 == 7[int]), true]");
 //    }
-    
+
 //    @Test
 //    private void testExtendedSuffixWithUnknownMemorable() {
 //    	IntegerEqualityTheory iet = new IntegerEqualityTheory(TINT);
@@ -460,7 +439,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    	Word<PSymbolInstance> u2 = Word.fromSymbols(a0, a1);
 //    	Word<PSymbolInstance> u1Ext = Word.fromSymbols(a0, a0);
 //    	Word<PSymbolInstance> u2Ext = Word.fromSymbols(a0, a1, a0);
-//    	
+//
 //    	Bijection<DataValue> u1B = new Bijection<>();
 //    	u1B.put(d0, d2);
 //    	Bijection<DataValue> u2B = new Bijection<>();
@@ -482,21 +461,21 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    					new SDTGuard.DisequalityGuard(s2, d0), SDTLeaf.ACCEPTING)),
 //    			new SDTGuard.DisequalityGuard(s1, d1), new SDT(Map.of(
 //    					new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
-//    	
+//
 //    	SDT sdt1 = new SDT(Map.of(
 //    			new SDTGuard.EqualityGuard(s1, d0), SDTLeaf.ACCEPTING,
 //    			new SDTGuard.DisequalityGuard(s1, d0), SDTLeaf.REJECTING));
 //    	SDT sdt2 = new SDT(Map.of(
 //    			new SDTGuard.EqualityGuard(s1, d1), SDTLeaf.ACCEPTING,
 //    			new SDTGuard.DisequalityGuard(s1, d1), SDTLeaf.REJECTING));
-//    	
+//
 //    	Map<SuffixValue, AbstractSuffixValueRestriction> origRestr = new LinkedHashMap<>();
 //    	origRestr.put(s1, new TrueRestriction(s1));
 //    	origRestr.put(s2, new TrueRestriction(s2));
-//    	
+//
 //    	SymbolicSuffix suffixRepr = new SymbolicSuffix(Word.fromSymbols(A));
 //    	SymbolicSuffix suffix = new SymbolicSuffix(Word.fromSymbols(A, A), origRestr);
-//    	
+//
 //    	CTPath u1P = new CTPath(false);
 //    	u1P.putSDT(suffixRepr, sdt1);
 //    	CTPath u2P = new CTPath(false);
@@ -505,12 +484,12 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 //    	u1ExtP.putSDT(suffix, sdtExt1);
 //    	CTPath u2ExtP = new CTPath(false);
 //    	u2ExtP.putSDT(suffix, sdtExt2);
-//    	
+//
 //    	Prefix u1Pref = new Prefix(u1, u1B, u1P);
 //    	Prefix u2Pref = new Prefix(u2, u2B, u2P);
 //    	Prefix u1ExtPref = new Prefix(u1Ext, u1ExtB, u1ExtP);
 //    	Prefix u2ExtPref = new Prefix(u2Ext, u2ExtB, u2ExtP);
-//    	
+//
 //    	SymbolicSuffix actual = builder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, null, suffix, sdtExt1, sdtExt2);
 //    	System.out.println(actual);
 //    }

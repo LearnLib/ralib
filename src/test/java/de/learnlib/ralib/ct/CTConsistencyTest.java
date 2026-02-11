@@ -36,7 +36,6 @@ import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
-import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.TrueRestriction;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -256,7 +255,7 @@ public class CTConsistencyTest extends RaLibTestSuite {
         DataValue dv0 = new DataValue(T_INT, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(T_INT, BigDecimal.ONE);
         DataValue dv2 = new DataValue(T_INT, BigDecimal.valueOf(2));
-        
+
         SuffixValue s1 = new SuffixValue(T_INT, 1);
         SuffixValue s2 = new SuffixValue(T_INT, 2);
 
@@ -275,7 +274,7 @@ public class CTConsistencyTest extends RaLibTestSuite {
         Word<PSymbolInstance> b2b1 = Word.fromSymbols(
         		new PSymbolInstance(BETA, dv2),
         		new PSymbolInstance(BETA, dv1));
-        
+
         Map<SuffixValue, AbstractSuffixValueRestriction> sbbRestr = new LinkedHashMap<>();
         sbbRestr.put(s1, new TrueRestriction(s1));
         sbbRestr.put(s2, new TrueRestriction(s2));
