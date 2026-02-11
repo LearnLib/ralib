@@ -65,11 +65,11 @@ public class LoggingOracle implements TreeOracle {
         return b;
     }
 
-    @Override
-    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SDT sdt) {
-    	return treeoracle.instantiate(prefix, suffix, sdt);
-    }
+//    @Override
+//    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
+//    		SymbolicSuffix suffix, SDT sdt) {
+//    	return treeoracle.instantiate(prefix, suffix, sdt);
+//    }
 
     @Override
     public SymbolicSuffixRestrictionBuilder getRestrictionBuilder() {

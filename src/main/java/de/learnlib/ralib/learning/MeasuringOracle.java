@@ -43,11 +43,11 @@ public class MeasuringOracle implements TreeOracle {
 		return oracle.updateBranching(prefix, ps, current, sdts);
 	}
 
-	@Override
-	public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-			SDT sdt) {
-		return oracle.instantiate(prefix, suffix, sdt);
-	}
+//	@Override
+//	public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
+//			SDT sdt) {
+//		return oracle.instantiate(prefix, suffix, sdt);
+//	}
 
 	@Override
 	public SymbolicSuffixRestrictionBuilder getRestrictionBuilder() {
