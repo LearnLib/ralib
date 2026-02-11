@@ -91,8 +91,8 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	consts4.put(c1, dv1);
     	AbstractSuffixValueRestriction restr4_1 = theory.restrictSuffixValue(s1, prefix4, suffix4, val4, consts4);
     	AbstractSuffixValueRestriction restr4_2 = theory.restrictSuffixValue(s2, prefix4, suffix4, val4, consts4);
-    	Assert.assertEquals(restr4_1.toString(), "(s1 == r1) OR (s1 == c1) OR Fresh(s1)");
-    	Assert.assertEquals(restr4_2.toString(), "(s2 == r1) OR (s2 == c1) OR (s2 == s1) OR Fresh(s2)");
+    	Assert.assertEquals(restr4_1.toString(), "((s1 == r1) OR (s1 == c1) OR Fresh(s1))");
+    	Assert.assertEquals(restr4_2.toString(), "((s2 == r1) OR (s2 == c1) OR (s2 == s1) OR Fresh(s2))");
 
     	// equal unmapped
     	Word<PSymbolInstance> prefix5 = Word.fromSymbols(
