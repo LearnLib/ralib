@@ -53,12 +53,15 @@ public class Transition {
         return guard.evaluateSMT(SMTUtil.compose(registers, parameters, consts));
     }
 
+    /**
+     * @return the valuation
+     */
     public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
     	return this.getAssignment().valuation(registers, parameters, consts);
     }
 
-    /*
-     * @deprecated method is unsafe, use {@link #valuation()} instead
+    /**
+     * Deprecated and unsafe method; use {@link de.learnlib.ralib.automata.Transition#valuation(RegisterValuation, ParameterValuation, Constants) Valuation} instead.
      * Method is unsafe because it keeps registers that are not given a new assignment, which can cause
      * a discrepancy in the number of registers a location has, depending on the path to the location.
      * Method is deprecated rather than removed because the functionality is used by XML automata models.

@@ -7,6 +7,7 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.TypedValue;
 
+@SuppressWarnings("IterableAndIterator")
 public class RemappingIterator<T extends TypedValue> implements Iterable<Bijection<T>>, Iterator<Bijection<T>> {
 
 	private final PermutationIterator permit;

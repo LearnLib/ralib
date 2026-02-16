@@ -22,7 +22,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
@@ -56,100 +55,97 @@ public class CounterexampleAnalysis {
 
     private final Map<Word<PSymbolInstance>, LocationComponent> components;
 
-    private final Constants consts;
-
     private enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CounterexampleAnalysis.class);
 
     public CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle,
             Hypothesis hypothesis, SDTLogicOracle sdtOracle,
-            Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts) {
+            Map<Word<PSymbolInstance>, LocationComponent> components) {
 
-        this.sulOracle = sulOracle;
-        this.hypOracle = hypOracle;
-        this.hypothesis = hypothesis;
-        this.sdtOracle = sdtOracle;
-        this.components = components;
-        this.consts = consts;
-        this.restrictionBuilder = sulOracle.getRestrictionBuilder();
-    }
+		this.sulOracle = sulOracle;
+		this.hypOracle = hypOracle;
+		this.hypothesis = hypothesis;
+		this.sdtOracle = sdtOracle;
+		this.components = components;
+		this.restrictionBuilder = sulOracle.getRestrictionBuilder();
+	    }
 
-    public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
+	    public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
 
-        int idx = binarySearch(ce);
-        //int idx = linearBackWardsSearch(ce);
+		int idx = binarySearch(ce);
+		//int idx = linearBackWardsSearch(ce);
 
-        Word<PSymbolInstance> prefix = ce.prefix(idx);
-        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
+		Word<PSymbolInstance> prefix = ce.prefix(idx);
+		Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
+		SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
-        return new CEAnalysisResult(prefix, symSuffix);
-    }
+		return new CEAnalysisResult(prefix, symSuffix);
+	    }
 
-    private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
+	    private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
 
-        Word<PSymbolInstance> prefix = ce.prefix(idx);
-        //System.out.println(idx + "  " + prefix);
-        Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
-        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
-            ce.prefix(idx+1));
+		Word<PSymbolInstance> prefix = ce.prefix(idx);
+		//System.out.println(idx + "  " + prefix);
+		Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
+		Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
+		    ce.prefix(idx+1));
 
-        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
+		Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
+		SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
-        SDT resHyp = hypOracle.treeQuery(location, symSuffix);
-        SDT resSUL = sulOracle.treeQuery(location, symSuffix);
+		SDT resHyp = hypOracle.treeQuery(location, symSuffix);
+		SDT resSUL = sulOracle.treeQuery(location, symSuffix);
 
-        LOGGER.trace("------------------------------------------------------");
-        LOGGER.trace("Computing index: {}", idx);
-        LOGGER.trace("Prefix: {}", prefix);
-        LOGGER.trace("SymSuffix: {}", symSuffix);
-        LOGGER.trace("Location: {}", location);
-        LOGGER.trace("Transition: {}", transition);
-        LOGGER.trace("SDT HYP: {}", resHyp);
-        LOGGER.trace("SDT SYS: {}", resSUL);
-        LOGGER.trace("------------------------------------------------------");
+		LOGGER.trace("------------------------------------------------------");
+		LOGGER.trace("Computing index: {}", idx);
+		LOGGER.trace("Prefix: {}", prefix);
+		LOGGER.trace("SymSuffix: {}", symSuffix);
+		LOGGER.trace("Location: {}", location);
+		LOGGER.trace("Transition: {}", transition);
+		LOGGER.trace("SDT HYP: {}", resHyp);
+		LOGGER.trace("SDT SYS: {}", resSUL);
+		LOGGER.trace("------------------------------------------------------");
 
-        LocationComponent c = components.get(location);
-        ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
-        //System.out.println(c.getBranching(act).getBranches());
-        Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
+		LocationComponent c = components.get(location);
+		ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
+		//System.out.println(c.getBranching(act).getBranches());
+		Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
 
-        boolean hasCE = sdtOracle.hasCounterexample(location, resHyp, resSUL, g, transition);
+		boolean hasCE = sdtOracle.hasCounterexample(location, resHyp, resSUL, g, transition);
 
-        if (!hasCE) {
-            return IndexResult.NO_CE;
-        }
+		if (!hasCE) {
+		    return IndexResult.NO_CE;
+		}
 
-        Set<DataValue> pSUL = resSUL.getDataValues();
-        Set<DataValue> pHyp = c.getPrimePrefix().getAssignment().keySet();
+		Set<DataValue> pSUL = resSUL.getDataValues();
+		Set<DataValue> pHyp = c.getPrimePrefix().getAssignment().keySet();
 
-        boolean sulHasMoreRegs = !pHyp.containsAll(pSUL);
-        boolean hypRefinesTransition = hypRefinesTransitions(location, act, resSUL);
+		boolean sulHasMoreRegs = !pHyp.containsAll(pSUL);
+		boolean hypRefinesTransition = hypRefinesTransitions(location, act, resSUL);
 
-//        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
-//        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
+	//        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
+	//        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
 
-        return (sulHasMoreRegs || !hypRefinesTransition) ?
-                IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;
-    }
+		return (sulHasMoreRegs || !hypRefinesTransition) ?
+			IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;
+	    }
 
-    private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix,
-                                          ParameterizedSymbol action, SDT sdtSUL) {
+	    private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix,
+						  ParameterizedSymbol action, SDT sdtSUL) {
 
-        Branching branchSUL = sulOracle.getInitialBranching(prefix, action, sdtSUL);
-        LocationComponent c = components.get(prefix);
-        Branching branchHyp = c.getBranching(action);
+		Branching branchSUL = sulOracle.getInitialBranching(prefix, action, sdtSUL);
+		LocationComponent c = components.get(prefix);
+		Branching branchHyp = c.getBranching(action);
 
-        //System.out.println("Branching Hyp:");
-        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchHyp.getBranches().entrySet()) {
+		//System.out.println("Branching Hyp:");
+		//for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchHyp.getBranches().entrySet()) {
+		    //System.out.println(e.getKey() + " -> " + e.getValue());
+		//}
+		//System.out.println("Branching Sys:");
+		//for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchSUL.getBranches().entrySet()) {
             //System.out.println(e.getKey() + " -> " + e.getValue());
-        }
-        //System.out.println("Branching Sys:");
-        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchSUL.getBranches().entrySet()) {
-            //System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+        //}
 
         for (Expression<Boolean> guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;

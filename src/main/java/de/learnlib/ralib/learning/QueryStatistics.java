@@ -16,7 +16,7 @@ public class QueryStatistics {
 	public static final int CE_ANALYSIS = 2;
 	public static final int CE_PROCESSING = 3;
 	public static final int OTHER = 4;
-	public static final String[] PHASES = {"Testing", "CE Optimization", "CE Analysis", "Processing / Refinement", "Other"};
+	private static final String[] PHASES = {"Testing", "CE Optimization", "CE Analysis", "Processing / Refinement", "Other"};
 	private static final int MEASUREMENTS = 5;
 
 	private final QueryCounter queryCounter;
