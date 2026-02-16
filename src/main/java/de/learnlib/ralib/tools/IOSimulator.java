@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 The LearnLib Contributors
+ * Copyright (C) 2014-2026 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -183,12 +183,12 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
         }
 
-        DataWordSUL trackingSulTest = this.sulTest;
+        DataWordSUL trackingSULTest = this.sulTest;
 
         if (OPTION_CACHE_TESTS.parse(config)) {
             SULOracle testBack = new SULOracle(sulTest, ERROR);
             IOCache testCache = new IOCache(testBack, ioCache);
-            this.sulTest = new CachingSUL(trackingSulTest, testCache);
+            this.sulTest = new CachingSUL(trackingSULTest, testCache);
         }
 
         if (useFresh) {
@@ -226,7 +226,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
         }
-        QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, trackingSulTest);
+        QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, trackingSULTest);
         this.rastar.setStatisticCounter(queryStats);
 
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);

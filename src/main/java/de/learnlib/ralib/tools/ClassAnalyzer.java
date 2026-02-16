@@ -110,7 +110,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private DataWordSUL sulTest;
 
-    private DataWordSUL trackingSulTest;
+    private DataWordSUL trackingSULTest;
 
     private IORandomWalk randomWalk = null;
 
@@ -210,7 +210,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
             sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            trackingSulTest = sulTest;
+            trackingSULTest = sulTest;
             if (this.timeoutMillis > 0L) {
                 this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
             }
@@ -219,7 +219,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             if (OPTION_CACHE_TESTS.parse(config)) {
                 SULOracle testBack = new SULOracle(sulTest,  SpecialSymbols.ERROR);
                 IOCache testCache = new IOCache(testBack, ioCache);
-                this.sulTest = new CachingSUL(trackingSulTest, testCache);
+                this.sulTest = new CachingSUL(trackingSULTest, testCache);
             }
 
 
@@ -340,8 +340,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 break;
             }
 
-            resets = trackingSulTest.getResets();
-            inputs = trackingSulTest.getInputs();
+            resets = trackingSULTest.getResets();
+            inputs = trackingSULTest.getInputs();
 
             SimpleProfiler.start(__LEARN__);
             ceLengths.add(ce.getInput().length());
@@ -360,9 +360,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
             System.out.println("### SYS TRACE: " + sysTrace);
 
-            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, consts);
-            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);
-            Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
+            SimulatorSUL hypSUL = new SimulatorSUL(hyp, teachers, consts);
+            IOOracle ioSUL = new SULOracle(hypSUL, SpecialSymbols.ERROR);
+            Word<PSymbolInstance> hypTrace = ioSUL.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);
 
             assert !hypTrace.equals(sysTrace);

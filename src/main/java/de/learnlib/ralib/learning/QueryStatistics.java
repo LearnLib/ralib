@@ -20,8 +20,8 @@ public class QueryStatistics {
 	private static final int MEASUREMENTS = 5;
 
 	private final QueryCounter queryCounter;
-	private final DataWordSUL learningSul;
-	private final DataWordSUL testingSul;
+	private final DataWordSUL learningSUL;
+	private final DataWordSUL testingSUL;
 	private final Measurements[] phaseMeasurements = new Measurements[MEASUREMENTS];
 	private final Measurements measurements;
 	private int phase = OTHER;
@@ -32,24 +32,24 @@ public class QueryStatistics {
 
 	public QueryStatistics(Measurements measurements, QueryCounter queryCounter) {
 		this.queryCounter = queryCounter;
-		learningSul = null;
-		testingSul = null;
+		learningSUL = null;
+		testingSUL = null;
 		this.measurements = measurements;
 		initMeasurements();
 	}
 
 	public QueryStatistics(Measurements measurements, DataWordSUL sul) {
 		this.queryCounter = null;
-		learningSul = sul;
-		testingSul = null;
+		learningSUL = sul;
+		testingSUL = null;
 		this.measurements = measurements;
 		initMeasurements();
 	}
 
-	public QueryStatistics(Measurements measurements, DataWordSUL learningSul, DataWordSUL testingSul) {
+	public QueryStatistics(Measurements measurements, DataWordSUL learningSUL, DataWordSUL testingSUL) {
 		queryCounter = null;
-		this.learningSul = learningSul;
-		this.testingSul = testingSul;
+		this.learningSUL = learningSUL;
+		this.testingSUL = testingSUL;
 		this.measurements = measurements;
 		initMeasurements();
 	}
@@ -72,14 +72,14 @@ public class QueryStatistics {
 
 	public void updateMeasurements() {
 		phaseMeasurements[phase].treeQueries = phaseMeasurements[phase].treeQueries + measurements.treeQueries;
-		if (phase == TESTING && testingSul != null) {
+		if (phase == TESTING && testingSUL != null) {
 			updateTests();
 		}
-		else if (learningSul != null) {
-			phaseMeasurements[phase].inputs = phaseMeasurements[phase].inputs + learningSul.getInputs() - inputCountLastUpdate;
-			phaseMeasurements[phase].resets = phaseMeasurements[phase].resets + learningSul.getResets() - queryCountLastUpdate;
-			inputCountLastUpdate = learningSul.getInputs();
-			queryCountLastUpdate = learningSul.getResets();
+		else if (learningSUL != null) {
+			phaseMeasurements[phase].inputs = phaseMeasurements[phase].inputs + learningSUL.getInputs() - inputCountLastUpdate;
+			phaseMeasurements[phase].resets = phaseMeasurements[phase].resets + learningSUL.getResets() - queryCountLastUpdate;
+			inputCountLastUpdate = learningSUL.getInputs();
+			queryCountLastUpdate = learningSUL.getResets();
 		}
 		else if (queryCounter != null) {
 			phaseMeasurements[phase].resets = phaseMeasurements[phase].resets + queryCounter.getQueryCount() - queryCountLastUpdate;
@@ -115,9 +115,9 @@ public class QueryStatistics {
 	}
 
 	public void updateTests() {
-		if (testingSul != null) {
-			phaseMeasurements[phase].inputs = testingSul.getInputs();
-			phaseMeasurements[phase].resets = testingSul.getResets();
+		if (testingSUL != null) {
+			phaseMeasurements[phase].inputs = testingSUL.getInputs();
+			phaseMeasurements[phase].resets = testingSUL.getResets();
 		}
 	}
 
