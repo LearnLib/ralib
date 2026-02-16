@@ -44,7 +44,10 @@ public class Assignment {
     }
 
     /**
-     * @return the valuation
+     * Updates the register valuation {@code registers} based on register assignment.
+     * Any registers in {@code registers} which are not assigned to a new register will be dropped.
+     *
+     * @return the new valuation
      */
     public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
     	RegisterValuation val = new RegisterValuation();
