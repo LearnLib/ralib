@@ -886,7 +886,7 @@ public abstract class EqualityTheory implements Theory {
 		UnmappedEqualityRestriction uer = new UnmappedEqualityRestriction(suffixValue);
 
     	Collection<Register> regsEqList = dataValueToRegister(eqList, uValuation);
-    	regsEqList.forEach(r -> eqList.remove(uValuation.get(r)));
+    	regsEqList.forEach(r -> unmappedEqList.remove(uValuation.get(r)));
 
 //    	if (useMoreEfficientSuffixOptimization) {
 //    		Set<SymbolicDataValue> eqParams = new LinkedHashSet<>();
@@ -915,14 +915,15 @@ public abstract class EqualityTheory implements Theory {
     		// no unmapped equality
 	    	if (regsEqList.size() == 1 && suffixEqList.isEmpty() && constEqList.isEmpty()) {
 	    		// equals one register
-	    		return SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
+	    		AbstractSuffixValueRestriction eqr = SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
+	    		return DisjunctionRestriction.create(suffixValue, eqr, fresh);
 	    	}
-	    	if (regsEqList.isEmpty() && suffixEqList.size() == 1 && constEqList.isEmpty()) {
-	    		// equals one constant
-	    		return SuffixValueRestriction.equalityRestriction(suffixValue, suffixEqList);
+	    	if (regsEqList.isEmpty() && suffixEqList.size() > 0 && constEqList.isEmpty()) {
+	    		// equals prior suffix values
+	    		return SuffixValueRestriction.equalityRestriction(suffixValue, suffixEqList.get(0));
 	    	}
 	    	if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.size() == 1) {
-	    		// equals one prior suffix value
+	    		// equals one constant
 	    		return SuffixValueRestriction.equalityRestriction(suffixValue, constEqList);
 	    	}
 	    	if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.isEmpty()) {
