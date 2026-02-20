@@ -378,8 +378,8 @@ public class PrefixFinder {
 	        		hyp.getRun(uExtHyp).getValuation(uExtHyp.size()),
 	        		ParameterValuation.fromPSymbolWord(uExtHyp),
 	        		consts);
-			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, vSul).toRegisterSDT(uExtHyp, consts);
-			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, vHyp).toRegisterSDT(uExtSul, consts);
+			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, vHyp).toRegisterSDT(uExtHyp, consts);
+			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, vSul).toRegisterSDT(uExtSul, consts);
 
 			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
 				return Optional.empty();  // there is an equivalent extension, so no discrepancy

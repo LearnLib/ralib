@@ -6,6 +6,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.TypedValue;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class TrueRestriction extends SuffixValueRestriction {
@@ -40,6 +41,11 @@ public class TrueRestriction extends SuffixValueRestriction {
 	@Override
 	public SuffixValueRestriction and(SuffixValueRestriction other) {
 		return other;
+	}
+
+	@Override
+	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
+		return this;
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -258,6 +259,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 	}
 
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> disjuncts) {
+		disjuncts = disjuncts.stream().distinct().filter(d -> !d.isTrue()).collect(Collectors.toList());
 		if (disjuncts == null || disjuncts.isEmpty()) {
 			return new TrueRestriction(parameter);
 		}
