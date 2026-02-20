@@ -345,4 +345,38 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                 throw new RuntimeException("should not be reachable");
         }
     }
+
+    static SDTGuard shift(SDTGuard in, int shift) {
+    	SuffixValue p = new SuffixValue(in.getParameter().getDataType(), in.getParameter().getId() + shift);
+    	switch (in) {
+    		case SDTGuard.EqualityGuard guard:
+    			return new SDTGuard.EqualityGuard(p, shiftRegister(guard.register, shift));
+    		case SDTGuard.DisequalityGuard guard:
+    			return new SDTGuard.DisequalityGuard(p, shiftRegister(guard.register, shift));
+    		case SDTGuard.IntervalGuard guard:
+    			return new SDTGuard.IntervalGuard(p,
+    					shiftRegister(guard.smallerElement, shift),
+    					shiftRegister(guard.greaterElement, shift),
+    					guard.smallerEqual, guard.greaterEqual);
+    		case SDTGuard.SDTTrueGuard guard:
+    			return new SDTGuard.SDTTrueGuard(p);
+    		case SDTGuard.SDTAndGuard guard:
+    			List<SDTGuard> conjuncts = new ArrayList<>();
+    			guard.conjuncts.forEach(g -> conjuncts.add(shift(g, shift)));
+    			return new SDTGuard.SDTAndGuard(p, conjuncts);
+    		case SDTGuard.SDTOrGuard guard :
+    			List<SDTGuard> disjuncts = new ArrayList<>();
+    			guard.disjuncts.forEach(g -> disjuncts.add(shift(g, shift)));
+    			return new SDTGuard.SDTOrGuard(p, disjuncts);
+    		default:
+    			throw new RuntimeException("should not be reachable");
+    	}
+    }
+
+    private static SDTGuardElement shiftRegister(SDTGuardElement r, int shift) {
+    	if (r instanceof SuffixValue s) {
+    		return new SuffixValue(s.getDataType(), s.getId() + shift);
+    	}
+    	return r;
+    }
 }

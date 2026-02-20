@@ -366,12 +366,12 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 //    	return sdt.relabel(SDTRelabeling.fromBijection(renaming));
 //    }
 
-    private Map<SuffixValue, AbstractSuffixValueRestriction> restrictionsSeparatingSdts(SDT sdt1, SDT sdt2, SymbolicSuffix suffix) {
-    	if (isEqualityTheory(DataWords.typesOf(suffix.getActions()))) {
-    		return EqualityTheory.restrictSDTs(sdt1, sdt2, suffix.getRestrictions(), solver);
-    	}
-    	return suffix.getRestrictions();
-    }
+//    private Map<SuffixValue, AbstractSuffixValueRestriction> restrictionsSeparatingSdts(SDT sdt1, SDT sdt2, Set<DataValue> mem1, Set<DataValue> mem2, SymbolicSuffix suffix) {
+//    	if (isEqualityTheory(DataWords.typesOf(suffix.getActions()))) {
+//    		return EqualityTheory.restrictSDTs(sdt1, sdt2, suffix.getRestrictions(), solver);
+//    	}
+//    	return suffix.getRestrictions();
+//    }
 
 //    private Map<SuffixValue, AbstractSuffixValueRestriction> relabelToExtension(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Prefix uExt, SymbolicSuffix suffix) {
 //    	Bijection<DataValue> renaming = uExt.getBijection(uExt.getPath().getPrior(suffix)).inverse();

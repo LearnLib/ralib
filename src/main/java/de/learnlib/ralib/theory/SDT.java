@@ -416,6 +416,19 @@ public class SDT {
         return ret;
     }
 
+    public SDT shift(int shift) {
+    	if (this.children == null) {
+    		return this;
+    	}
+    	Map<SDTGuard, SDT> children = new LinkedHashMap<>();
+    	for (Map.Entry<SDTGuard, SDT> child : this.children.entrySet()) {
+    		SDT sdt = child.getValue().shift(shift);
+    		SDTGuard guard = SDTGuard.shift(child.getKey(), shift);
+    		children.put(guard, sdt);
+    	}
+    	return new SDT(children);
+    }
+
     private static SDT findFinest(int i, List<SDT> sdts, SDT curr) {
         i++;
         if (sdts.size() == i) {

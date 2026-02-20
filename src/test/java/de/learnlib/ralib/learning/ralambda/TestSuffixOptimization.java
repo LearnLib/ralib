@@ -10,6 +10,7 @@ import static de.learnlib.ralib.example.repeater.RepeaterSUL.TINT;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -18,22 +19,37 @@ import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.CacheDataWordOracle;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
+import de.learnlib.ralib.ct.CTPath;
+import de.learnlib.ralib.ct.Prefix;
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.example.repeater.RepeaterSUL;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
+import de.learnlib.ralib.theory.FreshSuffixValue;
+import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTLeaf;
+import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.TrueRestriction;
+import de.learnlib.ralib.theory.equality.UnmappedEqualityRestriction;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -140,70 +156,191 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         Assert.assertTrue(str.contains("Total: {TQ: 113, Resets: 645, Inputs: 0}"));
     }
 
-//    @Test
-//    public void testExtendSuffixLocation() {
-//    	IntegerEqualityTheory iet = new IntegerEqualityTheory(TINT);
-//    	iet.setUseSuffixOpt(true);
-//    	Map<DataType, Theory> teachers = Map.of(TINT, iet);
-//
-//    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers);
-//
-//    	SuffixValue s1 = new SuffixValue(TINT, 1);
-//    	SuffixValue s2 = new SuffixValue(TINT, 2);
-//    	SuffixValue s3 = new SuffixValue(TINT, 3);
-//
-//    	DataValue d1 = new DataValue(TINT, BigDecimal.ONE);
-//    	DataValue d2 = new DataValue(TINT, BigDecimal.valueOf(2));
-//    	DataValue d3 = new DataValue(TINT, BigDecimal.valueOf(3));
-//    	DataValue d4 = new DataValue(TINT, BigDecimal.valueOf(4));
-//    	DataValue d5 = new DataValue(TINT, BigDecimal.valueOf(5));
-//
-//    	PSymbolInstance a1 = new PSymbolInstance(A, d1);
-//    	PSymbolInstance a2 = new PSymbolInstance(A, d2);
-//    	PSymbolInstance a3 = new PSymbolInstance(A, d3);
-//    	PSymbolInstance a4 = new PSymbolInstance(A, d4);
-//    	PSymbolInstance a5 = new PSymbolInstance(A, d5);
-//
-//    	SDT u1ExtSdt = new SDT(Map.of(
-//    			new SDTGuard.EqualityGuard(s1, d3), new SDT(Map.of(
-//    					new SDTGuard.EqualityGuard(s2, d4), SDTLeaf.ACCEPTING,
-//    					new SDTGuard.DisequalityGuard(s2, d4), SDTLeaf.REJECTING)),
-//    			new SDTGuard.DisequalityGuard(s1, d3), new SDT(Map.of(
-//    					new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
-//    	SDT u2ExtSdt = new SDT(Map.of(
-//    			new SDTGuard.SDTTrueGuard(s1), new SDT(Map.of(
-//    					new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
-//
-//    	SDT u1Sdt = new SDT(Map.of(new SDTGuard.SDTTrueGuard(s1), SDTLeaf.ACCEPTING));
-//
-//    	Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = new LinkedHashMap<>();
-//    	restr1.put(s1, new TrueRestriction(s1));
-//    	restr1.put(s2, new TrueRestriction(s2));
-//    	SymbolicSuffix suffix1 = new SymbolicSuffix(Word.fromSymbols(A, A), restr1);
-//
-//    	Bijection<DataValue> u1rp = new Bijection<>();
-//    	Bijection<DataValue> u2rp = new Bijection<>();
-//    	Bijection<DataValue> u1ExtRp = new Bijection<>();
-//    	u1ExtRp.put(d3, d1);
-//    	u1ExtRp.put(d4, d2);
-//    	Bijection<DataValue> u2ExtRp = u1rp;
-//
-//    	CTPath u1Path = new CTPath(false);
-//    	u1Path.putSDT(RaStar.EMPTY_SUFFIX, u1Sdt);
-//    	CTPath u2Path = u1Path;
-//    	CTPath u1ExtPath = new CTPath(false);
-//    	u1ExtPath.putSDT(suffix1, u1ExtSdt);
-//    	CTPath u2ExtPath = new CTPath(false);
-//    	u2ExtPath.putSDT(suffix1, u2ExtSdt);
-//
-//    	Prefix u1 = new Prefix(Word.fromSymbols(a3), u1rp, u1Path);
-//    	Prefix u2 = new Prefix(Word.epsilon(), u2rp, u2Path);
-//    	Prefix u1Ext = new Prefix(Word.fromSymbols(a3, a4), u1ExtRp, u1ExtPath);
-//    	Prefix u2Ext = new Prefix(Word.fromSymbols(a1), u2ExtRp, u2ExtPath);
-//
+    @Test
+    public void testExtendSuffixLocation() {
+    	IntegerEqualityTheory iet = new IntegerEqualityTheory(TINT);
+    	iet.setUseSuffixOpt(true);
+    	Map<DataType, Theory> teachers = Map.of(TINT, iet);
+
+    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers);
+
+    	SuffixValue s1 = new SuffixValue(TINT, 1);
+    	SuffixValue s2 = new SuffixValue(TINT, 2);
+    	SuffixValue s3 = new SuffixValue(TINT, 3);
+    	SuffixValue s4 = new SuffixValue(TINT, 4);
+
+    	DataValue d0 = new DataValue(TINT, BigDecimal.ZERO);
+    	DataValue d1 = new DataValue(TINT, BigDecimal.ONE);
+    	DataValue d2 = new DataValue(TINT, BigDecimal.valueOf(2));
+
+    	PSymbolInstance a0 = new PSymbolInstance(A, d0);
+    	PSymbolInstance a1 = new PSymbolInstance(A, d1);
+    	PSymbolInstance a2 = new PSymbolInstance(A, d2);
+
+    	SDT u1ExtSdt = new SDT(Map.of(
+    			new SDTGuard.EqualityGuard(s1, d0), new SDT(Map.of(
+    					new SDTGuard.EqualityGuard(s2, d2), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING)),
+    					new SDTGuard.DisequalityGuard(s2, d2), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
+    			new SDTGuard.DisequalityGuard(s1, d0), new SDT(Map.of(
+    					new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+    	SDT u2ExtSdt = new SDT(Map.of(
+    			new SDTGuard.EqualityGuard(s1, d1), new SDT(Map.of(
+    					new SDTGuard.EqualityGuard(s2, d0), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING)),
+    					new SDTGuard.DisequalityGuard(s2, d0), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING)))),
+    			new SDTGuard.DisequalityGuard(s1, d1), new SDT(Map.of(
+    					new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+
+    	SDT u1ExtPriorSdt = new SDT(Map.of(
+    			new SDTGuard.EqualityGuard(s1, d2), SDTLeaf.ACCEPTING,
+    			new SDTGuard.DisequalityGuard(s1, d2), SDTLeaf.REJECTING));
+    	SDT u2ExtPriorSdt = new SDT(Map.of(
+    			new SDTGuard.EqualityGuard(s1, d0), SDTLeaf.ACCEPTING,
+    			new SDTGuard.DisequalityGuard(s1, d0), SDTLeaf.REJECTING));
+
+    	Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = new LinkedHashMap<>();
+    	restr1.put(s1, new UnmappedEqualityRestriction(s1));
+    	restr1.put(s2, new TrueRestriction(s2));
+    	restr1.put(s3, SuffixValueRestriction.equalityRestriction(s3, d0));
+    	SymbolicSuffix suffix = new SymbolicSuffix(Word.fromSymbols(A, A, A), restr1);
+    	SymbolicSuffix suffixPrior = new SymbolicSuffix(Word.fromSymbols(A), Map.of(s1, new TrueRestriction(s1)));
+
+    	Bijection<DataValue> u1rp = new Bijection<>();
+    	u1rp.put(d0, d0);
+    	Bijection<DataValue> u2rp = new Bijection<>();
+    	u2rp.put(d1, d0);
+    	Bijection<DataValue> u1ExtRp = new Bijection<>();
+    	u1ExtRp.put(d0, d0);
+    	u1ExtRp.put(d2, d1);
+    	Bijection<DataValue> u2ExtRp = new Bijection<>();
+    	u2ExtRp.put(d0, d1);
+    	u2ExtRp.put(d1, d0);
+    	Bijection<DataValue> u1ExtPriorRp = new Bijection<>();
+    	u1ExtPriorRp.put(d2, d0);
+    	Bijection<DataValue> u2ExtPriorRp = new Bijection<>();
+    	u2ExtPriorRp.put(d0, d0);
+
+    	CTPath u1Path = new CTPath(false);
+    	u1Path.putSDT(RaStar.EMPTY_SUFFIX, SDTLeaf.ACCEPTING);
+    	CTPath u2Path = u1Path;
+    	CTPath u1ExtPath = new CTPath(false);
+    	u1ExtPath.putSDT(suffixPrior, u1ExtPriorSdt);
+    	u1ExtPath.putSDT(suffix, u1ExtSdt);
+    	CTPath u2ExtPath = new CTPath(false);
+    	u2ExtPath.putSDT(suffixPrior, u2ExtPriorSdt);
+    	u2ExtPath.putSDT(suffix, u2ExtSdt);
+
+    	Prefix u1 = new Prefix(Word.fromSymbols(a0, a1, a2), u1rp, u1Path);
+    	Prefix u2 = new Prefix(Word.fromSymbols(a0, a1), u2rp, u2Path);
+    	Prefix u1Ext = new Prefix(Word.fromSymbols(a0, a1, a2, a2), u1ExtRp, u1ExtPath);
+    	u1Ext.putBijection(suffixPrior, u1ExtPriorRp);
+    	Prefix u2Ext = new Prefix(Word.fromSymbols(a0, a1, a0), u2ExtRp, u2ExtPath);
+    	u2Ext.putBijection(suffixPrior, u2ExtPriorRp);
+
+    	Map<SuffixValue, AbstractSuffixValueRestriction> expRestrAlt1 = new LinkedHashMap<>();
+    	expRestrAlt1.put(s1, new UnmappedEqualityRestriction(s1));
+    	expRestrAlt1.put(s2, SuffixValueRestriction.equalityRestriction(s2, d0));
+    	expRestrAlt1.put(s3, SuffixValueRestriction.equalityRestriction(s3, s1));
+    	expRestrAlt1.put(s4, SuffixValueRestriction.equalityRestriction(s4, s1));
+    	Map<SuffixValue, AbstractSuffixValueRestriction> expRestrAlt2 = new LinkedHashMap<>();
+    	expRestrAlt2.putAll(expRestrAlt1);
+    	expRestrAlt2.put(s3, new FreshSuffixValue(s3));
+    	SymbolicSuffix expectedAlt1 = new SymbolicSuffix(Word.fromSymbols(A, A, A, A), expRestrAlt1);
+    	SymbolicSuffix expectedAlt2 = new SymbolicSuffix(Word.fromSymbols(A, A, A, A), expRestrAlt2);
+
+    	SymbolicSuffix actual = builder.extendSuffix(u1, u1Ext, u2, u2Ext, null, suffix, u1ExtSdt, u2ExtSdt);
+    	Assert.assertTrue(actual.equals(expectedAlt1) || actual.equals(expectedAlt2));
 //    	SymbolicSuffix actual1 = builder.extendSuffix(u1, u1Ext, u2, u2Ext, u1, suffix1, u1ExtSdt, u2ExtSdt);
 //    	Assert.assertEquals(actual1.toString(), "((?a[int] ?a[int] ?a[int]))[Fresh(s1), (s2 == 1[int]), (s3 == s1)]");
-//    }
+    }
+
+    @Test
+    public void testExtendSuffixRegister() {
+    	IntegerEqualityTheory iet = new IntegerEqualityTheory(TINT);
+    	iet.setUseSuffixOpt(true);
+    	Map<DataType, Theory> teachers = Map.of(TINT, iet);
+
+    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers);
+
+    	SuffixValue s1 = new SuffixValue(TINT, 1);
+    	SuffixValue s2 = new SuffixValue(TINT, 2);
+    	SuffixValue s3 = new SuffixValue(TINT, 3);
+    	SuffixValue s4 = new SuffixValue(TINT, 4);
+    	SuffixValue s5 = new SuffixValue(TINT, 5);
+
+    	DataValue d0 = new DataValue(TINT, BigDecimal.ZERO);
+    	DataValue d1 = new DataValue(TINT, BigDecimal.ONE);
+    	DataValue d2 = new DataValue(TINT, BigDecimal.valueOf(2));
+
+    	PSymbolInstance a0 = new PSymbolInstance(A, d0);
+    	PSymbolInstance a1 = new PSymbolInstance(A, d1);
+    	PSymbolInstance a2 = new PSymbolInstance(A, d2);
+
+    	SDT sdtExt = new SDT(Map.of(
+    			new SDTGuard.EqualityGuard(s1, d0), new SDT(Map.of(
+    					new SDTGuard.EqualityGuard(s2, d1), new SDT(Map.of(
+    							new SDTGuard.EqualityGuard(s3, d2), new SDT(Map.of(
+    									new SDTGuard.SDTTrueGuard(s4), SDTLeaf.ACCEPTING)),
+    							new SDTGuard.DisequalityGuard(s3, d2), new SDT(Map.of(
+    									new SDTGuard.SDTTrueGuard(s4), SDTLeaf.REJECTING)))),
+    					new SDTGuard.DisequalityGuard(s2, d1), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), new SDT(Map.of(
+    									new SDTGuard.SDTTrueGuard(s4), SDTLeaf.REJECTING)))))),
+    			new SDTGuard.DisequalityGuard(s1, d0), new SDT(Map.of(
+    					new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+    							new SDTGuard.SDTTrueGuard(s3), new SDT(Map.of(
+    									new SDTGuard.SDTTrueGuard(s4), SDTLeaf.REJECTING))))))));
+    	SDT sdtExtPrior = new SDT(Map.of(
+    			new SDTGuard.EqualityGuard(s1, d1), SDTLeaf.ACCEPTING,
+    			new SDTGuard.DisequalityGuard(s1, d1), SDTLeaf.REJECTING));
+    	SDT sdtU = new SDT(Map.of(
+    			new SDTGuard.EqualityGuard(s1, d0), SDTLeaf.ACCEPTING,
+    			new SDTGuard.DisequalityGuard(s1, d0), SDTLeaf.REJECTING));
+
+    	Map<SuffixValue, AbstractSuffixValueRestriction> restr = new LinkedHashMap<>();
+    	restr.put(s1, new TrueRestriction(s1));
+    	restr.put(s2, new UnmappedEqualityRestriction(s2));
+    	restr.put(s3, new TrueRestriction(s3));
+    	restr.put(s4, SuffixValueRestriction.equalityRestriction(s4, s1));
+    	SymbolicSuffix suffix = new SymbolicSuffix(Word.fromSymbols(A, A, A, A), restr);
+    	SymbolicSuffix suffixPrior = new SymbolicSuffix(Word.fromSymbols(A), Map.of(s1, new TrueRestriction(s1)));
+
+    	Bijection<DataValue> uRp = new Bijection<>();
+    	uRp.put(d0, d0);
+    	Bijection<DataValue> uExtRp = new Bijection<>();
+    	uExtRp.put(d0, d0);
+    	uExtRp.put(d1, d1);
+    	uExtRp.put(d2, d2);
+    	Bijection<DataValue> uExtPriorRp = new Bijection<>();
+    	uExtPriorRp.put(d1, d0);
+
+    	CTPath uPath = new CTPath(false);
+    	uPath.putSDT(suffixPrior, sdtU);
+    	CTPath uExtPath = new CTPath(false);
+    	uExtPath.putSDT(suffixPrior, sdtExtPrior);
+    	uExtPath.putSDT(suffix, sdtExt);
+
+    	Prefix u = new Prefix(Word.fromSymbols(a0, a1, a2), uRp, uPath);
+    	Prefix uExt = new Prefix(Word.fromSymbols(a0, a1, a2, a0), uExtRp, uExtPath);
+    	uExt.putBijection(suffixPrior, uExtPriorRp);
+
+    	Map<SuffixValue, AbstractSuffixValueRestriction> expectedRestr = new LinkedHashMap<>();
+    	expectedRestr.put(s1, SuffixValueRestriction.equalityRestriction(s1, d0));
+    	expectedRestr.put(s2, SuffixValueRestriction.equalityRestriction(s2, d0, s1));
+    	expectedRestr.put(s3, new TrueRestriction(s3));
+    	expectedRestr.put(s4, new TrueRestriction(s4));
+    	expectedRestr.put(s5, SuffixValueRestriction.equalityRestriction(s5, s2));
+    	SymbolicSuffix expected = new SymbolicSuffix(Word.fromSymbols(A, A, A, A, A), expectedRestr);
+
+    	SymbolicSuffix actual = builder.extendSuffix(u, uExt, null, suffix, sdtExt, Set.of(d1, d2));
+    	boolean eq = actual.equals(expected);
+    	Assert.assertEquals(actual, expected);
+    }
 
 //    @Test
 //    public void testExtendSuffixRegister() {
