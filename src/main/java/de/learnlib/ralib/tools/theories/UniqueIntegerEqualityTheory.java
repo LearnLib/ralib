@@ -95,20 +95,8 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
 
 	@Override
 	public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
-			Word<PSymbolInstance> suffix, RegisterValuation valuation, Constants consts) {
-		return new UnrestrictedSuffixValue(suffixValue);
-	}
-
-	@Override
-	public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
 			Word<PSymbolInstance> suffix, Word<PSymbolInstance> u, RegisterValuation prefixValuation,
 			RegisterValuation uValuation, Constants consts) {
 		return this.restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
 	}
-
-//	@Override
-//	public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, RARun run, int id, Constants consts,
-//			Version version) {
-//		return new UnrestrictedSuffixValue(suffixValue);
-//	}
 }

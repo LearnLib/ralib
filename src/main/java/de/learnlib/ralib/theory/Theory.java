@@ -129,10 +129,6 @@ public interface Theory {
 
     AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts, SymbolicSuffixRestrictionBuilder.Version version);
 
-    AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, RegisterValuation valuation, Constants consts);
-
-//    AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, RARun run, int id, Constants consts, SymbolicSuffixRestrictionBuilder.Version version);
-
     AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version);
 
     boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);

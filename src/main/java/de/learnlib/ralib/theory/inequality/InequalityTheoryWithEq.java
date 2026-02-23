@@ -731,11 +731,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	return greater ? new GreaterSuffixValue(suffixValue) : new LesserSuffixValue(suffixValue);
     }
 
-    @Override
-    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, RegisterValuation valuation, Constants consts) {
-    	return restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
-    }
-
     public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
     		Word<PSymbolInstance> prefix,
     		Word<PSymbolInstance> suffix,
@@ -745,11 +740,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
     		Constants consts) {
     	return this.restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
     }
-
-//    @Override
-//    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, RARun run, int id, Constants consts, SymbolicSuffixRestrictionBuilder.Version version) {
-//    	return restrictSuffixValue(suffixValue, run.getPrefix(id), run.getSuffix(id), consts, version);
-//    }
 
     @Override
     public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version) {

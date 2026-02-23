@@ -18,6 +18,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.theory.equality.UnmappedEqualityRestriction;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
@@ -186,36 +187,34 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	SuffixValue s3 = new SuffixValue(T, 3);
     	SuffixValue s4 = new SuffixValue(T, 4);
     	SuffixValue s5 = new SuffixValue(T, 5);
-    	SuffixValue[] svs = {s1, s2, s3, s4, s5};
 
-    	Word<PSymbolInstance> prefix1 = Word.fromSymbols(
+    	Word<PSymbolInstance> prefix = Word.fromSymbols(
     			new PSymbolInstance(A, dv1),
     			new PSymbolInstance(A, dv2),
     			new PSymbolInstance(A, dv3),
     			new PSymbolInstance(A, dv4));
-    	Word<PSymbolInstance> suffix1 = Word.fromSymbols(
+    	Word<PSymbolInstance> suffix = Word.fromSymbols(
     			new PSymbolInstance(A, dv1),
     			new PSymbolInstance(A, dv2),
     			new PSymbolInstance(A, dv3),
     			new PSymbolInstance(A, dv5),
     			new PSymbolInstance(A, dv5));
-    	RegisterValuation val1 = new RegisterValuation();
-    	val1.put(r1, dv1);
-    	Constants consts1 = new Constants();
-    	consts1.put(c1, dv2);
+    	RegisterValuation val = new RegisterValuation();
+    	val.put(r1, dv1);
+    	Constants consts = new Constants();
+    	consts.put(c1, dv2);
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrs = new LinkedHashMap<>();
-    	for (SuffixValue s : svs) {
-    		restrs.put(s, theory.restrictSuffixValue(s, prefix1, suffix1, val1, consts1));
-    	}
-    	SymbolicSuffix symSuff1 = new SymbolicSuffix(DataWords.actsOf(suffix1), restrs);
+    	restrs.put(s1, SuffixValueRestriction.equalityRestriction(s1, r1));
+    	restrs.put(s2, SuffixValueRestriction.equalityRestriction(s2, c1));
+    	restrs.put(s3, new UnmappedEqualityRestriction(s3));
+    	restrs.put(s4, new FreshSuffixValue(s4));
+    	restrs.put(s5, SuffixValueRestriction.equalityRestriction(s5, s4));
+    	SymbolicSuffix symSuff = new SymbolicSuffix(DataWords.actsOf(suffix), restrs);
 
-    	Assert.assertEquals(symSuff1.toString(), "((?α[t] ?α[t] ?α[t] ?α[t] ?α[t]))[(s1 == r1), (s2 == c1), Unmapped(s3), Fresh(s4), (s5 == s4)]");
-
-    	SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts1, teachers);
-    	SymbolicSuffix symSuff1Conc = restrBuilder.concretize(symSuff1,
-    			val1,
-    			consts1,
-    			ParameterValuation.fromPSymbolWord(prefix1));
+    	SymbolicSuffix symSuff1Conc = SLLambdaRestrictionBuilder.concretize(symSuff,
+    			val,
+    			consts,
+    			ParameterValuation.fromPSymbolWord(prefix));
 
     	Assert.assertEquals(symSuff1Conc.toString(), "((?α[t] ?α[t] ?α[t] ?α[t] ?α[t]))[(s1 == 1[t]), (s2 == 2[t]), (s3 == 3[t]) OR (s3 == 4[t]), Fresh(s4), (s5 == s4)]");
     }
