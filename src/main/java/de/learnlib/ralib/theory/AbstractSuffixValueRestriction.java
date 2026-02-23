@@ -175,6 +175,16 @@ public abstract class AbstractSuffixValueRestriction {
     	}
 	}
 
+	/**
+	 * Shift suffix values in {@code restrictions} by {@code shift} steps. Applies to both the
+	 * suffix value of the restrictions themselves, and to any suffix value elements of the
+	 * restrictions. For example, an {@link EqualityRestriction} {@code (s2 == s1)} that is
+	 * shifted by 2 will become {@code (s4 == s3)}.
+	 *
+	 * @param restrictions
+	 * @param shift
+	 * @return
+	 */
 	public static Map<SuffixValue, AbstractSuffixValueRestriction> shift(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, int shift) {
 		Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
 		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
@@ -185,21 +195,21 @@ public abstract class AbstractSuffixValueRestriction {
 		return ret;
 	}
 
-	public static Map<SuffixValue, AbstractSuffixValueRestriction> replaceRestriction(Map<SuffixValue, AbstractSuffixValueRestriction> restr, AbstractSuffixValueRestriction replace, AbstractSuffixValueRestriction with) {
+	public static Map<SuffixValue, AbstractSuffixValueRestriction> replaceRestriction(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, AbstractSuffixValueRestriction replace, AbstractSuffixValueRestriction by) {
 		SuffixValue param = replace.getParameter();
-		if (!with.getParameter().equals(param)) {
+		if (!by.getParameter().equals(param)) {
 			throw new IllegalArgumentException("Restriction parameters do not match");
 		}
 
 		Map<SuffixValue, AbstractSuffixValueRestriction> replaced = new LinkedHashMap<>();
 
-		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restr.entrySet()) {
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
 			AbstractSuffixValueRestriction r = e.getValue();
 			if (e.getKey().equals(param)) {
 				if (r.equals(replace)) {
-					replaced.put(e.getKey(), with);
+					replaced.put(e.getKey(), by);
 				} else if (r instanceof RestrictionContainer rc) {
-					replaced.put(e.getKey(), rc.replace(replace, with));
+					replaced.put(e.getKey(), rc.replace(replace, by));
 				} else {
 					replaced.put(e.getKey(), r);
 				}
@@ -245,6 +255,11 @@ public abstract class AbstractSuffixValueRestriction {
 //		return Optional.empty();
 //	}
 
+	/**
+	 * @param restrictions
+	 * @param element
+	 * @return {@code true} if and only if {@code restrictions} contains a restriction on {@code element}
+	 */
 	public static boolean containsElement(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
 		for (AbstractSuffixValueRestriction r : restrictions.values()) {
 			if (r instanceof ElementRestriction er && er.containsElement(element)) {
@@ -254,6 +269,10 @@ public abstract class AbstractSuffixValueRestriction {
 		return false;
 	}
 
+	/**
+	 * @param restrictions
+	 * @return set of all variables in {@code restrictions}
+	 */
 	public static Set<Expression<BigDecimal>> getElements(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
 		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
 		for (AbstractSuffixValueRestriction r : restrictions.values()) {
@@ -264,6 +283,11 @@ public abstract class AbstractSuffixValueRestriction {
 		return ret;
 	}
 
+	/**
+	 * @param restrictions
+	 * @param element
+	 * @return list of all restrictions on {@code element} in {@code restrictions}
+	 */
 	public static List<ElementRestriction> getRestrictionsOnElement(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
 		List<ElementRestriction> ret = new ArrayList<>();
 		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
@@ -274,6 +298,10 @@ public abstract class AbstractSuffixValueRestriction {
 		return ret;
 	}
 
+	/**
+	 * @param restrictions
+	 * @return set of all suffix values with an {@link UnmappedEqualityRestriction}
+	 */
 	public static Set<SuffixValue> unmappedSuffixValues(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
 		Set<SuffixValue> ret = new LinkedHashSet<>();
 		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {

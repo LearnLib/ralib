@@ -558,7 +558,17 @@ public abstract class EqualityTheory implements Theory {
         }    	return false;
     }
 
-    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictSDTs(SDT sdt1, SDT sdt2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
+    /**
+     * Compare {@code sdt1} and {@code sdt2} for "common" paths with different outcomes and
+     * derive restrictions from these.
+     *
+     * @param sdt1
+     * @param sdt2
+     * @param restrictions
+     * @param solver
+     * @return
+     */
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionsSeparatingPathsInSDTs(SDT sdt1, SDT sdt2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
     	List<AbstractSuffixValueRestriction> restrs = restrictionsSeparatingPaths(sdt1, sdt2, restrictions, solver);
     	if (restrs == null) {
     		return restrictions;
@@ -667,7 +677,7 @@ public abstract class EqualityTheory implements Theory {
     	return new SuffixValueRestriction(guard.getParameter(), SDTGuard.toExpr(guard));
     }
 
-    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictSDT(SDT sdt, Set<DataValue> regs, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictSDT(SDT sdt, Set<DataValue> regs, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
     	List<List<AbstractSuffixValueRestriction>> paths = pathsBranchingOnRegisters(new ArrayList<>(), new ArrayList<>(), sdt, regs, restrictions, solver);
     	Map<SuffixValue, List<AbstractSuffixValueRestriction>> flattenedPaths = new LinkedHashMap<>();
     	for (List<AbstractSuffixValueRestriction> path : paths) {
@@ -719,7 +729,7 @@ public abstract class EqualityTheory implements Theory {
     				Optional<SDTGuard> gelseOpt = sdt.getChildren()
     						.keySet()
     						.stream()
-    						.filter(g -> isElseGuard(g))
+    						.filter(EqualityTheory::isElseGuard)
     						.findFirst();
     				if (gelseOpt.isEmpty()) {
     					break;
@@ -780,72 +790,133 @@ public abstract class EqualityTheory implements Theory {
     	return false;
     }
 
-    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDTs(SDT sdt1, SDT sdt2, Prefix uExt1, Prefix uExt2, Bijection<DataValue> rp1, Bijection<DataValue> rp2, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
+    /**
+     * Derive restrictions for an extended symbolic suffix, i.e., {@code suffix} prepended by
+     * the last symbol of {@code uExt1}. The new restrictions are derived by examining the paths
+     * of {@code sdt1} and {@code sdt2} to find a "common" path in {@code sdt1} and {@code sdt2}
+     * with different outcomes. The restrictions will have data values mapped to {@code uExt1}.
+     *
+     * @param sdt1
+     * @param sdt2
+     * @param uExt1
+     * @param uExt2
+     * @param u1RpBijection
+     * @param u2RpBijection
+     * @param consts
+     * @param suffix
+     * @param solver
+     * @return
+     */
+    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDTs(SDT sdt1, SDT sdt2, Prefix uExt1, Prefix uExt2, Bijection<DataValue> u1RpBijection, Bijection<DataValue> u2RpBijection, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb1 = uExt1.lastSymbol();
     	PSymbolInstance symb2 = uExt2.lastSymbol();
     	if (!symb1.getBaseSymbol().equals(symb2.getBaseSymbol())) {
     		throw new IllegalArgumentException("One-symbol extensions do not match");
     	}
 
-    	// mappings to ancestor node of suffix
-    	Bijection<DataValue> u1Renaming = new Bijection<>();
-    	Bijection<DataValue> u2Renaming = new Bijection<>();
-    	u1Renaming.putAll(uExt1.getBijection(uExt1.getPath().getPrior(suffix)));
-    	u2Renaming.putAll(uExt2.getBijection(uExt2.getPath().getPrior(suffix)));
+    	// mappings to the immediate ancestor node of suffix
+    	Bijection<DataValue> uExt1AncestorRenaming = new Bijection<>();
+    	Bijection<DataValue> uExt2AncestorRenaming = new Bijection<>();
+    	uExt1AncestorRenaming.putAll(uExt1.getBijection(uExt1.getPath().getPrior(suffix)));
+    	uExt2AncestorRenaming.putAll(uExt2.getBijection(uExt2.getPath().getPrior(suffix)));
 
+    	// find all data values in SDTs and the existing restriction
     	Set<DataValue> vals1 = new LinkedHashSet<>(sdt1.getDataValues());
     	Set<DataValue> vals2 = new LinkedHashSet<>(sdt2.getDataValues());
     	for (Expression<BigDecimal> d : AbstractSuffixValueRestriction.getElements(suffix.getRestrictions())) {
     		if (d instanceof DataValue) {
-    			assert u1Renaming.containsValue(d) && u2Renaming.containsValue(d);
-    			vals1.add(u1Renaming.getKey(d));
-    			vals2.add(u2Renaming.getKey(d));
+    			// d is in restriction, so must be known at the immediate ancestor of suffix
+    			assert uExt1AncestorRenaming.containsValue(d) && uExt2AncestorRenaming.containsValue(d);
+    			vals1.add(uExt1AncestorRenaming.getKey(d));
+    			vals2.add(uExt2AncestorRenaming.getKey(d));
     		}
     	}
 
     	Set<DataValue> unmapped1 = new LinkedHashSet<>(vals1);
     	Set<DataValue> unmapped2 = new LinkedHashSet<>(vals2);
-    	unmapped1.removeAll(rp1.keySet());
-    	unmapped2.removeAll(rp2.keySet());
+    	unmapped1.removeAll(u1RpBijection.keySet());
+    	unmapped2.removeAll(u2RpBijection.keySet());
     	Set<DataValue> mapped1 = new LinkedHashSet<>(vals1);
     	Set<DataValue> mapped2 = new LinkedHashSet<>(vals2);
     	mapped1.removeAll(unmapped1);
     	mapped2.removeAll(unmapped2);
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = AbstractSuffixValueRestriction.shift(suffix.getRestrictions(), symb1.getBaseSymbol().getArity());
+    	// replace pre-existing unmapped restrictions with true restriction
     	ret = replaceUnmappedEqualityRestrictions(ret);
 
+    	// shift SDT suffix parameters
     	sdt1 = sdt1.shift(symb1.getBaseSymbol().getArity());
     	sdt2 = sdt2.shift(symb2.getBaseSymbol().getArity());
-    	SDT sdt1Mapped = sdt1.relabel(SDTRelabeling.fromMapping(unmappedRenaming(unmapped1, symb1)));
-    	SDT sdt2Mapped = sdt2.relabel(SDTRelabeling.fromMapping(unmappedRenaming(unmapped2, symb2)));
-    	ret = replaceUnmappedDataValues(ret, unmapped1, symb1, unmapped2, symb2);
 
-    	addFreshRenamings(u1Renaming, u2Renaming, mapped1, rp1, rp2);
-    	addFreshRenamings(u2Renaming, u1Renaming, mapped2, rp2, rp1);
+    	/*
+    	 * Data values in SDTs not known in u1 (and u2) must correspond to data values in the action,
+    	 * otherwise register closedness would make them known.
+    	 * So rename all unmapped data values to corresponding suffix values in action
+    	 */
+    	SDT sdt1Mapped = sdt1.relabel(SDTRelabeling.fromMapping(remappingToSuffixValues(unmapped1, symb1)));
+    	SDT sdt2Mapped = sdt2.relabel(SDTRelabeling.fromMapping(remappingToSuffixValues(unmapped2, symb2)));
+    	ret = replaceUnmappedDataValuesWithSuffixValues(ret, unmapped1, symb1, unmapped2, symb2);
 
-    	SDT sdt1Renamed = sdt1Mapped.relabel(SDTRelabeling.fromBijection(u1Renaming));
-    	SDT sdt2Renamed = sdt2Mapped.relabel(SDTRelabeling.fromBijection(u2Renaming));
+    	/*
+    	 * Add remappings data values in u1 and u2 which are not known in immediate ancestor
+    	 * of suffix, in order to avoid collisions with other data values of ancestor rp
+    	 */
+    	addFreshRenamings(uExt1AncestorRenaming, uExt2AncestorRenaming, mapped1, u1RpBijection, u2RpBijection);
+    	addFreshRenamings(uExt2AncestorRenaming, uExt1AncestorRenaming, mapped2, u2RpBijection, u1RpBijection);
 
-    	ret = EqualityTheory.restrictSDTs(sdt1Renamed, sdt2Renamed, ret, solver);
+    	// remap to immediate ancestor for "common ground" between SDTs
+    	SDT sdt1Renamed = sdt1Mapped.relabel(SDTRelabeling.fromBijection(uExt1AncestorRenaming));
+    	SDT sdt2Renamed = sdt2Mapped.relabel(SDTRelabeling.fromBijection(uExt2AncestorRenaming));
 
+    	// find new restrictions from separating path
+    	ret = EqualityTheory.restrictionsSeparatingPathsInSDTs(sdt1Renamed, sdt2Renamed, ret, solver);
+
+    	// add equality with suffix value for each equality in restrictions with value in action
     	List<ElementRestriction> alreadyReplaced = new ArrayList<>();
-    	ret = replaceActionEquality(ret, u1Renaming, symb1, alreadyReplaced);
-    	ret = replaceActionEquality(ret, u2Renaming, symb2, alreadyReplaced);
+    	ret = addSuffixValuesToActionEqualities(ret, uExt1AncestorRenaming, symb1, alreadyReplaced);
+    	ret = addSuffixValuesToActionEqualities(ret, uExt2AncestorRenaming, symb2, alreadyReplaced);
 
-    	return AbstractSuffixValueRestriction.relabel(ret, u1Renaming.inverse().toVarMapping());
+    	// map restrictions to uExt1
+    	return AbstractSuffixValueRestriction.relabel(ret, uExt1AncestorRenaming.inverse().toVarMapping());
     }
 
+    /**
+     * Derive restrictions for an extended symbolic suffix, i.e., {@code suffix} prepended by
+     * the last symbol of {@code uExt}. The restrictions are derived by examining paths of
+     * {@code sdt} to find and isolate paths that reveal unmapped data values. Each suffix value
+     * with a guard on unmapped data value will have a {@link TrueRestriction}, while any other
+     * will have a restriction given by the conjunction of existing restrictions in {@code suffix}
+     * and restrictions derived from the paths in {@code sdt} which reveal the unmapped data
+     * values.
+     *
+     * @param sdt
+     * @param uExt
+     * @param rp
+     * @param consts
+     * @param missingRegs
+     * @param suffix
+     * @param solver
+     * @return
+     */
     public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix uExt, Bijection<DataValue> rp, Constants consts, Set<DataValue> missingRegs, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb = uExt.lastSymbol();
 
+    	// mapping from uExt to the RP of the immediate ancestor node of suffix
     	Bijection<DataValue> renaming = new Bijection<>();
     	renaming.putAll(uExt.getBijection(uExt.getPath().getPrior(suffix)));
 
+    	// find all unmapped data values in SDT
     	Set<DataValue> unmapped = new LinkedHashSet<>(sdt.getDataValues());
     	unmapped.removeAll(rp.keySet());
 
+    	/*
+    	 * Add renamings for any data value in the SDT which is not known at the ancestor node
+    	 * in order to avoid collisions with other data values of the ancestor node
+    	 */
     	addFreshRenamings(renaming, sdt.getDataValues());
+
+    	// translate unmapped data values to the fresh renamings
     	Set<DataValue> unmappedRenamed = new LinkedHashSet<>();
     	unmapped.forEach(d -> unmappedRenamed.add(renaming.get(d)));
 
@@ -856,36 +927,66 @@ public abstract class EqualityTheory implements Theory {
     	SDT sdtRenamed = sdtShifted.relabel(SDTRelabeling.fromBijection(renaming));
     	ret = restrictSDT(sdtRenamed, unmappedRenamed, ret, solver);
 
+    	// if there are unmapped registers in restriction, replace them with unmapped restriction
     	ret = replaceMissingRegsWithUnmapped(ret, unmapped, renaming);
-    	ret = replaceActionEquality(ret, renaming, symb, new ArrayList<>());
 
+    	// add suffix values to equality restrictions of values in symbol
+    	ret = addSuffixValuesToActionEqualities(ret, renaming, symb, new ArrayList<>());
+
+    	// relabel to uExt
     	return AbstractSuffixValueRestriction.relabel(ret, renaming.inverse().toVarMapping());
     }
 
-    private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceUnmappedDataValues(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Set<DataValue> unmapped1, PSymbolInstance symbol1, Set<DataValue> unmapped2, PSymbolInstance symbol2) {
-    	Mapping<DataValue, SuffixValue> renaming1 = unmappedRenaming(unmapped1, symbol1);
-    	Mapping<DataValue, SuffixValue> renaming2 = unmappedRenaming(unmapped2, symbol2);
+    /**
+     * Replace data values in {@code restriction} that are present in {@code unmapped1} or
+     * {@code unmapped2} with suffix values according to the position of corresponding data
+     * values in {@code symbol1} and {@code symbol2}, respectively.
+     *
+     * @param restrictions
+     * @param unmapped1
+     * @param symbol1
+     * @param unmapped2
+     * @param symbol2
+     * @return
+     */
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceUnmappedDataValuesWithSuffixValues(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Set<DataValue> unmapped1, PSymbolInstance symbol1, Set<DataValue> unmapped2, PSymbolInstance symbol2) {
+    	Mapping<DataValue, SuffixValue> renaming1 = remappingToSuffixValues(unmapped1, symbol1);
+    	Mapping<DataValue, SuffixValue> renaming2 = remappingToSuffixValues(unmapped2, symbol2);
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = AbstractSuffixValueRestriction.relabel(restrictions, renaming1);
     	return AbstractSuffixValueRestriction.relabel(ret, renaming2);
     }
 
-    private static Mapping<DataValue, SuffixValue> unmappedRenaming(Set<DataValue> unmapped, PSymbolInstance symbol) {
-    	ArrayList<DataValue> vals = new ArrayList<>(symbol.getBaseSymbol().getArity());
-    	vals.addAll(Arrays.asList(symbol.getParameterValues()));
+    /**
+     * Compute mapping from data values in {@code vals} to suffix values corresponding to
+     * data value positions in {@code symbol}. A precondition of this method is that all
+     * data values in {@code vals} are in {@code symbol}.
+     *
+     * @param vals
+     * @param symbol
+     * @return
+     */
+    private static Mapping<DataValue, SuffixValue> remappingToSuffixValues(Set<DataValue> vals, PSymbolInstance symbol) {
+    	ArrayList<DataValue> actionVals = new ArrayList<>(symbol.getBaseSymbol().getArity());
+    	actionVals.addAll(Arrays.asList(symbol.getParameterValues()));
     	Mapping<DataValue, SuffixValue> renaming = new Mapping<>();
 
-    	for (DataValue d : unmapped) {
-    		int id = vals.indexOf(d);
+    	for (DataValue d : vals) {
+    		int id = actionVals.indexOf(d);
     		assert id >= 0 : "Unmapped data value not present in action";
 
-    		SuffixValue s = new SuffixValue(vals.get(id).getDataType(), id + 1);
+    		SuffixValue s = new SuffixValue(actionVals.get(id).getDataType(), id + 1);
     		renaming.put(d, s);
     	}
 
     	return renaming;
     }
 
+    /**
+     * @param vals
+     * @param type
+     * @return fresh data value of type {@code type} not present in {@code vals}
+     */
     public static DataValue getFreshValue(Collection<DataValue> vals, DataType type) {
         BigDecimal dv = new BigDecimal("-1");
         for (DataValue d : vals) {
@@ -895,13 +996,30 @@ public abstract class EqualityTheory implements Theory {
         return new DataValue(type, BigDecimal.ONE.add(dv));
     }
 
-    private static void addFreshRenamings(Bijection<DataValue> renaming1, Bijection<DataValue> renaming2, Set<DataValue> mapped, Bijection<DataValue> rp1, Bijection<DataValue> rp2) {
+    /**
+     * For any data value in {@code mapped} which is not present in the key set of {@code renaming1},
+     * add a mapping to {@code renaming1} to a fresh data value, with respect to the values
+     * of {@code renaming1}. For each such mapping added, also adds a corresponding mapping
+     * to {@code renaming2}, according to the composition of {@code rpBijection1} with the
+     * inverse of {@code rpBijection2}.
+     *
+     * The purpose of the method is to avoid collisions between mapped data values in two
+     * prefixes and data values in the RP of an ancestor node to which the two prefixes
+     * are being compared.
+     *
+     * @param renaming1
+     * @param renaming2
+     * @param mapped
+     * @param rpBijection1
+     * @param rpBijection2
+     */
+    private static void addFreshRenamings(Bijection<DataValue> renaming1, Bijection<DataValue> renaming2, Set<DataValue> mapped, Bijection<DataValue> rpBijection1, Bijection<DataValue> rpBijection2) {
     	assert (renaming1.isEmpty() && renaming2.isEmpty()) || !Collections.disjoint(renaming1.values(), renaming2.values()) : "Renamings do not have the same set of values";
     	for (DataValue d1 : mapped) {
     		if (!renaming1.containsKey(d1)) {
     			// not mapped for the representative prefix of the node above the u1 extension
     			DataValue fresh = getFreshValue(renaming1.values(), d1.getDataType());
-    			DataValue d2 = rp1.compose(rp2.inverse()).get(d1);
+    			DataValue d2 = rpBijection1.compose(rpBijection2.inverse()).get(d1);
     			assert d2 != null : "No corresponding data value for " + d1;
 
     			renaming1.put(d1, fresh);
@@ -910,6 +1028,14 @@ public abstract class EqualityTheory implements Theory {
     	}
     }
 
+    /**
+     * For any data value in {@code mapped} which is not present in key set of {@code renaming},
+     * add a mapping to {@code renaming} to a fresh data value, with respect to the values of
+     * {@code renaming}.
+     *
+     * @param renaming
+     * @param mapped
+     */
     private static void addFreshRenamings(Bijection<DataValue> renaming, Set<DataValue> mapped) {
     	for (DataValue d : mapped) {
     		if (!renaming.containsKey(d)) {
@@ -920,21 +1046,35 @@ public abstract class EqualityTheory implements Theory {
     	}
     }
 
-    private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceActionEquality(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Bijection<DataValue> rp, PSymbolInstance symbol, List<ElementRestriction> alreadyReplaced) {
+    /**
+     * For each equality in {@code restrictions} with a data value present in {@code symbol},
+     * add a disjunction with all suffix values corresponding to {@code symbol} which that data
+     * value might equal (i.e., any suffix value of the same type).
+     *
+     * @param restrictions set of suffix value restrictions
+     * @param renaming renaming of data values from {@code symbol} to {@restrictions}
+     * @param symbol
+     * @param alreadyReplaced set of restrictions that have already been handled
+     * @return
+     */
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> addSuffixValuesToActionEqualities(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Bijection<DataValue> renaming, PSymbolInstance symbol, List<ElementRestriction> alreadyReplaced) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = restrictions;
     	List<DataValue> actionVals = Arrays.asList(symbol.getParameterValues());
 
     	Set<DataValue> restrictionValues = new LinkedHashSet<>();
-    	AbstractSuffixValueRestriction.getElements(restrictions).stream().filter(e -> e instanceof DataValue).forEach(e -> restrictionValues.add((DataValue) e));
+    	AbstractSuffixValueRestriction.getElements(restrictions)
+    		.stream()
+    		.filter(e -> e instanceof DataValue)
+    		.forEach(e -> restrictionValues.add((DataValue) e));
 
     	for (DataValue d : restrictionValues) {
-    		DataValue dRenamed = rp.getKey(d);
+    		DataValue dRenamed = renaming.getKey(d);
     		if (dRenamed != null && actionVals.contains(dRenamed)) {
     			for (ElementRestriction er : AbstractSuffixValueRestriction.getRestrictionsOnElement(restrictions, d)) {
     				if (alreadyReplaced.contains(er)) {
     					continue;
     				}
-    				assert er instanceof EqualityRestriction;
+    				assert er instanceof EqualityRestriction : "Encountered incompatible restriction type";
     				EqualityRestriction replace = (EqualityRestriction) er;
     				Set<SDTGuardElement> elems = replace.getGuardElements();
     				elems.addAll(potentiallyEqualSuffixValues(dRenamed, actionVals));
@@ -948,6 +1088,15 @@ public abstract class EqualityTheory implements Theory {
     	return ret;
     }
 
+    /**
+     * Compute set of suffix values corresponding to each data value in {@code vals} with the
+     * same type as {@code d}. The id for each suffix value is given by the position of its
+     * corresponding value in {@code vals}.
+     *
+     * @param d
+     * @param vals
+     * @return set of suffix values corresponding to {@code vals} with the same type as {@code d}
+     */
     private static Set<SDTGuardElement> potentiallyEqualSuffixValues(DataValue d, List<DataValue> vals) {
     	Set<SDTGuardElement> ret = new LinkedHashSet<>();
     	for (int i = 0; i < vals.size(); i++) {
@@ -958,6 +1107,15 @@ public abstract class EqualityTheory implements Theory {
     	return ret;
     }
 
+    /**
+     * Replace any equality restrictions in {@code restrictions} with data values in
+     * {@code missingRegs} with {@link UnmappedEqualityRestriction}.
+     *
+     * @param restrictions
+     * @param missingRegs
+     * @param renaming
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceMissingRegsWithUnmapped(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Set<DataValue> missingRegs, Bijection<DataValue> renaming) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = restrictions;
 
@@ -974,6 +1132,12 @@ public abstract class EqualityTheory implements Theory {
     	return ret;
     }
 
+    /**
+     * Replace any {@link UnmappedEqualityRestriction} in {@code restrictions} with {@link TrueRestriction}
+     *
+     * @param restrictions
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceUnmappedEqualityRestrictions(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
     	ret.putAll(restrictions);

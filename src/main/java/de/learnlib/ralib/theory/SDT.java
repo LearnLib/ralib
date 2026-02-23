@@ -416,6 +416,12 @@ public class SDT {
         return ret;
     }
 
+    /**
+     * Add {@code shift} to each suffix value id in SDT, including any potential guard elements
+     *
+     * @param shift
+     * @return
+     */
     public SDT shift(int shift) {
     	if (this.children == null) {
     		return this;
