@@ -128,7 +128,7 @@
         <source-plugin.version>3.4.0</source-plugin.version>
         <spotless-plugin.version>3.2.1</spotless-plugin.version>
         <spotbugs-plugin.version>4.9.8.2</spotbugs-plugin.version>
-        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <surefire-plugin.version>3.5.5</surefire-plugin.version>
     </properties>
 
     <build>
