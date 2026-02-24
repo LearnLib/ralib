@@ -561,25 +561,34 @@ public abstract class EqualityTheory implements Theory {
 
     /**
      * Compare {@code sdt1} and {@code sdt2} for "common" paths with different outcomes and
-     * derive restrictions from these.
+     * derive restrictions from these. Pre-existing restrictions are taken into consideration
+     * when deriving new restrictions.
      *
      * @param sdt1
      * @param sdt2
-     * @param restrictions
+     * @param restrictions existing restrictions
      * @param solver
      * @return
      */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionsSeparatingPathsInSDTs(SDT sdt1, SDT sdt2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
-//    	List<AbstractSuffixValueRestriction> restrs = restrictionsSeparatingPaths(sdt1, sdt2, restrictions, solver);
-    	List<Map.Entry<SDTGuard, SDTGuard>> paths = restrictionsSeparatingPaths(sdt1, sdt2, restrictions, solver);
-    	if (paths == null) {
+    	Optional<List<Map.Entry<SDTGuard, SDTGuard>>> pathsOpt = restrictionsSeparatingPaths(sdt1, sdt2, restrictions, solver);
+    	if (pathsOpt.isEmpty()) {
     		return restrictions;
     	}
+    	List<Map.Entry<SDTGuard, SDTGuard>> paths = pathsOpt.get();
 
     	List<AbstractSuffixValueRestriction> restrs = pathsToRestrictions(paths, restrictions, Set.of());
     	return restrictionListToMap(restrs);
     }
 
+    /**
+     * Converts a list of restrictions to a mapping of suffix values to corresponding restrictions.
+     * If multiple restrictions correspond to the same suffix value, the suffix value will be
+     * mapped to a disjunction of these.
+     *
+     * @param restrList
+     * @return a mapping of suffix values to corresponding restrictions in {@code restrList}
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionListToMap(List<AbstractSuffixValueRestriction> restrList) {
     	Map<SuffixValue, List<AbstractSuffixValueRestriction>> groups = new LinkedHashMap<>();
     	for (AbstractSuffixValueRestriction r : restrList) {
@@ -595,44 +604,26 @@ public abstract class EqualityTheory implements Theory {
     		ret.put(e.getKey(), dis);
     	}
     	return ret;
-//    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
-//    	Map<SuffixValue, List<AbstractSuffixValueRestriction>> groups = group(restrList);
-//    	Map<SuffixValue, AbstractSuffixValueRestriction> flattened = flatten(groups);
-//    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
-//    	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
-//    		AbstractSuffixValueRestriction dis = flattened.get(e.getKey());
-//    		AbstractSuffixValueRestriction con = ConjunctionRestriction.create(e.getKey(), dis, e.getValue());
-//    		ret.put(e.getKey(), con);
-//    	}
-//    	return ret;
     }
 
-    private static Map<SuffixValue, List<AbstractSuffixValueRestriction>> group(List<AbstractSuffixValueRestriction> restrs) {
-    	Map<SuffixValue, List<AbstractSuffixValueRestriction>> ret = new LinkedHashMap<>();
-    	for (AbstractSuffixValueRestriction r : restrs) {
-    		SuffixValue s = r.getParameter();
-    		List<AbstractSuffixValueRestriction> list = ret.containsKey(s) ? ret.get(s) : new ArrayList<>();
-    		list.add(r);
-    		ret.put(s, list);
-    	}
-    	return ret;
-    }
-
-    private static Map<SuffixValue, AbstractSuffixValueRestriction> flatten(Map<SuffixValue, List<AbstractSuffixValueRestriction>> groups) {
-    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
-    	for (Map.Entry<SuffixValue, List<AbstractSuffixValueRestriction>> e : groups.entrySet()) {
-    		AbstractSuffixValueRestriction dis = DisjunctionRestriction.create(e.getKey(), e.getValue());
-    		ret.put(e.getKey(), dis);
-    	}
-    	return ret;
-    }
-
-    private static List<Map.Entry<SDTGuard, SDTGuard>> restrictionsSeparatingPaths(SDT sdt1, SDT sdt2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
+    /**
+     * Find a "common" path in {@code sdt1} and {@code sdt2} (i.e., a path in {@code sdt1} and
+     * another path in {@code sdt2} such that the conjunction of these two paths is satisfiable)
+     * with different outcomes.
+     *
+     * @param sdt1
+     * @param sdt2
+     * @param restrictions
+     * @param solver
+     * @return {@code Optional} containing a "common" path in {@code sdt1} and {@code sdt2}, if such a path exists
+     */
+    private static Optional<List<Map.Entry<SDTGuard, SDTGuard>>> restrictionsSeparatingPaths(SDT sdt1, SDT sdt2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
     	Map<List<SDTGuard>, Boolean> paths1 = sdt1.getAllPaths(new ArrayList<>());
     	Map<List<SDTGuard>, Boolean> paths2 = sdt2.getAllPaths(new ArrayList<>());
     	for (Map.Entry<List<SDTGuard>, Boolean> e1 : paths1.entrySet()) {
     		for (Map.Entry<List<SDTGuard>, Boolean> e2 : paths2.entrySet()) {
     			if (e1.getValue() != e2.getValue()) {
+    				// paths have different outcomes
     				List<SDTGuard> path1 = e1.getKey();
     				List<SDTGuard> path2 = e2.getKey();
     				int n = path1.size();
@@ -646,12 +637,12 @@ public abstract class EqualityTheory implements Theory {
     				}
     				Expression<Boolean> expr = ExpressionUtil.and(exprs);
     				if (solver.isSatisfiable(expr, new Mapping<>())) {
+    					// common path
     					List<SDTGuard> sorted1 = new ArrayList<>(path1);
     					List<SDTGuard> sorted2 = new ArrayList<>(path2);
+    					// sort paths in ascending suffix value order
     					sorted1.sort((g1, g2) -> Integer.compare(g1.getParameter().getId(), g2.getParameter().getId()));
     					sorted2.sort((g1, g2) -> Integer.compare(g1.getParameter().getId(), g2.getParameter().getId()));
-//    					List<AbstractSuffixValueRestriction> ret = new ArrayList<>();
-//    					ret.addAll(EqualityTheory.pathsConjunctionsToRestrictions(sorted1, sorted2, restrictions));
 
     					List<Map.Entry<SDTGuard, SDTGuard>> ret = new ArrayList<>();
     					Iterator<SDTGuard> pathIt1 = sorted1.iterator();
@@ -661,141 +652,120 @@ public abstract class EqualityTheory implements Theory {
     						ret.add(new SimpleEntry<>(pathIt1.next(), pathIt2.next()));
     					}
 
-    					return ret;
+    					return Optional.of(ret);
     				}
     			}
     		}
     	}
-    	return null;
+    	return Optional.empty();
     }
 
-//    private static List<AbstractSuffixValueRestriction> restrictionsSeparatingPaths(SDT sdt1, SDT sdt2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
-//    	Map<List<SDTGuard>, Boolean> paths1 = sdt1.getAllPaths(new ArrayList<>());
-//    	Map<List<SDTGuard>, Boolean> paths2 = sdt2.getAllPaths(new ArrayList<>());
-//    	for (Map.Entry<List<SDTGuard>, Boolean> e1 : paths1.entrySet()) {
-//    		for (Map.Entry<List<SDTGuard>, Boolean> e2 : paths2.entrySet()) {
-//    			if (e1.getValue() != e2.getValue()) {
-//    				List<SDTGuard> path1 = e1.getKey();
-//    				List<SDTGuard> path2 = e2.getKey();
-//    				int n = path1.size();
-//    				assert path2.size() == n : "SDTs are not compatible";
-//    				Expression[] exprs = new Expression[n + n];
-//    				Iterator<SDTGuard> it1 = path1.iterator();
-//    				Iterator<SDTGuard> it2 = path2.iterator();
-//    				for (int i = 0; i < n; i++) {
-//    					exprs[i] = SDTGuard.toExpr(it1.next());
-//    					exprs[i+n] = SDTGuard.toExpr(it2.next());
-//    				}
-//    				Expression<Boolean> expr = ExpressionUtil.and(exprs);
-//    				if (solver.isSatisfiable(expr, new Mapping<>())) {
-//    					List<SDTGuard> sorted1 = new ArrayList<>(path1);
-//    					List<SDTGuard> sorted2 = new ArrayList<>(path2);
-//    					sorted1.sort((g1, g2) -> Integer.compare(g1.getParameter().getId(), g2.getParameter().getId()));
-//    					sorted2.sort((g1, g2) -> Integer.compare(g1.getParameter().getId(), g2.getParameter().getId()));
-//    					List<AbstractSuffixValueRestriction> ret = new ArrayList<>();
-//    					ret.addAll(EqualityTheory.pathsConjunctionsToRestrictions(sorted1, sorted2, restrictions));
-//    					return ret;
-//    				}
-//    			}
-//    		}
-//    	}
-//    	return null;
-//    }
-
-    private static AbstractSuffixValueRestriction guardsConjunctionToRestriction(SDTGuard guard1, SDTGuard guard2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
-    	SuffixValue param = guard1.getParameter();
-    	assert guard2.getParameter().equals(param);
-    	if (guard1 instanceof SDTGuard.EqualityGuard geq) {
-    		assert isElseGuard(guard2) || (guard2 instanceof SDTGuard.EqualityGuard && ((SDTGuard.EqualityGuard) guard2).register().equals(geq.register()));
-			return SuffixValueRestriction.equalityRestriction(param, SDTGuardElement.castToExpression(geq.register()));
-    	} else if (guard2 instanceof SDTGuard.EqualityGuard geq) {
-    		assert isElseGuard(guard1);
-			return SuffixValueRestriction.equalityRestriction(param, SDTGuardElement.castToExpression(geq.register()));
-    	}
-    	assert isElseGuard(guard1) && isElseGuard(guard2);
-    	if (guard1 instanceof SDTGuard.SDTTrueGuard && guard2 instanceof SDTGuard.SDTTrueGuard) {
-    		return restrictions.get(guard1.getParameter());
-    	}
-    	return new FreshSuffixValue(param);
-    }
-
+    /**
+     * Convert two common SDT paths into a "restriction path" (i.e., a list of restrictions
+     * derived from the paths). Derived restrictions will be chosen such that they do not
+     * fall outside of the data-value space spanned by pre-existing restrictions. The
+     * exception to this is that any equality guards on registers in {@code missingRegs}
+     * will result in a {@link TrueRestriction} for that suffix value.
+     *
+     * @param paths
+     * @param restrictions pre-existing restrictions
+     * @param missingRegs register that the restrictions should be chosen to reveal
+     * @return
+     */
     private static List<AbstractSuffixValueRestriction> pathsToRestrictions(List<Map.Entry<SDTGuard, SDTGuard>> paths, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Set<DataValue> missingRegs) {
     	List<AbstractSuffixValueRestriction> ret = new ArrayList<>();
     	for (Map.Entry<SDTGuard, SDTGuard> pathStep : paths) {
-//    		ret.add(guardsConjunctionToRestriction(pathStep.getKey(), pathStep.getValue(), restrictions));
     		ret.add(guardsToRestriction(pathStep, restrictions, missingRegs));
     	}
     	return ret;
     }
 
-//    private static List<AbstractSuffixValueRestriction> pathsConjunctionsToRestrictions(List<SDTGuard> path1, List<SDTGuard> path2, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
-//    	assert path1.size() == path2.size();
-//    	Iterator<SDTGuard> it1 = path1.iterator();
-//    	Iterator<SDTGuard> it2 = path2.iterator();
-//    	List<AbstractSuffixValueRestriction> ret = new ArrayList<>();
-//    	while (it1.hasNext()) {
-//    		SDTGuard g1 = it1.next();
-//    		SDTGuard g2 = it2.next();
-//    		ret.add(guardsConjunctionToRestriction(g1, g2, restrictions));
-//    	}
-//    	return ret;
-//    }
-
-    private static AbstractSuffixValueRestriction guardToRestriction(SDTGuard guard) {
-    	if (isElseGuard(guard)) {
-    		return new FreshSuffixValue(guard.getParameter());
-    	}
-    	if (guard instanceof SDTGuard.EqualityGuard geq) {
-    		return SuffixValueRestriction.equalityRestriction(geq.getParameter(), geq.register().asExpression());
-    	}
-    	return new SuffixValueRestriction(guard.getParameter(), SDTGuard.toExpr(guard));
-    }
-
+    /**
+     * Merge two guards into a restriction. The merged restriction will chosen such that it
+     * spans a subset of the data values spanned by pre-existing restrictions, unless one of
+     * the guards is an equality with a "missing register". In that case, the restriction will
+     * be a {@link TrueRestriction}.
+     * <br>
+     * Method assumes equality, disequality or true guards.
+     *
+     * @param guards
+     * @param restrictions
+     * @param missingRegs
+     * @return
+     */
     private static AbstractSuffixValueRestriction guardsToRestriction(Map.Entry<SDTGuard, SDTGuard> guards, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Set<DataValue> missingRegs) {
     	SuffixValue suffixValue = guards.getKey().getParameter();
     	AbstractSuffixValueRestriction rOld = restrictions.get(suffixValue);
+
+    	// if both guards are TRUE guards, any value will suffice so return old restriction
     	assert guards.getValue().getParameter().equals(suffixValue);
     	if (guards.getKey() instanceof SDTGuard.SDTTrueGuard && guards.getValue() instanceof SDTGuard.SDTTrueGuard) {
     		return rOld;
     	}
+
+    	// check left guard
     	if (guards.getKey() instanceof SDTGuard.EqualityGuard geq) {
+    		// if equality with missing register, restriction should be True
     		if (missingRegs.contains(geq.register())) {
     			// could be the disjunction Unmappped OR Fresh?
     			return new TrueRestriction(suffixValue);
     		}
+    		// if both are equality guards, the restriction should be the conjunction
     		if (guards.getValue() instanceof SDTGuard.EqualityGuard geqOther) {
+        		// the conjunction must be a subset of old restrictions, otherwise guards would not be present in sdts
     			return SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression(), geqOther.register().asExpression());
     		}
+    		// right guard must be an else guard
     		assert isElseGuard(guards.getValue());
     		if (rOld.containsFresh()) {
+    			// disjunction of equality with fresh
     			return DisjunctionRestriction.create(suffixValue,
         				SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression()),
         				new FreshSuffixValue(suffixValue));
     		}
+    		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
     		return rOld;
     	}
+    	// left guard must be else guard, check right guard
     	assert isElseGuard(guards.getKey());
     	if (guards.getValue() instanceof SDTGuard.EqualityGuard geq) {
     		if (rOld.containsFresh()) {
+    			// disjunction of equality with fresh
     			return DisjunctionRestriction.create(suffixValue,
         				SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression()),
         				new FreshSuffixValue(suffixValue));
     		}
+    		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
     		return rOld;
     	}
     	assert isElseGuard(guards.getValue());
     	if (rOld.containsFresh()) {
+    		// both guards are else
     		return new FreshSuffixValue(suffixValue);
     	}
+		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
     	return rOld;
     }
 
-    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictSDT(SDT sdt, Set<DataValue> regs, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
+    /**
+     * Compute restrictions from paths in {@code sdt} which reveal missing registers.
+     *
+     * @param sdt
+     * @param regs
+     * @param restrictions
+     * @param solver
+     * @return
+     */
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionsRevealingRegisters(SDT sdt, Set<DataValue> regs, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
+    	// find all pairs of paths revealing registers
     	List<List<Map.Entry<SDTGuard, SDTGuard>>> paths = pathsBranchingOnRegisters(new ArrayList<>(), new ArrayList<>(), sdt, regs, restrictions, solver);
+
+    	// convert list of path-pairs to list of restriction paths
     	List<List<AbstractSuffixValueRestriction>> restrLists = new ArrayList<>();
     	for (List<Map.Entry<SDTGuard, SDTGuard>> path : paths) {
     		restrLists.add(pathsToRestrictions(path, restrictions, regs));
     	}
+    	// map suffix values to list of restrictions
     	Map<SuffixValue, List<AbstractSuffixValueRestriction>> flattenedPaths = new LinkedHashMap<>();
     	for (List<AbstractSuffixValueRestriction> restrList : restrLists) {
     		for (AbstractSuffixValueRestriction r : restrList) {
@@ -809,36 +779,49 @@ public abstract class EqualityTheory implements Theory {
     		}
     	}
     	assert flattenedPaths.size() <= restrictions.size();
+    	// compute disjunctions of lists of restrictions
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
     	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> restrictionsEntry : restrictions.entrySet()) {
     		SuffixValue s = restrictionsEntry.getKey();
-//    		AbstractSuffixValueRestriction original = restrictionsEntry.getValue();
     		List<AbstractSuffixValueRestriction> disjuncts = flattenedPaths.get(s);
-//    		if (sdtHasGuardOnMemorable(sdt, s, regs)) {
-//    			ret.put(s, new TrueRestriction(s));
-//    		} else {
-	    		AbstractSuffixValueRestriction dis = DisjunctionRestriction.create(s, disjuncts);
-//	    		AbstractSuffixValueRestriction con = ConjunctionRestriction.create(s, original, dis);
-	    		ret.put(s, dis);
-//    		}
+	    	AbstractSuffixValueRestriction dis = DisjunctionRestriction.create(s, disjuncts);
+	    	ret.put(s, dis);
     	}
     	return ret;
     }
 
+    /**
+     * Recursively find all pairs of paths which reveal registers. A pair of register-revealing
+     * paths consists of a common pre-path leading to a branch on a register, followed by a
+     * post-path which separates the two branches. The branch itself has one equality guard on a
+     * register and a corresponding else guard.
+     *
+     * @param paths all pairs of paths currently found
+     * @param path current pre-path
+     * @param sdt
+     * @param regs
+     * @param restrictions
+     * @param solver
+     * @return
+     */
     private static List<List<Map.Entry<SDTGuard, SDTGuard>>> pathsBranchingOnRegisters(List<List<Map.Entry<SDTGuard, SDTGuard>>> paths, List<Map.Entry<SDTGuard, SDTGuard>> path, SDT sdt, Set<DataValue> regs, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
     	List<List<Map.Entry<SDTGuard, SDTGuard>>> ret = new ArrayList<>(paths);
     	if (Collections.disjoint(sdt.getDataValues(), regs)) {
+    		// sdt has no branch on a register, ignore it
     		return ret;
     	}
 
     	for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
     		if (!Collections.disjoint(e.getValue().getDataValues(), regs)) {
+    			// sub-sdt contains branch on register
+    			// add guard to pre-path
     			List<Map.Entry<SDTGuard, SDTGuard>> extendedPath = new ArrayList<>(path);
     			extendedPath.add(new SimpleEntry<>(e.getKey(), e.getKey()));
-//    			extendedPath.add(guardToRestriction(e.getKey()));
+    			// add rest of path
     			ret.addAll(pathsBranchingOnRegisters(paths, extendedPath, e.getValue(), regs, restrictions, solver));
     		}
     	}
+    	// find branch on register, if one exists
     	for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
     		SDTGuard guard = e.getKey();
     		if (guard instanceof SDTGuard.EqualityGuard geq) {
@@ -856,96 +839,29 @@ public abstract class EqualityTheory implements Theory {
     				SDT sdtEq = e.getValue();
     				SDT sdtElse = sdt.getChildren().get(gelse);
 
-    				// find two separating subpaths
-    				List<Map.Entry<SDTGuard, SDTGuard>> sep = restrictionsSeparatingPaths(sdtEq, sdtElse, restrictions, solver);
-    				if (sep == null) {
+    				// find two separating post-paths
+    				Optional<List<Map.Entry<SDTGuard, SDTGuard>>> sepOpt = restrictionsSeparatingPaths(sdtEq, sdtElse, restrictions, solver);
+    				if (sepOpt.isEmpty()) {
     					// could not separate paths, ignore and keep going
     					continue;
     		    	}
+    				List<Map.Entry<SDTGuard, SDTGuard>> sep = sepOpt.get();
 
+    				// construct full path consisting of pre-path, branch and post-path
     				List<Map.Entry<SDTGuard, SDTGuard>> fullPath = new ArrayList<>(path);
     				fullPath.add(new SimpleEntry<>(geq, gelse));
     				fullPath.addAll(sep);
     				ret.add(fullPath);
-
-//    				List<AbstractSuffixValueRestriction> fullPath1 = new ArrayList<>(path);
-//    				List<AbstractSuffixValueRestriction> fullPath2 = new ArrayList<>(path);
-//    				fullPath1.add(new TrueRestriction(geq.getParameter()));
-//    				fullPath1.addAll(sep);
-//    				fullPath2.add(new TrueRestriction(gelse.getParameter()));
-//    				fullPath2.addAll(sep);
-//    				ret.add(fullPath1);
-//    				ret.add(fullPath2);
     			}
     		}
     	}
     	return ret;
     }
 
-//    private static List<List<AbstractSuffixValueRestriction>> pathsBranchingOnRegisters(List<List<AbstractSuffixValueRestriction>> paths, List<AbstractSuffixValueRestriction> path, SDT sdt, Set<DataValue> regs, Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, ConstraintSolver solver) {
-//    	List<List<AbstractSuffixValueRestriction>> ret = new ArrayList<>(paths);
-//    	if (Collections.disjoint(sdt.getDataValues(), regs)) {
-//    		return ret;
-//    	}
-//
-//    	for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
-//    		if (!Collections.disjoint(e.getValue().getDataValues(), regs)) {
-//    			List<AbstractSuffixValueRestriction> extendedPath = new ArrayList<>(path);
-//    			extendedPath.add(guardToRestriction(e.getKey()));
-//    			ret.addAll(pathsBranchingOnRegisters(paths, extendedPath, e.getValue(), regs, restrictions, solver));
-//    		}
-//    	}
-//    	for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
-//    		SDTGuard guard = e.getKey();
-//    		if (guard instanceof SDTGuard.EqualityGuard geq) {
-//    			if (regs.contains(geq.register())) {
-//    				// found equality guard, now find corresponding else
-//    				Optional<SDTGuard> gelseOpt = sdt.getChildren()
-//    						.keySet()
-//    						.stream()
-//    						.filter(EqualityTheory::isElseGuard)
-//    						.findFirst();
-//    				if (gelseOpt.isEmpty()) {
-//    					break;
-//    				}
-//    				SDTGuard gelse = gelseOpt.get();
-//    				SDT sdtEq = e.getValue();
-//    				SDT sdtElse = sdt.getChildren().get(gelse);
-//
-//    				// find two separating subpaths
-//    				List<AbstractSuffixValueRestriction> sep = restrictionsSeparatingPaths(sdtEq, sdtElse, restrictions, solver);
-//    				if (sep == null) {
-//    		    		throw new RuntimeException("SDTs have no comparable paths with different outcomes");
-//    		    	}
-//
-//    				List<AbstractSuffixValueRestriction> fullPath1 = new ArrayList<>(path);
-//    				List<AbstractSuffixValueRestriction> fullPath2 = new ArrayList<>(path);
-//    				fullPath1.add(new TrueRestriction(geq.getParameter()));
-//    				fullPath1.addAll(sep);
-//    				fullPath2.add(new TrueRestriction(gelse.getParameter()));
-//    				fullPath2.addAll(sep);
-//    				ret.add(fullPath1);
-//    				ret.add(fullPath2);
-//    			}
-//    		}
-//    	}
-//    	return ret;
-//    }
-
-    private static boolean sdtHasGuardOnMemorable(SDT sdt, SuffixValue s, Set<DataValue> regs) {
-    	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
-    	for (List<SDTGuard> path : paths) {
-    		for (SDTGuard guard : path) {
-    			if (guard.getParameter().equals(s)) {
-        			if (!Collections.disjoint(guard.getRegisters(), regs)) {
-        				return true;
-        			}
-    			}
-    		}
-    	}
-    	return false;
-    }
-
+    /**
+     * @param g
+     * @return {@code true} if and only if {@code g} is an else guard
+     */
     private static boolean isElseGuard(SDTGuard g) {
     	if (g instanceof SDTGuard.SDTTrueGuard) {
     		return true;
@@ -1099,7 +1015,7 @@ public abstract class EqualityTheory implements Theory {
 
     	SDT sdtShifted = sdt.shift(symb.getBaseSymbol().getArity());
     	SDT sdtRenamed = sdtShifted.relabel(SDTRelabeling.fromBijection(renaming));
-    	ret = restrictSDT(sdtRenamed, unmappedRenamed, ret, solver);
+    	ret = restrictionsRevealingRegisters(sdtRenamed, unmappedRenamed, ret, solver);
 
     	// if there are unmapped registers in restriction, replace them with unmapped restriction
     	ret = replaceMissingRegsWithUnmapped(ret, unmapped, renaming);
