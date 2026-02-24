@@ -709,8 +709,7 @@ public class ClassificationTree {
 		if (restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
 			Prefix uPref = getLeaf(u).getPrefix(u);
 			Prefix uExtPref = getLeaf(ua).getPrefix(ua);
-			Prefix uRepr = getLeaf(u).getRepresentativePrefix();
-			return sllambdaRestrBuilder.extendSuffix(uPref, uExtPref, uRepr, v, u_sdt, missingRegs);
+			return sllambdaRestrBuilder.extendSuffix(uPref, uExtPref, v, u_sdt);
 		}
 
 		return suffixBuilder.extendSuffix(ua, u_sdt, v, missingRegs.toArray(new DataValue[missingRegs.size()]));
@@ -791,8 +790,7 @@ public class ClassificationTree {
 			Prefix u2Pref = leaf.getPrefix(u2);
 			Prefix u1ExtPref = getLeaf(u1Ext).getPrefix(u1Ext);
 			Prefix u2ExtPref = getLeaf(u2Ext).getPrefix(u2Ext);
-			Prefix reprPref = leaf.getRepresentativePrefix();
-			return sllambdaRestrBuilder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, reprPref, v, sdt1, sdt2);
+			return sllambdaRestrBuilder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, v, sdt1, sdt2);
 		}
 
 		Word<ParameterizedSymbol> actions = v.getActions();
@@ -812,7 +810,7 @@ public class ClassificationTree {
 			CTLeaf uLeaf = getLeaf(u);
 			Prefix uPref = uLeaf.getPrefix(u);
 			Prefix reprPref = uLeaf.getRepresentativePrefix();
-			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, reprPref, v, sdtIf, sdtElse);
+			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, v, sdtIf, sdtElse);
 		}
 
 		Word<ParameterizedSymbol> actions = v.getActions();

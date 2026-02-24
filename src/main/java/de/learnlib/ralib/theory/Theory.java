@@ -119,6 +119,22 @@ public interface Theory {
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
             Constants constants, ConstraintSolver solver);
 
+    /**
+     * Restrict suffix value by examining relation between corresponding data value in {@code suffix}
+     * and values in {@code prefix} and {@code u} during counterexample analysis.
+     * <br>
+     * Note that restrictions computed by this method are specific to the counterexample and should
+     * not be used for suffixes added to the data structure.
+     *
+     * @param suffixValue suffix value to compute restriction for
+     * @param prefix prefix of counterexample
+     * @param suffix suffix of counterexample
+     * @param u prefix in data structure corresponding to {@code prefix}
+     * @param prefixValuation valuation after a run of {@code prefix} over the hypothesis
+     * @param uValuation valuation after a run of {@code u} over the hypothesis
+     * @param consts constants
+     * @return
+     */
     public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
     		Word<PSymbolInstance> prefix,
     		Word<PSymbolInstance> suffix,

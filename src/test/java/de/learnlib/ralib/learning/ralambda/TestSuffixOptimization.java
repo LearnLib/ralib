@@ -10,7 +10,6 @@ import static de.learnlib.ralib.example.repeater.RepeaterSUL.TINT;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -253,7 +252,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     	SymbolicSuffix expectedAlt1 = new SymbolicSuffix(Word.fromSymbols(A, A, A, A), expRestrAlt1);
     	SymbolicSuffix expectedAlt2 = new SymbolicSuffix(Word.fromSymbols(A, A, A, A), expRestrAlt2);
 
-    	SymbolicSuffix actual = builder.extendSuffix(u1, u1Ext, u2, u2Ext, null, suffix, u1ExtSdt, u2ExtSdt);
+    	SymbolicSuffix actual = builder.extendSuffix(u1, u1Ext, u2, u2Ext, suffix, u1ExtSdt, u2ExtSdt);
     	Assert.assertTrue(actual.equals(expectedAlt1) || actual.equals(expectedAlt2));
 //    	SymbolicSuffix actual1 = builder.extendSuffix(u1, u1Ext, u2, u2Ext, u1, suffix1, u1ExtSdt, u2ExtSdt);
 //    	Assert.assertEquals(actual1.toString(), "((?a[int] ?a[int] ?a[int]))[Fresh(s1), (s2 == 1[int]), (s3 == s1)]");
@@ -337,7 +336,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     	expectedRestr.put(s5, SuffixValueRestriction.equalityRestriction(s5, s2));
     	SymbolicSuffix expected = new SymbolicSuffix(Word.fromSymbols(A, A, A, A, A), expectedRestr);
 
-    	SymbolicSuffix actual = builder.extendSuffix(u, uExt, null, suffix, sdtExt, Set.of(d1, d2));
+    	SymbolicSuffix actual = builder.extendSuffix(u, uExt, suffix, sdtExt);
     	boolean eq = actual.equals(expected);
     	Assert.assertEquals(actual, expected);
     }

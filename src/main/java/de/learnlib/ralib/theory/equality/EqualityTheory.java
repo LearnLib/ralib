@@ -349,6 +349,11 @@ public abstract class EqualityTheory implements Theory {
     	return AbstractSuffixValueRestriction.genericRestriction(suffixValue, prefix, suffix, consts);
     }
 
+    /**
+     * @param u
+     * @param type
+     * @return position-injective potential of {@code u} matching data type {@code type}
+     */
     private BiMap<Integer, DataValue> pot(Word<PSymbolInstance> u, DataType type) {
     	BiMap<Integer, DataValue> pot = HashBiMap.create();
     	DataValue[] vals = DataWords.valsOf(u);
@@ -360,6 +365,19 @@ public abstract class EqualityTheory implements Theory {
     	return pot;
     }
 
+    /**
+     * Mapping of indices in the potential of {@code u} to data values in {@code w} such that
+     * for each index {@code l}, the data value at position {@code l} in {@code u} maps to
+     * the same register in {@code uValuation} as the corresponding data value in {@code w}
+     * does in {@code wValuation}.
+     *
+     * @param u
+     * @param uValuation
+     * @param w
+     * @param wValuation
+     * @param type
+     * @return
+     */
     private Map<Integer, DataValue> potmap(Word<PSymbolInstance> u, RegisterValuation uValuation, Word<PSymbolInstance> w, RegisterValuation wValuation, DataType type) {
     	BiMap<DataValue, Integer> pot = pot(u, type).inverse();
     	Map<Integer, DataValue> map = new LinkedHashMap<>();
@@ -373,6 +391,19 @@ public abstract class EqualityTheory implements Theory {
     	return map;
     }
 
+    /**
+     * The indices {@code l} of {@code u} such that if a hypothesis reaches {@code wValuation}
+     * after a run over {@code w}, then there is a position-injective extension of
+     * {@code uValuation} under which a data value {@code d} at index {@code l} of {@code u} will
+     * satisfy an equality guard {@code (s == d)}.
+     *
+     * @param w
+     * @param d
+     * @param u
+     * @param uValuation
+     * @param potmap
+     * @return
+     */
     private Set<Integer> potmatch(Word<PSymbolInstance> w, DataValue d, Word<PSymbolInstance> u, RegisterValuation uValuation, Map<Integer, DataValue> potmap) {
     	List<DataValue> wVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(w, d.getDataType())));
     	Set<Integer> indices = new LinkedHashSet<>();
@@ -394,6 +425,7 @@ public abstract class EqualityTheory implements Theory {
     	return indices;
     }
 
+    @Override
     public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
     		Word<PSymbolInstance> prefix,
     		Word<PSymbolInstance> suffix,
@@ -407,10 +439,12 @@ public abstract class EqualityTheory implements Theory {
     	DataValue[] uVals = DataWords.valsOf(u);
     	DataValue d = suffixVals[index];
 
+    	// find data values in u that the current suffix value may equal
     	List<DataValue> eqList = new ArrayList<>();
     	Map<Integer, DataValue> potmap = potmap(u, uValuation, prefix, prefixValuation, d.getDataType());
     	potmatch(prefix, d, u, uValuation, potmap).forEach(i -> eqList.add(uVals[i-1]));
 
+    	// find prior suffix values that the current suffix value may equal
     	List<SuffixValue> suffixEqList = new ArrayList<>();
     	List<SuffixValue> priorSuffixes = new ArrayList<>();
     	for (int i = 0; i < index; i++) {
@@ -421,6 +455,13 @@ public abstract class EqualityTheory implements Theory {
     		}
     	}
 
+    	// find constants the current suffix value may equal
+    	Set<Constant> constEqList = new LinkedHashSet<>(consts.getAllKeysForValue(d));
+
+    	// find registers in u that the current suffix value may equal
+    	Collection<Register> regsEqList = dataValueToRegister(eqList, uValuation);
+
+    	// collect unmapped data values in u that the current suffix value may equal
     	List<DataValue> unmappedEqList = new ArrayList<>(eqList);
     	for (SuffixValue s : suffixEqList) {
     		DataValue dv = suffixVals[s.getId()-1];
@@ -428,16 +469,11 @@ public abstract class EqualityTheory implements Theory {
     			unmappedEqList.remove(dv);
     		}
     	}
-
-    	Set<Constant> constEqList = new LinkedHashSet<>(consts.getAllKeysForValue(d));
     	constEqList.forEach(c -> unmappedEqList.remove(consts.get(c)));
-
-    	FreshSuffixValue fresh = new FreshSuffixValue(suffixValue);
-		UnmappedEqualityRestriction uer = new UnmappedEqualityRestriction(suffixValue);
-
-    	Collection<Register> regsEqList = dataValueToRegister(eqList, uValuation);
     	regsEqList.forEach(r -> unmappedEqList.remove(uValuation.get(r)));
 
+    	FreshSuffixValue restrrFresh = new FreshSuffixValue(suffixValue);
+		UnmappedEqualityRestriction eqRestrUnmapped = new UnmappedEqualityRestriction(suffixValue);
     	AbstractSuffixValueRestriction eqRestrSuffix = SuffixValueRestriction.equalityRestriction(suffixValue, suffixEqList);
     	AbstractSuffixValueRestriction eqRestrReg = SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
     	AbstractSuffixValueRestriction eqRestrConst = SuffixValueRestriction.equalityRestriction(suffixValue, constEqList);
@@ -447,7 +483,7 @@ public abstract class EqualityTheory implements Theory {
 	    	if (regsEqList.size() == 1 && suffixEqList.isEmpty() && constEqList.isEmpty()) {
 	    		// equals one register
 	    		AbstractSuffixValueRestriction eqr = SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
-	    		return DisjunctionRestriction.create(suffixValue, eqr, fresh);
+	    		return DisjunctionRestriction.create(suffixValue, eqr, restrrFresh);
 	    	}
 	    	if (regsEqList.isEmpty() && suffixEqList.size() > 0 && constEqList.isEmpty()) {
 	    		// equals prior suffix values
@@ -459,16 +495,16 @@ public abstract class EqualityTheory implements Theory {
 	    	}
 	    	if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.isEmpty()) {
 	    		// equals nothing
-	    		return fresh;
+	    		return restrrFresh;
 	    	}
 	    	// equals any number of register, constant, prior suffix value, but no unmapped
-	    	return DisjunctionRestriction.create(suffixValue, fresh, eqRestrSuffix, eqRestrReg, eqRestrConst);
+	    	return DisjunctionRestriction.create(suffixValue, restrrFresh, eqRestrSuffix, eqRestrReg, eqRestrConst);
     	} else if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.isEmpty()) {
     		// equals only unmapped
-    		return DisjunctionRestriction.create(suffixValue, uer, fresh);
+    		return DisjunctionRestriction.create(suffixValue, eqRestrUnmapped, restrrFresh);
     	}
 
-    	// all classes of equality
+    	// all classes of equality, collect all data values the current suffix value can not equal
     	List<Register> regsDiseqList = new ArrayList<>(uValuation.keySet());
     	regsDiseqList.removeAll(regsEqList);
     	List<Constant> constDiseqList = new ArrayList<>(consts.keySet());
@@ -493,13 +529,25 @@ public abstract class EqualityTheory implements Theory {
     	return AbstractSuffixValueRestriction.genericRestriction(guard, prior);
     }
 
+    /**
+     * Compute restriction on {@code suffixValue} by examining the relationship between its
+     * corresponding data value in {@code action} and data values in {@code u}.
+     *
+     * @param suffixValue
+     * @param u
+     * @param action
+     * @param memorable
+     * @param consts
+     * @return
+     */
     public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> u, PSymbolInstance action, Set<DataValue> memorable, Constants consts) {
     	List<DataValue> uVals = Arrays.asList(DataWords.valsOf(u));
     	DataValue[] actionVals = action.getParameterValues();
     	int index = suffixValue.getId() - 1;
 
     	if (consts.containsValue(actionVals[index])) {
-    		return SuffixValueRestriction.equalityRestriction(suffixValue, consts.getAllKeysForValue(actionVals[index]).iterator().next());
+    		// we never have accidental equality with constants, so restriction can be equality with constant
+    		return SuffixValueRestriction.equalityRestriction(suffixValue, consts.getAllKeysForValue(actionVals[index]));
     	}
 
     	Set<SuffixValue> prior = new LinkedHashSet<>();
@@ -510,6 +558,7 @@ public abstract class EqualityTheory implements Theory {
     		}
     	}
 
+    	// determine type of equality with data values in u
     	AbstractSuffixValueRestriction eq = uVals.contains(actionVals[index]) ?
     			(memorable.contains(actionVals[index]) ?
     					SuffixValueRestriction.equalityRestriction(suffixValue, actionVals[index]) :
@@ -529,6 +578,19 @@ public abstract class EqualityTheory implements Theory {
     	return DisjunctionRestriction.create(suffixValue, eq, eqPrior);
     }
 
+    /**
+     * Compute restriction on {@code suffixValue} by examining the relationship between its
+     * corresponding data value in {@code action} and data values in {@code u}. Any equality
+     * with a missing register will result in a {@link TrueRestriction}.
+     *
+     * @param suffixValue
+     * @param u
+     * @param action
+     * @param memorable
+     * @param regs
+     * @param consts
+     * @return
+     */
     public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> u, PSymbolInstance action, Set<DataValue> memorable, Set<DataValue> regs, Constants consts) {
     	int id = suffixValue.getId() - 1;
     	DataValue[] actionValues = action.getParameterValues();
@@ -984,12 +1046,11 @@ public abstract class EqualityTheory implements Theory {
      * @param uExt
      * @param rp
      * @param consts
-     * @param missingRegs
      * @param suffix
      * @param solver
      * @return
      */
-    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix uExt, Bijection<DataValue> rp, Constants consts, Set<DataValue> missingRegs, SymbolicSuffix suffix, ConstraintSolver solver) {
+    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix uExt, Bijection<DataValue> rp, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb = uExt.lastSymbol();
 
     	// mapping from uExt to the RP of the immediate ancestor node of suffix
