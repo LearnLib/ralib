@@ -134,6 +134,11 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 		return false;
 	}
 
+	@Override
+	public boolean containsFresh() {
+		return false;
+	}
+
 //	public Set<SDTGuardElement> getElements() {
 //		return regs;
 //	}

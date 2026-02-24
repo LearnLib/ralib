@@ -29,6 +29,21 @@ public class FalseRestriction extends SuffixValueRestriction {
 	}
 
 	@Override
+	public boolean isTrue() {
+		return false;
+	}
+
+	@Override
+	public boolean isFalse() {
+		return true;
+	}
+
+	@Override
+	public boolean containsFresh() {
+		return false;
+	}
+
+	@Override
 	public SuffixValueRestriction or(SuffixValueRestriction other) {
 		return other;
 	}

@@ -81,8 +81,8 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         Assert.assertTrue(str.contains("Counterexamples: 1"));
         Assert.assertTrue(str.contains("CE max length: 6"));
         Assert.assertTrue(str.contains("CE Analysis: {TQ: 0, Resets: 7, Inputs: 0}"));
-        Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 0, Resets: 3, Inputs: 0}"));
+        Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 0, Resets: 4, Inputs: 0}"));
         Assert.assertTrue(str.contains("Other: {TQ: 0, Resets: 1, Inputs: 0}"));
-        Assert.assertTrue(str.contains("Total: {TQ: 0, Resets: 11, Inputs: 0}"));
+        Assert.assertTrue(str.contains("Total: {TQ: 0, Resets: 12, Inputs: 0}"));
     }
 }

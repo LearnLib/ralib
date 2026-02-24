@@ -173,6 +173,11 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
+	public boolean containsFresh() {
+		throw new RuntimeException("Not supported for this type of restriction");
+	}
+
+	@Override
 	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
 		if (renaming.isEmpty()) {
 			return this;

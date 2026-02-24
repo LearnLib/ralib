@@ -85,6 +85,11 @@ public class UnmappedEqualityRestriction extends AbstractSuffixValueRestriction 
 	}
 
 	@Override
+	public boolean containsFresh() {
+		return false;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
 			return false;

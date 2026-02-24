@@ -48,6 +48,11 @@ public class UnrestrictedSuffixValue extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
+	public boolean containsFresh() {
+		return true;
+	}
+
+	@Override
 	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
 		return this;
 	}

@@ -145,6 +145,11 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 	}
 
 	@Override
+	public boolean containsFresh() {
+		return false;
+	}
+
+	@Override
 	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
 		for (Map.Entry<K, V> e : renaming.entrySet()) {
 			if (e.getKey().equals(equalParam)) {

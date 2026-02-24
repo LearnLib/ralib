@@ -94,6 +94,16 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 	}
 
 	@Override
+	public boolean containsFresh() {
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (!r.containsFresh()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
 	public AbstractSuffixValueRestriction merge(AbstractSuffixValueRestriction other,
 			Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
 		throw new RuntimeException("Unsupported operation");

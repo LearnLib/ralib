@@ -132,6 +132,8 @@ public abstract class AbstractSuffixValueRestriction {
 
 	public abstract boolean isFalse();
 
+	public abstract boolean containsFresh();
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(parameter);

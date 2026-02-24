@@ -100,6 +100,11 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 	}
 
 	@Override
+	public boolean containsFresh() {
+		return disjuncts.stream().filter(AbstractSuffixValueRestriction::containsFresh).findAny().isPresent();
+	}
+
+	@Override
 	public AbstractSuffixValueRestriction merge(AbstractSuffixValueRestriction other,
 			Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
 		throw new RuntimeException("Unsupported operation");

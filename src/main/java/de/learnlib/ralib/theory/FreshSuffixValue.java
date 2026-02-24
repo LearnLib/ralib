@@ -84,6 +84,11 @@ public class FreshSuffixValue extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
+	public boolean containsFresh() {
+		return true;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
 			return false;
