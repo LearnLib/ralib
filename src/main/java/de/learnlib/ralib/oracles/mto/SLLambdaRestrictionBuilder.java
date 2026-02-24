@@ -32,17 +32,18 @@ import net.automatalib.word.Word;
 
 public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder {
 
-	protected ConstraintSolver solver = new ConstraintSolver();  // should be in constructor
+	protected final ConstraintSolver solver;
 
-	public SLLambdaRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder) {
-		this(restrBuilder.consts, restrBuilder.teachers);
+	public SLLambdaRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
+		this(restrBuilder.consts, restrBuilder.teachers, solver);
 	}
 
-	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers) {
+	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
 		super(consts, teachers);
 		if (teachers == null) {
 			throw new IllegalArgumentException("Non-null argument expected");
 		}
+		this.solver = solver;
 	}
 
 	/**

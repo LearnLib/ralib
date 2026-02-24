@@ -64,13 +64,13 @@ public class CTConsistencyTest extends RaLibTestSuite {
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 		Constants consts = new Constants();
+        ConstraintSolver solver = new ConstraintSolver();
 
-		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers);
+		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
-        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
 
@@ -120,11 +120,11 @@ public class CTConsistencyTest extends RaLibTestSuite {
         teachers.put(DT, new DoubleInequalityTheory(DT));
 
 		Constants consts = new Constants();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
 
-		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers);
+		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
-        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
 
@@ -244,11 +244,11 @@ public class CTConsistencyTest extends RaLibTestSuite {
         teachers.put(T_INT, iet);
 
 		Constants consts = new Constants();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
 
-		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers);
+		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
-        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
 

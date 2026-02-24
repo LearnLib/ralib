@@ -161,7 +161,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     	iet.setUseSuffixOpt(true);
     	Map<DataType, Theory> teachers = Map.of(TINT, iet);
 
-    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers);
+    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers, new ConstraintSolver());
 
     	SuffixValue s1 = new SuffixValue(TINT, 1);
     	SuffixValue s2 = new SuffixValue(TINT, 2);
@@ -264,7 +264,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     	iet.setUseSuffixOpt(true);
     	Map<DataType, Theory> teachers = Map.of(TINT, iet);
 
-    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers);
+    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers, new ConstraintSolver());
 
     	SuffixValue s1 = new SuffixValue(TINT, 1);
     	SuffixValue s2 = new SuffixValue(TINT, 2);

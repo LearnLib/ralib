@@ -56,7 +56,7 @@ public class SLLambda implements RaLearningAlgorithm {
     	this.consts = consts;
     	this.ioMode = ioMode;
     	this.solver = solver;
-    	restrictionBuilder = new SLLambdaRestrictionBuilder(consts, teachers);
+    	restrictionBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver);
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
     	counterexamples = new LinkedList<>();
     	hyp = null;
