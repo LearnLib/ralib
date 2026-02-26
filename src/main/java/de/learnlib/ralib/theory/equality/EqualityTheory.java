@@ -1053,9 +1053,15 @@ public abstract class EqualityTheory implements Theory {
     public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix uExt, Bijection<DataValue> rp, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb = uExt.lastSymbol();
 
+    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = AbstractSuffixValueRestriction.shift(suffix.getRestrictions(), symb.getBaseSymbol().getArity());
+
+    	Mapping<DataValue, SuffixValue> actionValueRenaming = actionValueRenaming(uExt);
+
     	// mapping from uExt to the RP of the immediate ancestor node of suffix
     	Bijection<DataValue> renaming = new Bijection<>();
     	renaming.putAll(uExt.getBijection(uExt.getPath().getPrior(suffix)));
+
+    	ret = AbstractSuffixValueRestriction.relabel(ret, relabelActionValueRenaming(actionValueRenaming, renaming));
 
     	// find all unmapped data values in SDT
     	Set<DataValue> unmapped = new LinkedHashSet<>(sdt.getDataValues());
@@ -1070,12 +1076,12 @@ public abstract class EqualityTheory implements Theory {
     	// translate unmapped data values to the fresh renamings
     	Set<DataValue> unmappedRenamed = new LinkedHashSet<>();
     	unmapped.forEach(d -> unmappedRenamed.add(renaming.get(d)));
-
-    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = AbstractSuffixValueRestriction.shift(suffix.getRestrictions(), symb.getBaseSymbol().getArity());
     	ret = replaceUnmappedEqualityRestrictions(ret);
 
     	SDT sdtShifted = sdt.shift(symb.getBaseSymbol().getArity());
-    	SDT sdtRenamed = sdtShifted.relabel(SDTRelabeling.fromBijection(renaming));
+    	SDT sdtRenamed = sdtShifted.relabel(SDTRelabeling.fromMapping(actionValueRenaming));
+    	sdtRenamed = sdtRenamed.relabel(SDTRelabeling.fromBijection(renaming));
+
     	ret = restrictionsRevealingRegisters(sdtRenamed, unmappedRenamed, ret, solver);
 
     	// if there are unmapped registers in restriction, replace them with unmapped restriction
@@ -1296,5 +1302,30 @@ public abstract class EqualityTheory implements Theory {
     		ret.put(suffixValue, new TrueRestriction(suffixValue));
     	}
     	return ret;
+    }
+
+    private static Mapping<DataValue, SuffixValue> actionValueRenaming(Word<PSymbolInstance> uExt) {
+    	DataValue[] actionVals = uExt.lastSymbol().getParameterValues();
+    	List<DataValue> prefixVals = Arrays.asList(DataWords.valsOf(uExt.prefix(uExt.length() - 1)));
+    	Mapping<DataValue, SuffixValue> renaming = new Mapping<>();
+
+    	for (int i = 0; i < actionVals.length; i++) {
+    		if (!renaming.containsKey(actionVals[i]) && !prefixVals.contains(actionVals[i])) {
+        		SuffixValue sv = new SuffixValue(actionVals[i].getDataType(), i + 1);
+    			renaming.put(actionVals[i], sv);
+    		}
+    	}
+    	return renaming;
+    }
+
+    private static Mapping<DataValue, SuffixValue> relabelActionValueRenaming(Map<DataValue, SuffixValue> renaming, Bijection<DataValue> relabeling) {
+    	Mapping<DataValue, SuffixValue> renamedRenaming = new Mapping<>();
+    	for (Map.Entry<DataValue, SuffixValue> e : renaming.entrySet()) {
+    		DataValue nkey = relabeling.get(e.getKey());
+    		if (nkey != null) {
+    			renamedRenaming.put(nkey, e.getValue());
+    		}
+    	}
+    	return renamedRenaming;
     }
 }
