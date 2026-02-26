@@ -192,7 +192,7 @@ public class CTPath {
 	 * @param action
 	 * @param suffix
 	 * @param memorable
-	 * @return {@code tru} if and only if the restrictions for {@code suffix} contain any data value not in {@code memorable} or {@code action}
+	 * @return {@code true} if and only if the restrictions for {@code suffix} contain any data value not in {@code memorable} or {@code action}
 	 */
 	private static boolean noUnmapped(PSymbolInstance action, SymbolicSuffix suffix, Set<DataValue> memorable) {
 		List<DataValue> actionVals = action == null ? new ArrayList<>() : Arrays.asList(action.getParameterValues());
