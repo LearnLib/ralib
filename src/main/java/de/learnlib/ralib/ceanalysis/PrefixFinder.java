@@ -100,15 +100,9 @@ public class PrefixFinder {
 		RARun run = hyp.getRun(ce);
 		for (int i = ce.length(); i >= 1; i--) {
 			RALocation loc = run.getLocation(i-1);
-			RALocation locNext = run.getLocation(i);
 			PSymbolInstance symbol = run.getTransitionSymbol(i);
 			RegisterValuation runValuation = run.getValuation(i-1);
 			ParameterizedSymbol action = symbol.getBaseSymbol();
-
-//			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
-//			SymbolicSuffix v = new SymbolicSuffix(ce.prefix(i-1), ce.suffix(ce.length() - i + 1), restrBuilder);
-//			SymbolicSuffix vNext = restrBuilder.constructRestrictedSuffix(run, i);
-//			SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run, i-1);
 
 			Expression<Boolean> gHyp = run.getGuard(i, consts);
 
@@ -298,23 +292,19 @@ public class PrefixFinder {
 
 	/**
 	 * Check for a transition discrepancy. This is done by checking whether there exists no
-	 * {@code action}-extension of {@code u} in the leaf of {@code loc} that is equivalent
-	 * to the {@code (hypGuard && sulGuard)} extension of {@code u} after {@code v}.
+	 * {@code action}-extension of {@code u} in the leaf of the location of {@code run} at
+	 * index {@code id} that is equivalent to the {@code (hypGuard && sulGuard)} extension
+	 * of {@code u} after the symbolic suffix derived from the remaining transitions of
+	 * {@code v}.
 	 *
-	 * @param loc the source location
+	 * @param run counterexample run on the hypothesis
+	 * @param id index of {@code run} being searched
 	 * @param u short prefix from leaf of {@code loc}
 	 * @param action the symbol of the next transition
-	 * @param v the suffix after {@code u} and {@code action}
 	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
 	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
 	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
 	 */
-//	private Optional<Result> checkTransition(RALocation loc,
-//			ShortPrefix u,
-//			ParameterizedSymbol action,
-//			SymbolicSuffix v,
-//			Expression<Boolean> hypGuard,
-//			Expression<Boolean> sulGuard) {
 	private Optional<Result> checkTransition(RARun run,
 			int id,
 			ShortPrefix u,
@@ -340,10 +330,6 @@ public class PrefixFinder {
         }
         PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
         Word<PSymbolInstance> uExtSul = u.append(psi);
-//        SymbolicSuffix vSul = restrBuilder.concretize(v,
-//        		hyp.getRun(u).getValuation(u.size()),
-//        		ParameterValuation.fromPSymbolWord(uExtSul),
-//        		consts);
 
         // check whether leaf of loc contains an extension of u that is equivalent to uExtSul after v
 		CTLeaf leaf = hyp.getLeaf(loc);
@@ -360,16 +346,6 @@ public class PrefixFinder {
 	        		run.getValuation(id),
 	        		hyp.getRun(uExtSul).getValuation(uExtSul.size()),
 	        		hyp.getRun(uExtHyp).getValuation(uExtHyp.size()));
-//			SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run.getPrefix(id),
-//					run.getSuffix(id),
-//					uExtHyp,
-//					run.getValuation(id),
-//					hyp.getRun(uExtHyp).getValuation(uExtHyp.size()));
-//			SymbolicSuffix vHyp = restrBuilder.constructRestrictedSuffix(run.getPrefix(id),
-//					run.getSuffix(id),
-//					uExtHyp,
-//					run.getValuation(id),
-//					hyp.getRun(uExtHyp).getValuation(uExtHyp.size()));
 	        SymbolicSuffix vSul = restrBuilder.concretize(v,
 	        		hyp.getRun(uExtSul).getValuation(uExtSul.size()),
 	        		ParameterValuation.fromPSymbolWord(uExtSul),
@@ -393,14 +369,16 @@ public class PrefixFinder {
 
 	/**
 	 * Check for a location discrepancy. This is done by checking whether there is some
-	 * {@code action}-extension of {@code u} in the leaf of {@code locNext} such that there
-	 * does not exist some short prefix in the leaf of {@code locNext} that is equivalent
-	 * to the {@code action}-extension of {@code u} after {@code v}.
+	 * {@code action}-extension of {@code u} in the leaf of the location at index {@code id}
+	 * of {@code run} such that there there does not exist some short prefix in the leaf of
+	 * the one-symbol extension of {@code u} corresponding to the {@code id}:th transition of
+	 * {@code run} that is equivalent to the {@code action}-extension of {@code u} after
+	 * {@code id}.
 	 *
-	 * @param locNext the destination location
-	 * @param u short prefix in leaf prior to {@code locNext} in the run
+	 * @param run counterexample run
+	 * @param id index of {@code run} being searched
+	 * @param u short prefix in leaf prior to {@code id} in the run
 	 * @param action the symbol of the next transition
-	 * @param v the suffix after {@code u} and {@code action}
 	 * @return an {@code Optional} containing the result if there is a location discrepancy, or an empty {@code Optional} otherwise
 	 */
 	private Optional<Result> checkLocation(RARun run,
@@ -417,10 +395,6 @@ public class PrefixFinder {
 		while (extensions.hasNext()) {
 			Prefix uExtended = extensions.next();
 			Bijection<DataValue> uExtBijection = uExtended.getRpBijection();
-//			SymbolicSuffix vuExt = restrBuilder.constructRestrictedSuffix(run.getPrefix(id),
-//					run.getSuffix(id),
-//					uExtended,
-//					run.getValuation(id),hyp.getRun(uExtended).getValuation(uExtended.size()));
 			boolean noEquivU = true;
 			for (Prefix uNext : leafNext.getShortPrefixes()) {
 				Bijection<DataValue> uNextBijection = uNext.getRpBijection();

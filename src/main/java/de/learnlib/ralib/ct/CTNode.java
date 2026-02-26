@@ -31,8 +31,6 @@ public abstract class CTNode {
 	 */
 	public abstract List<SymbolicSuffix> getSuffixes();
 
-//	protected abstract List<CTBranch> getParentBranches();
-
 	/**
 	 *
 	 * @return {@code true} if this node is a {@link CTLeaf}

@@ -51,17 +51,6 @@ public class CTInnerNode extends CTNode {
 		return null;
 	}
 
-//	@Override
-//	protected List<CTBranch> getParentBranches() {
-//		List<CTBranch> branches = new ArrayList<>();
-//		if (getParent() != null) {
-//			branches.addAll(getParent().getParentBranches());
-//			CTBranch b = ((CTInnerNode) getParent()).getBranch(this);
-//			branches.add(b);
-//		}
-//		return branches;
-//	}
-
 	@Override
 	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		List<SymbolicSuffix> suffixes = getSuffixes();
@@ -77,35 +66,13 @@ public class CTInnerNode extends CTNode {
 			}
 		}
 
-		// no child with equivalent SDTs, create a new leaf
-//		int suffixId = suffixes.indexOf(getSuffix());
-//		Bijection<DataValue> bi = suffixId >= 1 ? prefix.getBijection(suffixes.get(suffixId - 1)) : null;
-//		if (bi == null) {
-//			assert getSuffix().equals(RaStar.EMPTY_SUFFIX);
-//			bi = new Bijection<>();
-//		}
-//		for (DataValue d : path.getMemorable()) {
-//			if (!bi.keySet().contains(d)) {
-//				bi.put(d, d);
-//			}
-//		}
 		prefix = new Prefix(prefix, path);
-//		prefix = new Prefix(prefix, bi, path, prefix.getBijections());
-//		prefix.putBijection(getSuffix(), bi);
 		prefix.putBijection(suffix);
 		CTLeaf leaf = new CTLeaf(prefix, this);
 		CTBranch branch = new CTBranch(path, leaf);
 		branches.add(branch);
 		return leaf;
 	}
-
-//	private CTBranch getParentBranch() {
-//		CTInnerNode parent = getParent();
-//		if (parent == null) {
-//			return null;
-//		}
-//		return parent.getBranch(this);
-//	}
 
 	/**
 	 * Replace {@code leaf} with a new {@link CTInnerNode} containing {@code suffix}.
@@ -167,13 +134,6 @@ public class CTInnerNode extends CTNode {
 		}
 		suffixes.add(suffix);
 		return suffixes;
-//		suffixes.add(suffix);
-//		if (getParent() == null) {
-//			return suffixes;
-//		}
-//
-//		suffixes.addAll(getParent().getSuffixes());
-//		return suffixes;
 	}
 
 	/**

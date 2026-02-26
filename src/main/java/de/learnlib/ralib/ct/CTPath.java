@@ -63,6 +63,10 @@ public class CTPath {
 		return sdts;
 	}
 
+	/**
+	 * @param suffix
+	 * @return the symbolic suffix one node above {@code suffix}
+	 */
 	public SymbolicSuffix getPrior(SymbolicSuffix suffix) {
 		int index = suffixes.indexOf(suffix);
 		if (index < 0) {
@@ -160,12 +164,12 @@ public class CTPath {
 		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
 		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
 		r.putSDT(RaStar.EMPTY_SUFFIX, sdt);
-//		Bijection<DataValue> renaming = new Bijection<>();
 		SymbolicSuffix prevSuffix = RaStar.EMPTY_SUFFIX;
 		for (SymbolicSuffix s : suffixes) {
 			if (s.equals(RaStar.EMPTY_SUFFIX)) {
 				continue;
 			}
+			// relabel restrictions in symbolic suffix
 			Bijection<DataValue> renaming = prefix.getBijection(prevSuffix);
 			SymbolicSuffix sRelabeled = s.relabel(renaming.inverse().toVarMapping());
 			PSymbolInstance action = prefix.size() > 0 ? prefix.lastSymbol() : null;
@@ -184,6 +188,12 @@ public class CTPath {
 		return r;
 	}
 
+	/**
+	 * @param action
+	 * @param suffix
+	 * @param memorable
+	 * @return {@code tru} if and only if the restrictions for {@code suffix} contain any data value not in {@code memorable} or {@code action}
+	 */
 	private static boolean noUnmapped(PSymbolInstance action, SymbolicSuffix suffix, Set<DataValue> memorable) {
 		List<DataValue> actionVals = action == null ? new ArrayList<>() : Arrays.asList(action.getParameterValues());
 		for (AbstractSuffixValueRestriction r : suffix.getRestrictions().values()) {

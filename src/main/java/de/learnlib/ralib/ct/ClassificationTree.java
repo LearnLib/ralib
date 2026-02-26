@@ -21,7 +21,6 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -348,7 +347,6 @@ public class ClassificationTree {
 
 			Set<DataValue> ua_mem = leaf.getPrefix(ua).getRegisters();
 			Set<DataValue> u_mem = prefixes.get(u).getPrefix(u).getRegisters();
-//			Set<DataValue> a_mem = actionRegisters(ua);
 
 			Set<DataValue> missingRegs = missingMemorable(ua_mem, u_mem, u);
 			if (!missingRegs.isEmpty()) {
@@ -367,30 +365,6 @@ public class ClassificationTree {
 					}
 				}
 			}
-
-//			if (!consistentMemorable(ua_mem, u_mem, a_mem)) {
-//				// memorables are missing, find suffix which reveals missing memorables
-//				boolean found = false;
-//				for (SymbolicSuffix v : leaf.getSuffixes()) {
-//					Set<DataValue> s_mem = ua_pref.getSDT(v).getDataValues();
-//					if (!consistentMemorable(s_mem, u_mem, a_mem)) {
-//						DataValue[] missingRegs = missingRegisters(s_mem, u_mem, a_mem);   // registers to not optimize away
-//						SymbolicSuffix av = extendSuffixRegister(ua, v, missingRegs);
-//
-////						SDT sdt = oracle.treeQuery(u, av);
-////						if (Collections.disjoint(Set.of(missingRegs), sdt.getDataValues())) {
-////							continue;
-////						}
-//						refine(u_leaf, av);
-////						found = true;
-////						break;
-//						return false;
-//					}
-//				}
-////				if (found) {
-////					return false;
-////				}
-//			}
 		}
 		return true;
 	}
@@ -522,11 +496,6 @@ public class ClassificationTree {
 				CTLeaf uLeaf = getLeaf(uIf.prefix(uIf.length() - 1));
 				assert uLeaf != null;
 
-				// find registers that should not be removed through optimization
-//				Register[] regs = inequivalentMapping(rpRegBijection(pA.getRpBijection(), pA), rpRegBijection(pB.getRpBijection(), pB));
-//				DataValue[] regVals = regsToDvs(regs, uA);
-//
-//				SymbolicSuffix av = extendSuffix(uA, v, regVals);
 				SymbolicSuffix av = extendSuffixTransition(uIf, uElse, v);
 				if (suffixRevealsNewGuard(av, getLeaf(uIf.prefix(uIf.length() - 1)))) {
 					return Optional.of(av);
@@ -571,8 +540,6 @@ public class ClassificationTree {
 								SDT uaSDT = e.getValue();
 								if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma) == null) {
 									// one-symbol extension uExtended does not exhibit symmetry under gamma
-//									DataValue[] regs = gamma.keySet().toArray(new DataValue[gamma.size()]);
-//									SymbolicSuffix av = extendSuffixRegister(uExtended, v, regs);
 									SymbolicSuffix av = new SymbolicSuffix(DataWords.concatenate(Word.fromSymbols(uExtended.lastSymbol().getBaseSymbol()), v.getActions()));
 									refine(getLeaf(u), av);
 									return false;
@@ -632,6 +599,12 @@ public class ClassificationTree {
 		return h;
 	}
 
+	/**
+	 * @param ua_mem
+	 * @param u_mem
+	 * @param u
+	 * @return the set of data values of {@code u} that are present in {@code ua_mem} but not in {@code u_mem}
+	 */
 	private Set<DataValue> missingMemorable(Set<DataValue> ua_mem, Set<DataValue> u_mem, Word<PSymbolInstance> u) {
 		Set<DataValue> uVals = new LinkedHashSet<>();
 		uVals.addAll(Arrays.asList(DataWords.valsOf(u)));
@@ -639,51 +612,6 @@ public class ClassificationTree {
 		diff.removeAll(u_mem);
 		uVals.removeAll(u_mem);
 		return Sets.intersection(uVals, diff);
-	}
-
-	/**
-	 *
-	 * @param ua_mem
-	 * @param u_mem
-	 * @param a_mem
-	 * @return {@code true} if {@code ua_mem} contains all of {@code u_mem} and {@code a_mem}
-	 */
-	private boolean consistentMemorable(Set<DataValue> ua_mem, Set<DataValue> u_mem, Set<DataValue> a_mem) {
-		Set<DataValue> union = new LinkedHashSet<>();
-		union.addAll(u_mem);
-		union.addAll(a_mem);
-		return union.containsAll(ua_mem);
-	}
-
-	/**
-	 * @param ua
-	 * @return the set of data values in the last symbol instance of {@code ua}
-	 */
-	private Set<DataValue> actionRegisters(Word<PSymbolInstance> ua) {
-		int ua_arity = DataWords.paramLength(DataWords.actsOf(ua));
-		int u_arity = ua_arity - ua.lastSymbol().getBaseSymbol().getArity();
-		DataValue[] vals = DataWords.valsOf(ua);
-
-		Set<DataValue> regs = new LinkedHashSet<>();
-		for (int i = u_arity; i < ua_arity; i++) {
-			regs.add(vals[i]);
-		}
-		return regs;
-	}
-
-	/**
-	 *
-	 * @param s_mem
-	 * @param u_mem
-	 * @param a_mem
-	 * @return an array containing the data values of {@code s_mem} not contained in either {@code u_mem} or {@code a_mem}
-	 */
-	private DataValue[] missingRegisters(Set<DataValue> s_mem, Set<DataValue> u_mem, Set<DataValue> a_mem) {
-		Set<DataValue> union = new LinkedHashSet<>(u_mem);
-		union.addAll(a_mem);
-		Set<DataValue> difference = new LinkedHashSet<>(s_mem);
-		difference.removeAll(union);
-		return difference.toArray(new DataValue[difference.size()]);
 	}
 
 	/**
@@ -739,35 +667,6 @@ public class ClassificationTree {
 	}
 
 	/**
-	 * Convert {@code Bijection<DataValue>} to {@code Bijection<Register>} using the
-	 * data values of {@code prefix} to determine register ids.
-	 *
-	 * @param bijection
-	 * @param prefx
-	 * @return
-	 */
-	private Bijection<Register> rpRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> prefx) {
-		return Bijection.dvToRegBijection(bijection, prefx, getLeaf(prefx).getRepresentativePrefix());
-	}
-
-	/**
-	 * Convert array of {@code Register} to array of {@code DataValue} by matching {@link Register#getId()}
-	 * values to data value positions in {@code prefix}.
-	 *
-	 * @param regs
-	 * @param prefix
-	 * @return
-	 */
-	private DataValue[] regsToDvs(Register[] regs, Word<PSymbolInstance> prefix) {
-		DataValue[] vals = DataWords.valsOf(prefix);
-		DataValue[] ret = new DataValue[regs.length];
-		for (int i = 0; i < ret.length; i++) {
-			ret[i] = vals[regs[i].getId()-1];
-		}
-		return ret;
-	}
-
-	/**
 	 * Form a {@code SymbolicSuffix} by prepending {@code v} by the last symbol of {@code u1} and {@code u2}.
 	 * The new suffix will be optimized for separating {@code u1} and {@code u2}.
 	 * Note that {@code u1} and {@code u2} must have the same last symbol.
@@ -780,7 +679,6 @@ public class ClassificationTree {
 	private SymbolicSuffix extendSuffixLocation(Word<PSymbolInstance> u1Ext, Word<PSymbolInstance> u2Ext, SymbolicSuffix v) {
 		SDT sdt1 = getLeaf(u1Ext).getPrefix(u1Ext).getSDT(v);
 		SDT sdt2 = getLeaf(u2Ext).getPrefix(u2Ext).getSDT(v);
-//		return suffixBuilder.extendDistinguishingSuffix(u1, sdt1, u2, sdt2, v);
 		if (restrBuilder != null && restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
 			Word<PSymbolInstance> u1 = u1Ext.prefix(u1Ext.size() - 1);
 			Word<PSymbolInstance> u2 = u2Ext.prefix(u2Ext.size() - 1);
@@ -798,6 +696,16 @@ public class ClassificationTree {
 		return new SymbolicSuffix(extended);
 	}
 
+	/**
+	 * Form a {@code SymbolicSuffix} by prepending {@code v} by the last symbol of {@code uIf}.
+	 * The new suffix will be optimized for revealing the guard of {@code uIf}.
+	 * Note that the last symbols of {@code uIf} and {@code uElse} must have the same base symbol.
+	 *
+	 * @param uIf
+	 * @param uElse
+	 * @param v
+	 * @return
+	 */
 	private SymbolicSuffix extendSuffixTransition(Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse, SymbolicSuffix v) {
 		CTLeaf leafIf = getLeaf(uIf);
 		CTLeaf leafElse = getLeaf(uElse);
@@ -809,7 +717,6 @@ public class ClassificationTree {
 			Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
 			CTLeaf uLeaf = getLeaf(u);
 			Prefix uPref = uLeaf.getPrefix(u);
-			Prefix reprPref = uLeaf.getRepresentativePrefix();
 			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, v, sdtIf, sdtElse);
 		}
 
@@ -833,28 +740,6 @@ public class ClassificationTree {
 			valuation.put(p, vals[i]);
 		}
 		return valuation;
-	}
-
-	/**
-	 *
-	 * @param a
-	 * @param b
-	 * @return array of registers in {@code a} and {@code b} which are not mapped the same
-	 */
-	private Register[] inequivalentMapping(Bijection<Register> a, Bijection<Register> b) {
-		Set<Register> ret = new LinkedHashSet<>();
-		for (Map.Entry<Register, Register> ea : a.entrySet()) {
-			Register key = ea.getKey();
-			Register val = b.get(key);
-			if (val == null) {
-				ret.add(key);
-				ret.add(ea.getValue());
-			} else if (!val.equals(ea.getValue())) {
-				ret.add(key);
-				ret.add(val);
-			}
-		}
-		return ret.toArray(new Register[ret.size()]);
 	}
 
     @Override

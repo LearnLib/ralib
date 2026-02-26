@@ -38,7 +38,7 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	private final Word<PSymbolInstance> prefix;
 	private Bijection<DataValue> rpBijection;
 	private final CTPath path;
-	public final Map<SymbolicSuffix, Bijection<DataValue>> pathBijections;
+	public final Map<SymbolicSuffix, Bijection<DataValue>> pathBijections;  // tracks bijections to the RP at each ancestor node
 
 	public Prefix(Word<PSymbolInstance> u, Bijection<DataValue> rpRenaming, CTPath path) {
 		this.prefix = u instanceof Prefix ? ((Prefix) u).getPrefix() : u;
@@ -62,15 +62,17 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	public Prefix(Prefix prefix, Bijection<DataValue> rpRenaming) {
 		this(prefix.prefix, rpRenaming, prefix.path, prefix.pathBijections);
 	}
-//
-//	public Prefix(Prefix other) {
-//		this(other.prefix, other.rpBijection, other.path);
-//	}
 
 	public void setRpBijection(Bijection<DataValue> rpBijection) {
 		this.rpBijection = rpBijection;
 	}
 
+	/**
+	 * Add bijection mapping {@code this} to the representative prefix of the node containing {@code suffix}.
+	 *
+	 * @param suffix
+	 * @param bijection
+	 */
 	public void putBijection(SymbolicSuffix suffix, Bijection<DataValue> bijection) {
 		pathBijections.put(suffix, bijection);
 	}
@@ -79,10 +81,19 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 		return pathBijections;
 	}
 
+	/**
+	 * Add identity bijection mapping {@code this} to the representative prefix of the node containing {@code suffix}
+	 *
+	 * @param suffix
+	 */
 	public void putBijection(SymbolicSuffix suffix) {
 		putBijection(suffix, Bijection.identity(getRegisters()));
 	}
 
+	/**
+	 * @param suffix
+	 * @return bijection mapping {@code this} to the representative prefix of the ancestor node containing {@code suffix}
+	 */
 	public Bijection<DataValue> getBijection(SymbolicSuffix suffix) {
 		return pathBijections.get(suffix);
 	}
