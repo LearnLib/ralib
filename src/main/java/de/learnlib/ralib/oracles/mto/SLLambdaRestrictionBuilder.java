@@ -179,6 +179,17 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 		return new SymbolicSuffix(suffix.getActions(), newRestrs);
 	}
 
+	public boolean hasUnmappedRestrictionValue(SymbolicSuffix av, Set<DataValue> mem) {
+		Set<DataValue> restrVals = new LinkedHashSet<>();
+		AbstractSuffixValueRestriction.getElements(av.getRestrictions()).stream().filter(e -> e instanceof DataValue).forEach(e -> restrVals.add((DataValue) e));
+		for (DataValue d : restrVals) {
+			if (teachers != null && teachers.get(d.getDataType()) instanceof EqualityTheory && !mem.contains(d)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Extend {@code suffix} by prepending it with the last symbol of {@code u1Extended} (hereafter
 	 * known as the action). Note that the last symbol of {@code u2Extended} must have the same
@@ -346,6 +357,8 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
      * @return a restricted suffix, extended from {@code suffix}, which reveals unmapped data values in {@code u}
      */
     public SymbolicSuffix extendSuffix(Prefix u, Prefix uExtended, SymbolicSuffix suffix, SDT sdt) {
+    	// TODO: REMOVE TEMPORARY HACK FOR REGISTER CLOSEDNESS AND FIX THE PROBLEMS INSTEAD
+//    	return unrestricted(uExtended.lastSymbol().getBaseSymbol(), suffix);
     	ParameterizedSymbol action = uExtended.lastSymbol().getBaseSymbol();
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
 
@@ -394,7 +407,7 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
      * @return unrestricted symbolic suffix constructed by prepending {@code suffix} with {@code action}
      */
     private SymbolicSuffix unrestricted(ParameterizedSymbol action, SymbolicSuffix suffix) {
-    	Word<ParameterizedSymbol> actions = suffix.getActions();
+    	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
     	DataType[] actionTypes = action.getPtypes();
 
     	SuffixValueGenerator sgen = new SuffixValueGenerator();
@@ -408,9 +421,11 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
     	int shift = action.getArity();
     	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : suffix.getRestrictions().entrySet()) {
     		SuffixValue s = sgen.next(e.getKey().getDataType());
-    		restrictions.put(s, e.getValue().shift(shift));
+//    		restrictions.put(s, e.getValue().shift(shift));
+    		restrictions.put(s, new TrueRestriction(s));
     	}
 
+    	Word<ParameterizedSymbol> actions = DataWords.concatenate(Word.fromSymbols(action), suffix.getActions());
     	return new SymbolicSuffix(actions, restrictions);
     }
 

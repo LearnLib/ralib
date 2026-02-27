@@ -497,7 +497,10 @@ public class ClassificationTree {
 				assert uLeaf != null;
 
 				SymbolicSuffix av = extendSuffixTransition(uIf, uElse, v);
-				if (suffixRevealsNewGuard(av, getLeaf(uIf.prefix(uIf.length() - 1)))) {
+				Word<PSymbolInstance> u = uIf.prefix(uIf.length() - 1);
+				ShortPrefix uSp = (ShortPrefix) uLeaf.getPrefix(u);
+//				if (suffixRevealsNewGuard(av, getLeaf(uIf.prefix(uIf.length() - 1)))) {
+				if (suffixRevealsNewGuard(av, uSp)) {
 					return Optional.of(av);
 				}
 			}
@@ -651,9 +654,13 @@ public class ClassificationTree {
 	 * @param leaf
 	 * @return {@code true} if {@code av} reveals additional guards
 	 */
-	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
-		assert !leaf.getShortPrefixes().isEmpty() : "No short prefix in leaf " + leaf;
-		ShortPrefix u = leaf.getShortPrefixes().iterator().next();
+//	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
+	private boolean suffixRevealsNewGuard(SymbolicSuffix av, ShortPrefix u) {
+//		assert !leaf.getShortPrefixes().isEmpty() : "No short prefix in leaf " + leaf;
+//		ShortPrefix u = leaf.getShortPrefixes().iterator().next();
+		if (restrBuilder instanceof SLLambdaRestrictionBuilder rBuilder && rBuilder.hasUnmappedRestrictionValue(av, u.getRegisters())) {
+			return false;
+		}
 		SDT sdt = oracle.treeQuery(u, av.relabel(u.getRpBijection().inverse().toVarMapping()));
 		ParameterizedSymbol a = av.getActions().firstSymbol();
 		Branching branching = u.getBranching(a);
