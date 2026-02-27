@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,6 +52,11 @@ public final class DataType implements Comparable<DataType> {
         }
         final DataType other = (DataType) obj;
         return Objects.equals(this.name, other.name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public String getName() {

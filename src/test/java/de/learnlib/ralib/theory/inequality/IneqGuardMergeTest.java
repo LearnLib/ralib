@@ -20,7 +20,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTLeaf;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 
 public class IneqGuardMergeTest extends RaLibTestSuite {
@@ -29,10 +28,10 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     public void testIntervalMerge() {
         final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        //final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         dit.useSuffixOptimization(true);
-        teachers.put(D_TYPE, dit);
+        //teachers.put(D_TYPE, dit);
 
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         RegisterGenerator rgen = new RegisterGenerator();
@@ -156,10 +155,10 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     public void testTrueGuard() {
         final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        //final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         dit.useSuffixOptimization(true);
-        teachers.put(D_TYPE, dit);
+        //teachers.put(D_TYPE, dit);
 
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         RegisterGenerator rgen = new RegisterGenerator();
@@ -204,10 +203,10 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     public void testFilteredDataValues() {
         final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        //final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         dit.useSuffixOptimization(true);
-        teachers.put(D_TYPE, dit);
+        //teachers.put(D_TYPE, dit);
 
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         RegisterGenerator rgen = new RegisterGenerator();
@@ -267,10 +266,10 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     public void testSDTSubtree() {
         final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        //final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         dit.useSuffixOptimization(true);
-        teachers.put(D_TYPE, dit);
+        //teachers.put(D_TYPE, dit);
 
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         RegisterGenerator rgen = new RegisterGenerator();
@@ -329,10 +328,10 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     public void testDisequalityGuard() {
         final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        //final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         dit.useSuffixOptimization(true);
-        teachers.put(D_TYPE, dit);
+        //teachers.put(D_TYPE, dit);
 
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         RegisterGenerator rgen = new RegisterGenerator();

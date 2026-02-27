@@ -43,6 +43,12 @@ public class Assignment {
         this.assignment = assignment;
     }
 
+    /**
+     * Updates the register valuation {@code registers} based on register assignment.
+     * Any registers in {@code registers} which are not assigned to a new register will be dropped.
+     *
+     * @return the new valuation
+     */
     public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
     	RegisterValuation val = new RegisterValuation();
     	for (Map.Entry<Register, ? extends SymbolicDataValue> e : assignment.entrySet()) {
@@ -60,8 +66,8 @@ public class Assignment {
     	return val;
     }
 
-    /*
-     * @deprecated method is unsafe, use {@link #valuation()} instead
+    /**
+     * Deprecated and unsafe method; use {@link de.learnlib.ralib.automata.Assignment#valuation(RegisterValuation, ParameterValuation, Constants) Valuation} instead.
      * Method is unsafe because it keeps registers that are not given a new assignment, which can cause
      * a discrepancy in the number of registers a location has, depending on the path to the location.
      * Method is deprecated rather than removed because the functionality is used by XML automata models.
@@ -82,12 +88,6 @@ public class Assignment {
                 val.put(e.getKey(), registers.get((Register) valp));
             }
             else if (valp.isParameter()) {
-            	DataValue dv = parameters.get((Parameter) valp);
-            	for (Map.Entry<Parameter, DataValue> ep : parameters.entrySet()) {
-            		if (ep.getKey().equals(valp)) {
-            			dv = ep.getValue();
-            		}
-            	}
                 val.put(e.getKey(), parameters.get((Parameter) valp));
             }
             //TODO: check if we want to copy constant values into vars

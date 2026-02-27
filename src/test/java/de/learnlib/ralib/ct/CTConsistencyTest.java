@@ -87,7 +87,8 @@ public class CTConsistencyTest extends RaLibTestSuite {
         ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, I_PUSH, I_POP);
 
         ct.initialize();
-        boolean closed = ct.checkLocationClosedness();
+        boolean closed;
+        ct.checkLocationClosedness();
         closed = ct.checkLocationClosedness();
         Assert.assertFalse(closed);
 

@@ -28,7 +28,7 @@ public class TestUniqueEqualityTheory extends RaLibTestSuite {
     public void testLoginExample2() {
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
 
-        Map<DataType, Theory> theories = new LinkedHashMap();
+        Map<DataType, Theory> theories = new LinkedHashMap<>();
         theories.put(T_UID, new UniqueIntegerEqualityTheory(T_UID));
         theories.put(T_PWD, new UniqueIntegerEqualityTheory(T_PWD));
 

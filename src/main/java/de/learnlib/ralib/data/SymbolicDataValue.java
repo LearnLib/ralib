@@ -50,10 +50,10 @@ public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> impl
             super(dataType, id, "r" + id);
         }
 
-		@Override
-		public Expression<BigDecimal> asExpression() {
-			return this;
-		}
+	@Override
+	public Expression<BigDecimal> asExpression() {
+	    return this;
+	}
     }
 
     /**
@@ -130,7 +130,7 @@ public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> impl
     public int hashCode() {
         int hash = 7;
         hash = 97 * hash + Objects.hashCode(this.type);
-        hash = 97 * hash + Objects.hashCode(this.id);
+        hash = 97 * hash + Integer.hashCode(this.id);
         hash = 97 * hash + Objects.hashCode(this.getClass());
         return hash;
     }

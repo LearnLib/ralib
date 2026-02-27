@@ -692,11 +692,11 @@ public class ClassificationTree {
 	 * data values of {@code prefix} to determine register ids.
 	 *
 	 * @param bijection
-	 * @param prefx
+	 * @param prefix
 	 * @return
 	 */
-	private Bijection<Register> rpRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> prefx) {
-		return Bijection.dvToRegBijection(bijection, prefx, getLeaf(prefx).getRepresentativePrefix());
+	private Bijection<Register> rpRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> prefix) {
+		return Bijection.dvToRegBijection(bijection, prefix, getLeaf(prefix).getRepresentativePrefix());
 	}
 
 	/**

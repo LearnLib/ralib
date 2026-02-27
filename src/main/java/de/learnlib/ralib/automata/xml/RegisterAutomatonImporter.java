@@ -18,11 +18,11 @@ package de.learnlib.ralib.automata.xml;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -118,7 +118,7 @@ public class RegisterAutomatonImporter {
         }
 
         // determine input/output locations
-        List<RegisterAutomaton.Transitions.Transition> transitions = new LinkedList<>(a.getTransitions().getTransition());
+        List<RegisterAutomaton.Transitions.Transition> transitions = new ArrayList<>(a.getTransitions().getTransition());
         while(!transitions.isEmpty()) {
             ListIterator<Transition> iter = transitions.listIterator();
             while (iter.hasNext()) {
@@ -185,7 +185,7 @@ public class RegisterAutomatonImporter {
             Assignment assign = new Assignment(assignments);
 
             // output
-            if (ps instanceof OutputSymbol) {
+            if (ps instanceof OutputSymbol outputSymbol) {
 
                 Parameter[] pList = paramList(ps);
                 int idx = 0;
@@ -223,7 +223,7 @@ public class RegisterAutomatonImporter {
                 OutputMapping outMap = new OutputMapping(fresh, outputs);
 
                 OutputTransition tOut = new OutputTransition(p, outMap,
-                        (OutputSymbol) ps, from, to, assign);
+                        outputSymbol, from, to, assign);
                 iora.addTransition(from, ps, tOut);
                 LOGGER.trace(Category.EVENT, "Loading: {}", tOut);
             } // input
@@ -319,10 +319,6 @@ public class RegisterAutomatonImporter {
             typeMap.put(name, t);
         }
         return t;
-    }
-
-    private boolean isDoubleTempCheck(String name) {
-        return name.equals("DOUBLE") || name.equals("double");
     }
 
     private Map<String, SymbolicDataValue> buildValueMap(

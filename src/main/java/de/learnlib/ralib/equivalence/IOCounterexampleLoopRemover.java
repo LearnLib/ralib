@@ -37,7 +37,6 @@ package de.learnlib.ralib.equivalence;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +59,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
         private final int min;
         private final int max;
 
-        public Loop(int min, int max) {
+        Loop(int min, int max) {
             this.min = min;
             this.max = max;
         }
@@ -95,7 +94,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
                 //System.out.println("Found loop of length " + length);
                 List<Loop> list = loops.get(length);
                 if (list == null) {
-                    list = new LinkedList<>();
+                    list = new ArrayList<>();
                     loops.put(length, list);
                     sizes.add(length);
                 }

@@ -53,7 +53,6 @@ public class SDTOracle implements DataWordOracle {
 			else {
 				Word<PSymbolInstance> suffix = computeSuffix(query.getInput());
 				Mapping<SymbolicDataValue, DataValue> vals = computeMapping(suffix);
-				boolean answer = sdt.isAccepting(vals, consts);
 				query.answer(sdt.isAccepting(vals, consts));
 			}
 		}

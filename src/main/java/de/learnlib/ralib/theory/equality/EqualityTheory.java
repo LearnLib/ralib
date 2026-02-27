@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.theory.equality;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +24,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -96,7 +96,7 @@ public abstract class EqualityTheory implements Theory {
             List<SDTGuard.EqualityGuard> ds = new ArrayList<>();
             ds.add(eqGuard);
             LOGGER.trace("remapping: " + ds);
-            if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
+            if (! eqSdt.isEquivalentUnder(deqSdt, ds)) {
                 LOGGER.trace("--> not eq.");
                 deqList.add(SDTGuard.toDeqGuard(eqGuard));
                 eqList.add(eqGuard);
@@ -314,7 +314,7 @@ public abstract class EqualityTheory implements Theory {
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace("prefix values : " + prefixValues);
         DataType type = param.getDataType();
-        Deque<SDTGuard> guards = new LinkedList<>();
+        Deque<SDTGuard> guards = new ArrayDeque<>();
         guards.add(guard);
 
         while(!guards.isEmpty()) {
@@ -333,8 +333,8 @@ public abstract class EqualityTheory implements Theory {
                 } else if (SDTGuardElement.isConstant(ereg)) {
                     return constants.get((Constant) ereg);
                 }
-            } else if (current instanceof SDTGuard.SDTAndGuard) {
-                guards.addAll(((SDTGuard.SDTAndGuard) current).conjuncts());
+            } else if (current instanceof SDTGuard.SDTAndGuard sdtAndGuard) {
+                guards.addAll(sdtAndGuard.conjuncts());
             }
             // todo: this only works under the assumption that disjunctions only contain disequality guards
         }
@@ -394,7 +394,7 @@ public abstract class EqualityTheory implements Theory {
         return query;
     }
 
-    /*
+    /**
      * Creates a "unary tree" of depth maxIndex - nextSufIndex which leads to a
      * rejecting Leaf. Edges are of type {@link SDTTrueGuard}. Used to shortcut
      * output processing.
@@ -422,7 +422,7 @@ public abstract class EqualityTheory implements Theory {
     			.filter(v -> v.getDataType().equals(p.getDataType()))
     			.collect(Collectors.toSet()));
     	vals.addAll(constants.values());
-    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
+        DataValue fresh = getFreshValue(new ArrayList<>(vals));
 
     	if (isSatisfiableWithEquality(guard, p, fresh, solver, constants)) {
     		return Optional.of(fresh);
@@ -458,9 +458,9 @@ public abstract class EqualityTheory implements Theory {
 
     @Override
     public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-    	if (guard instanceof SDTGuard.EqualityGuard && ((SDTGuard.EqualityGuard) guard).register().equals(register)) {
+        if (guard instanceof SDTGuard.EqualityGuard equalityGuard && equalityGuard.register().equals(register)) {
     		return true;
-    	} else if (guard instanceof SDTGuard.DisequalityGuard && ((SDTGuard.DisequalityGuard)guard).register().equals(register)) {
+        } else if (guard instanceof SDTGuard.DisequalityGuard disequalityGuard && disequalityGuard.register().equals(register)) {
     		return true;
     	} else if (guard instanceof SDTGuard.SDTAndGuard ag) {
     		boolean revealsGuard = false;

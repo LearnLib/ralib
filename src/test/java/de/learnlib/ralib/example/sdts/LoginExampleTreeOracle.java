@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,8 +69,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
     }
 
     @Override
-    public SDT treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 
         if (prefix.length() < 1) {
             return new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>());
@@ -85,14 +84,14 @@ public class LoginExampleTreeOracle implements TreeOracle {
             PSymbolInstance psi = prefix.getSymbol(idx);
 
             switch (state) {
-                case INIT:
+                case INIT -> {
                     if (I_REGISTER.equals(psi.getBaseSymbol())) {
                         uid = psi.getParameterValues()[0];
                         pwd = psi.getParameterValues()[1];
                         state = State.REGISTER;
                     }
-                    break;
-                case REGISTER:
+                }
+                case REGISTER -> {
                     if (I_LOGIN.equals(psi.getBaseSymbol())) {
                         if (uid.equals(psi.getParameterValues()[0])
                                 && pwd.equals(psi.getParameterValues()[1])) {
@@ -101,15 +100,16 @@ public class LoginExampleTreeOracle implements TreeOracle {
                     } else {
                         state = State.ERROR;
                     }
-                    break;
-                case LOGIN:
+                }
+                case LOGIN -> {
                     if (I_LOGOUT.equals(psi.getBaseSymbol())) {
                         state = State.REGISTER;
                     } else {
                         state = State.ERROR;
                     }
-                    break;
-            }
+                }
+                case ERROR -> { }
+            };
 
             if (state == State.ERROR) {
                 return new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>());
@@ -120,22 +120,23 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
         SDTClass clazz = SDTClass.REJECT;
         switch (state) {
-            case REGISTER:
+            case REGISTER -> {
                 if (suffix.getActions().length() == 1) {
                     clazz = SDTClass.LOGIN;
                 }
-                break;
-            case LOGIN:
+            }
+            case LOGIN -> {
                 switch (suffix.getActions().length()) {
-                    case 0:
+		    case 0:
                         clazz = SDTClass.ACCEPT;
                         break;
-                    case 2:
+		    case 2:
                         clazz = SDTClass.LOGIN;
                         break;
-                }
-                break;
-        }
+		}
+            }
+            case INIT, ERROR -> { }
+        };
 
         return new LoginExampleSDT(clazz, suffix, new LinkedHashSet<Register>());
     }
@@ -200,7 +201,6 @@ public class LoginExampleTreeOracle implements TreeOracle {
     public Branching updateBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Branching current,
             SDT... sdts) {
-
         return getInitialBranching(prefix, ps, sdts);
     }
 
