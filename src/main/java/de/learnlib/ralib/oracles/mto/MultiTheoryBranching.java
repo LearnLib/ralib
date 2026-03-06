@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,7 +88,7 @@ public class MultiTheoryBranching implements Branching {
 
         protected Map<SuffixValue, Set<DataValue>> collectDVs() {
             Map<SuffixValue, Set<DataValue>> dvs = new LinkedHashMap();
-            if (!(this.next.keySet()).isEmpty()) {
+            if (! this.next.keySet().isEmpty()) {
                 dvs.put(this.parameter, this.next.keySet());
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
                     dvs.putAll(e.getValue().collectDVs());
@@ -99,7 +99,7 @@ public class MultiTheoryBranching implements Branching {
 
         protected Map<SuffixValue, Set<SDTGuard>> collectGuards() {
             Map<SuffixValue, Set<SDTGuard>> guards = new LinkedHashMap();
-            if (!(this.next.keySet()).isEmpty()) {
+            if (! this.next.keySet().isEmpty()) {
                 guards.put(this.parameter, new LinkedHashSet<SDTGuard>(this.guards.values()));
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
                     guards.putAll(e.getValue().collectGuards());
@@ -109,7 +109,7 @@ public class MultiTheoryBranching implements Branching {
         }
 
         protected SDT buildFakeSDT() {
-            if (!(this.next.keySet()).isEmpty()) {
+            if (! this.next.keySet().isEmpty()) {
                 Map<SDTGuard, SDT> map = new LinkedHashMap();
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
                     SDTGuard guard = guards.get(e.getKey());

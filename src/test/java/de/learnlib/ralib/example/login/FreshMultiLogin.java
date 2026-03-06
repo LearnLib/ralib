@@ -60,7 +60,7 @@ public class FreshMultiLogin {
     public boolean ILogin(BigDecimal uid, BigDecimal pwd) {
         if (id2pwd.containsKey(uid)
                 && !id2loggedin.get(uid)
-                && pwd == id2pwd.get(uid)
+                && pwd.equals(id2pwd.get(uid))
                 && loggedin_users < MAX_LOGGEDIN_USERS) {
             loggedin_users++;
             id2loggedin.put(uid, true);

@@ -22,7 +22,8 @@ import java.util.Iterator;
  *
  * @author falk
  */
-public class PermutationIterator implements Iterable<int[]>, Iterator<int[]>{
+@SuppressWarnings("IterableAndIterator")
+public class PermutationIterator implements Iterable<int[]>, Iterator<int[]> {
 
     final int[] permutation;
 

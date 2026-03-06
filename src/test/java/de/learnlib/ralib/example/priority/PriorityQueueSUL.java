@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,37 +30,35 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class PriorityQueueSUL extends DataWordSUL {
 
     public static final DataType DOUBLE_TYPE =
-            new DataType("DOUBLE");
+        new DataType("DOUBLE");
 
     public static final ParameterizedSymbol POLL =
-            new InputSymbol("poll");
+        new InputSymbol("poll");
 
     public static final ParameterizedSymbol OFFER =
-            new InputSymbol("offer", DOUBLE_TYPE);
-
+        new InputSymbol("offer", DOUBLE_TYPE);
 
     public final ParameterizedSymbol[] getInputSymbols() {
         return new ParameterizedSymbol[] { POLL, OFFER };
     }
 
     public static final ParameterizedSymbol ERROR =
-            new OutputSymbol("_io_err");
+        new OutputSymbol("_io_err");
 
     public static final ParameterizedSymbol OUTPUT =
-            new OutputSymbol("_out", DOUBLE_TYPE);
+        new OutputSymbol("_out", DOUBLE_TYPE);
 
     public static final ParameterizedSymbol OK =
-            new OutputSymbol("_ok");
+        new OutputSymbol("_ok");
 
     public static final ParameterizedSymbol NOK =
-            new OutputSymbol("_not_ok");
+        new OutputSymbol("_not_ok");
 
     public final ParameterizedSymbol[] getActionSymbols() {
         return new ParameterizedSymbol[] { POLL, OFFER, OUTPUT, OK, NOK, ERROR };
     }
 
-
-    private PQWrapper pqueue;
+    private PQWrapper<BigDecimal> pqueue;
     private final int capacity;
 
     public PriorityQueueSUL() {
@@ -74,7 +72,7 @@ public class PriorityQueueSUL extends DataWordSUL {
     @Override
     public void pre() {
         countResets(1);
-        this.pqueue = new PQWrapper(capacity);
+        this.pqueue = new PQWrapper<BigDecimal>(capacity);
     }
 
     @Override
@@ -83,8 +81,8 @@ public class PriorityQueueSUL extends DataWordSUL {
     }
 
     private PSymbolInstance createOutputSymbol(Object x) {
-        if (x instanceof Boolean) {
-            return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
+        if (x instanceof Boolean b) {
+            return new PSymbolInstance(b ? OK : NOK);
         } else if (x instanceof java.lang.Exception) {
             return new PSymbolInstance(ERROR);
         } else if (x == null) {

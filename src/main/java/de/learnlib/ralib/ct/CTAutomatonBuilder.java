@@ -203,7 +203,7 @@ public class CTAutomatonBuilder {
 			return null;
 		}
 
-		if (!ioMode || !(action instanceof OutputSymbol)) {
+		if (!ioMode || !(action instanceof OutputSymbol outputSymbol)) {
 			// create input transition
 			return new Transition(action, guard, src_loc, dest_loc, assignment);
 		}
@@ -227,7 +227,7 @@ public class CTAutomatonBuilder {
         OutputMapping outMap = new OutputMapping(fresh, outmap);
 
         return new OutputTransition(ExpressionUtil.TRUE,
-                outMap, (OutputSymbol) action, src_loc, dest_loc, assignment);
+                outMap, outputSymbol, src_loc, dest_loc, assignment);
 	}
 
 
@@ -247,12 +247,12 @@ public class CTAutomatonBuilder {
                 Parameter p = null;
                 SymbolicDataValue sv = null;
 
-                if (left instanceof Parameter) {
+                if (left instanceof Parameter pleft) {
                     if (right instanceof Parameter) {
                         throw new UnsupportedOperationException("not implemented yet.");
                     }
                     else {
-                        p = (Parameter) left;
+                        p = pleft;
                         sv = right;
                     }
                 }
