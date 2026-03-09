@@ -11,6 +11,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SDTGuardElement;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
@@ -71,7 +72,7 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 		for (SDTGuardElement r : this.regs) {
 			if (r instanceof SymbolicDataValue s && mapping.containsKey(s)) {
 				regs.add(mapping.get(s));
-			} else {
+			} else if (!(r instanceof Register)) {
 				regs.add(r);
 			}
 		}
