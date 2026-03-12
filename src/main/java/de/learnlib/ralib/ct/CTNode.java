@@ -5,6 +5,7 @@ import java.util.List;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.ConcretizingTreeOracle;
 
 /**
  * Node of a {@link ClassificationTree}.
@@ -52,5 +53,5 @@ public abstract class CTNode {
 	 * @return the {@code CTLeaf} node to which {@code prefix} is sifted
 	 * @see CTPath
 	 */
-	protected abstract CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode);
+	protected abstract CTLeaf sift(Prefix prefix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode);
 }
