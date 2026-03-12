@@ -13,9 +13,9 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
-import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
+import de.learnlib.ralib.theory.ConcretizingTreeOracle;
 import de.learnlib.ralib.theory.ElementRestriction;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -159,7 +159,7 @@ public class CTPath {
 	 * @param ioMode {@code true} if the language being learned is an IO language
 	 * @return a {@code CTPath} containing SDTs for each suffix in {@code suffixes}
 	 */
-	public static CTPath computePath(TreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
+	public static CTPath computePath(ConcretizingTreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
 		CTPath r = new CTPath(ioMode);
 		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
 		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
@@ -176,7 +176,7 @@ public class CTPath {
 			assert noUnmapped(action, sRelabeled, r.getMemorable()) : "Equality with unmapped data value";
 			sdt = prefix.getSDT(s);
 			if (sdt == null) {
-				sdt = oracle.treeQuery(prefix, sRelabeled);
+				sdt = oracle.treeQuery(prefix, sRelabeled, r.getMemorable());
 			}
 
 			if (r.getSDT(s) == null) {

@@ -3,6 +3,7 @@ package de.learnlib.ralib.ceanalysis;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -158,6 +159,7 @@ public class PrefixFinder {
 		vals.addAll(consts.keySet());
 
 		Expression[] restrictionExpressions = new Expression[types.length + 1];
+		VarMapping<SuffixValue, Parameter> paramMapping = new VarMapping<>();
 		for (int i = 0; i < types.length; i++) {
 			SuffixValue s = sgen.next(types[i]);
 			Parameter p = new Parameter(s.getDataType(), s.getId());
@@ -168,9 +170,9 @@ public class PrefixFinder {
 			expr = vvv.apply(expr, pmap);
 
 			ReplacingVarsVisitor rvv = new ReplacingVarsVisitor();
-			VarMapping<SuffixValue, Parameter> mapping = new VarMapping<>();
-			mapping.put(s, p);
-			Expression<Boolean> renamedExpr = rvv.apply(expr, mapping);
+//			VarMapping<SuffixValue, Parameter> paramMapping = new VarMapping<>();
+			paramMapping.put(s, p);
+			Expression<Boolean> renamedExpr = rvv.apply(expr, paramMapping);
 			restrictionExpressions[i] = renamedExpr;
 		}
 		restrictionExpressions[restrictionExpressions.length - 1] = guard;
@@ -320,13 +322,15 @@ public class PrefixFinder {
         // instantiate a representative data value for the conjunction
         DataType[] types = action.getPtypes();
         DataValue[] reprDataVals = new DataValue[types.length];
+        List<DataValue> prior = new ArrayList<>();
         for (int i = 0; i < types.length; i++) {
-        	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, consts, solver);
+        	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, prior, consts, solver);
         	if (reprDataVal.isEmpty()) {
         		// guard unsat
         		return Optional.empty();
         	}
         	reprDataVals[i] = reprDataVal.get();
+        	prior.add(reprDataVals[i]);
         }
         PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
         Word<PSymbolInstance> uExtSul = u.append(psi);

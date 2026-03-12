@@ -110,16 +110,16 @@ public class LearnLoginTest extends RaLibTestSuite {
         }
 
         Assert.assertEquals(Arrays.toString(measuresLambda),
-			    "[{TQ: 74, Resets: 1997, Inputs: 0}," +
-			    " {TQ: 72, Resets: 1984, Inputs: 0}," +
-			    " {TQ: 74, Resets: 1417, Inputs: 0}," +
-			    " {TQ: 72, Resets: 1449, Inputs: 0}," +
-			    " {TQ: 74, Resets: 1403, Inputs: 0}," +
-			    " {TQ: 72, Resets: 2120, Inputs: 0}," +
-			    " {TQ: 74, Resets: 1984, Inputs: 0}," +
-			    " {TQ: 72, Resets: 1263, Inputs: 0}," +
-			    " {TQ: 79, Resets: 1243, Inputs: 0}," +
-			    " {TQ: 74, Resets: 1220, Inputs: 0}]");
+			    "[{TQ: 74, Resets: 2102, Inputs: 0}," +
+			    " {TQ: 72, Resets: 2089, Inputs: 0}," +
+			    " {TQ: 74, Resets: 1422, Inputs: 0}," +
+			    " {TQ: 72, Resets: 1479, Inputs: 0}," +
+			    " {TQ: 74, Resets: 1433, Inputs: 0}," +
+			    " {TQ: 72, Resets: 2225, Inputs: 0}," +
+			    " {TQ: 74, Resets: 2089, Inputs: 0}," +
+			    " {TQ: 72, Resets: 1268, Inputs: 0}," +
+			    " {TQ: 79, Resets: 1277, Inputs: 0}," +
+			    " {TQ: 74, Resets: 1225, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
 			    "[{TQ: 65, Resets: 1807, Inputs: 0}," +
 			    " {TQ: 65, Resets: 1788, Inputs: 0}," +

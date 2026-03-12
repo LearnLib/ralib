@@ -13,9 +13,6 @@ import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class UnmappedEqualityRestriction extends AbstractSuffixValueRestriction {
 
@@ -52,14 +49,15 @@ public class UnmappedEqualityRestriction extends AbstractSuffixValueRestriction 
 
 	@Override
 	public Expression<Boolean> toGuardExpression(Set<SymbolicDataValue> vals) {
-		Set<SymbolicDataValue> nonParams = new LinkedHashSet<>();
-		vals.stream().filter(s -> !s.isParameter()).forEach(s-> nonParams.add(s));
-		Expression[] diseqs = new Expression[nonParams.size()];
-		int i = 0;
-		for (SymbolicDataValue sdv : nonParams) {
-			diseqs[i++] = new NumericBooleanExpression(parameter, NumericComparator.NE, sdv);
-		}
-		return ExpressionUtil.and(diseqs);
+		throw new RuntimeException("Not supported for this type of restrictions");
+//		Set<SymbolicDataValue> nonParams = new LinkedHashSet<>();
+//		vals.stream().filter(s -> !s.isParameter()).forEach(s-> nonParams.add(s));
+//		Expression[] diseqs = new Expression[nonParams.size()];
+//		int i = 0;
+//		for (SymbolicDataValue sdv : nonParams) {
+//			diseqs[i++] = new NumericBooleanExpression(parameter, NumericComparator.NE, sdv);
+//		}
+//		return ExpressionUtil.and(diseqs);
 	}
 
 	@Override

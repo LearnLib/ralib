@@ -626,12 +626,13 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
-            Constants constants, ConstraintSolver solver) {
+            List<DataValue> prior, Constants constants, ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
     	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
     	vals.addAll(vals.stream()
     			.filter(w -> w.getDataType().equals(p.getDataType()))
     			.collect(Collectors.toSet()));
+    	vals.addAll(prior);
     	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
     	if (tryEquality(guard, p, fresh, solver)) {

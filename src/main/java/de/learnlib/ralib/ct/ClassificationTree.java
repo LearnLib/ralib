@@ -32,6 +32,7 @@ import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
+import de.learnlib.ralib.theory.ConcretizingTreeOracle;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -53,7 +54,7 @@ public class ClassificationTree {
 	private final Set<Word<PSymbolInstance>> shortPrefixes;
 
 	private final ConstraintSolver solver;
-	private final TreeOracle oracle;
+	private final ConcretizingTreeOracle oracle;
 	private final SymbolicSuffixRestrictionBuilder restrBuilder;
 	private final OptimizedSymbolicSuffixBuilder suffixBuilder;
 
@@ -71,7 +72,8 @@ public class ClassificationTree {
 			Constants consts,
 			boolean ioMode,
 			ParameterizedSymbol ... inputs) {
-		this.oracle = oracle;
+//		this.oracle = oracle;
+		this.oracle = new ConcretizingTreeOracle(oracle, consts);
 		this.solver = solver;
 		this.ioMode = ioMode;
 		this.inputs = inputs;
@@ -356,7 +358,7 @@ public class ClassificationTree {
 					if (!vMissingRegs.isEmpty()) {
 						// found a suffix with missing memorables
 						SymbolicSuffix av = extendSuffixRegister(ua, v, vMissingRegs);
-						SDT sdt = oracle.treeQuery(u, av.relabel(u_pref.getRpBijection().inverse().toVarMapping()));
+						SDT sdt = oracle.treeQuery(u, av.relabel(u_pref.getRpBijection().inverse().toVarMapping()), u_pref.getRegisters());
 						if (Collections.disjoint(vMissingRegs, sdt.getDataValues())) {
 							continue;
 						}
@@ -661,7 +663,7 @@ public class ClassificationTree {
 		if (restrBuilder instanceof SLLambdaRestrictionBuilder rBuilder && rBuilder.hasUnmappedRestrictionValue(av, u.getRegisters())) {
 			return false;
 		}
-		SDT sdt = oracle.treeQuery(u, av.relabel(u.getRpBijection().inverse().toVarMapping()));
+		SDT sdt = oracle.treeQuery(u, av.relabel(u.getRpBijection().inverse().toVarMapping()), u.getRegisters());
 		ParameterizedSymbol a = av.getActions().firstSymbol();
 		Branching branching = u.getBranching(a);
 		Branching newBranching = oracle.updateBranching(u, a, branching, sdt);

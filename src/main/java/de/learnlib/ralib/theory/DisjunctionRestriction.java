@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -264,8 +263,14 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 	}
 
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> disjuncts) {
-		disjuncts = disjuncts.stream().distinct().filter(d -> !d.isTrue()).collect(Collectors.toList());
-		if (disjuncts == null || disjuncts.isEmpty()) {
+//		disjuncts = disjuncts.stream().distinct().filter(d -> !d.isTrue()).collect(Collectors.toList());
+		if (disjuncts != null) {
+			disjuncts = flattenDisjuncts(disjuncts);
+		} else {
+			disjuncts = new ArrayList<>();
+		}
+		boolean isTrue = disjuncts.stream().filter(d -> d.isTrue()).findAny().isPresent();
+		if (disjuncts.isEmpty() || isTrue) {
 			return new TrueRestriction(parameter);
 		}
 		if (disjuncts.size() == 1) {
@@ -280,5 +285,17 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, AbstractSuffixValueRestriction ... disjuncts) {
 		return create(parameter, Arrays.asList(disjuncts));
+	}
+
+	private static Set<AbstractSuffixValueRestriction> flattenDisjuncts(Collection<? extends AbstractSuffixValueRestriction> disjuncts) {
+		Set<AbstractSuffixValueRestriction> dis = new LinkedHashSet<>();
+		for (AbstractSuffixValueRestriction r : disjuncts) {
+			if (r instanceof DisjunctionRestriction dr) {
+				dis.addAll(flattenDisjuncts(dr.disjuncts));
+			} else {
+				dis.add(r);
+			}
+		}
+		return dis;
 	}
 }

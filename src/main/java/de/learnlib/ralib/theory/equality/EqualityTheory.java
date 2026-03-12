@@ -46,6 +46,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -311,21 +312,24 @@ public abstract class EqualityTheory implements Theory {
     @Override
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
-            Constants constants, ConstraintSolver solver) {
+            List<DataValue> prior, Constants constants, ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
     	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
     	vals.addAll(vals.stream()
     			.filter(v -> v.getDataType().equals(p.getDataType()))
     			.collect(Collectors.toSet()));
     	vals.addAll(constants.values());
+    	vals.addAll(prior);
     	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
-    	if (tryEquality(guard, p, fresh, solver, constants)) {
+
+
+    	if (tryEquality(guard, p, fresh, prior, solver, constants)) {
     		return Optional.of(fresh);
     	}
 
     	for (DataValue val : vals) {
-    		if (tryEquality(guard, p, val, solver, constants)) {
+    		if (tryEquality(guard, p, val, prior, solver, constants)) {
     			return Optional.of(val);
     		}
     	}
@@ -333,8 +337,13 @@ public abstract class EqualityTheory implements Theory {
     	return Optional.empty();
     }
 
-    private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver, Constants consts) {
+    private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, List<DataValue> prior, ConstraintSolver solver, Constants consts) {
     	Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
+    	ParameterGenerator pgen = new ParameterGenerator();
+    	for (DataValue d : prior) {
+    		Parameter param = pgen.next(d.getDataType());
+    		valuation.put(param, d);
+    	}
     	valuation.put(p, val);
     	valuation.putAll(consts);
     	return solver.isSatisfiable(guard, valuation);
@@ -761,54 +770,65 @@ public abstract class EqualityTheory implements Theory {
     	SuffixValue suffixValue = guards.getKey().getParameter();
     	AbstractSuffixValueRestriction rOld = restrictions.get(suffixValue);
 
-    	// if both guards are TRUE guards, any value will suffice so return old restriction
-    	assert guards.getValue().getParameter().equals(suffixValue);
-    	if (guards.getKey() instanceof SDTGuard.SDTTrueGuard && guards.getValue() instanceof SDTGuard.SDTTrueGuard) {
-    		return rOld;
+    	SDTGuard.EqualityGuard geq = guards.getKey() instanceof SDTGuard.EqualityGuard eq1 ? eq1 : (guards.getValue() instanceof SDTGuard.EqualityGuard eq2 ? eq2 : null);
+    	if (geq != null) {
+    		return new EqualityRestriction(suffixValue, Set.of(geq.register()));
     	}
 
-    	// check left guard
-    	if (guards.getKey() instanceof SDTGuard.EqualityGuard geq) {
-    		// if equality with missing register, restriction should be True
-    		if (missingRegs.contains(geq.register())) {
-    			// could be the disjunction Unmappped OR Fresh?
-    			return new TrueRestriction(suffixValue);
-    		}
-    		// if both are equality guards, the restriction should be the conjunction
-    		if (guards.getValue() instanceof SDTGuard.EqualityGuard geqOther) {
-        		// the conjunction must be a subset of old restrictions, otherwise guards would not be present in sdts
-    			return SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression(), geqOther.register().asExpression());
-    		}
-    		// right guard must be an else guard
-    		assert isElseGuard(guards.getValue());
-    		if (rOld.containsFresh()) {
-    			// disjunction of equality with fresh
-    			return DisjunctionRestriction.create(suffixValue,
-        				SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression()),
-        				new FreshSuffixValue(suffixValue));
-    		}
-    		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
-    		return rOld;
-    	}
-    	// left guard must be else guard, check right guard
-    	assert isElseGuard(guards.getKey());
-    	if (guards.getValue() instanceof SDTGuard.EqualityGuard geq) {
-    		if (rOld.containsFresh()) {
-    			// disjunction of equality with fresh
-    			return DisjunctionRestriction.create(suffixValue,
-        				SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression()),
-        				new FreshSuffixValue(suffixValue));
-    		}
-    		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
-    		return rOld;
-    	}
-    	assert isElseGuard(guards.getValue());
     	if (rOld.containsFresh()) {
-    		// both guards are else
     		return new FreshSuffixValue(suffixValue);
     	}
-		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
+
     	return rOld;
+
+    	// if both guards are TRUE guards, any value will suffice so return old restriction
+//    	assert guards.getValue().getParameter().equals(suffixValue);
+//    	if (guards.getKey() instanceof SDTGuard.SDTTrueGuard && guards.getValue() instanceof SDTGuard.SDTTrueGuard) {
+//    		return rOld;
+//    	}
+//
+//    	// check left guard
+//    	if (guards.getKey() instanceof SDTGuard.EqualityGuard geq) {
+//    		// if equality with missing register, restriction should be True
+//    		if (missingRegs.contains(geq.register())) {
+//    			// could be the disjunction Unmappped OR Fresh?
+//    			return new TrueRestriction(suffixValue);
+//    		}
+//    		// if both are equality guards, the restriction should be the conjunction
+//    		if (guards.getValue() instanceof SDTGuard.EqualityGuard geqOther) {
+//        		// the conjunction must be a subset of old restrictions, otherwise guards would not be present in sdts
+//    			return SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression(), geqOther.register().asExpression());
+//    		}
+//    		// right guard must be an else guard
+//    		assert isElseGuard(guards.getValue());
+//    		if (rOld.containsFresh()) {
+//    			// disjunction of equality with fresh
+//    			return DisjunctionRestriction.create(suffixValue,
+//        				SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression()),
+//        				new FreshSuffixValue(suffixValue));
+//    		}
+//    		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
+//    		return rOld;
+//    	}
+//    	// left guard must be else guard, check right guard
+//    	assert isElseGuard(guards.getKey());
+//    	if (guards.getValue() instanceof SDTGuard.EqualityGuard geq) {
+//    		if (rOld.containsFresh()) {
+//    			// disjunction of equality with fresh
+//    			return DisjunctionRestriction.create(suffixValue,
+//        				SuffixValueRestriction.equalityRestriction(suffixValue, geq.register().asExpression()),
+//        				new FreshSuffixValue(suffixValue));
+//    		}
+//    		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
+//    		return rOld;
+//    	}
+//    	assert isElseGuard(guards.getValue());
+//    	if (rOld.containsFresh()) {
+//    		// both guards are else
+//    		return new FreshSuffixValue(suffixValue);
+//    	}
+//		// if old restrictions do not span fresh, else guard is in fact an if guard, so we cannot refine restriction
+//    	return rOld;
     }
 
     /**
@@ -997,14 +1017,14 @@ public abstract class EqualityTheory implements Theory {
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = AbstractSuffixValueRestriction.shift(suffix.getRestrictions(), symb1.getBaseSymbol().getArity());
     	// replace pre-existing unmapped restrictions with true restriction
-    	ret = replaceUnmappedEqualityRestrictions(ret);
+//    	ret = replaceUnmappedEqualityRestrictions(ret);
 
     	// shift SDT suffix parameters
     	sdt1 = sdt1.shift(symb1.getBaseSymbol().getArity());
     	sdt2 = sdt2.shift(symb2.getBaseSymbol().getArity());
 
-    	Mapping<DataValue, SuffixValue> actionValueRenaming1 = actionValueRenaming(uExt1);
-    	Mapping<DataValue, SuffixValue> actionValueRenaming2 = actionValueRenaming(uExt2);
+    	Mapping<DataValue, SuffixValue> actionValueRenaming1 = actionValueRenaming(uExt1, u1RpBijection);
+    	Mapping<DataValue, SuffixValue> actionValueRenaming2 = actionValueRenaming(uExt2, u2RpBijection);
     	sdt1 = sdt1.relabel(SDTRelabeling.fromMapping(actionValueRenaming1));
     	sdt2 = sdt2.relabel(SDTRelabeling.fromMapping(actionValueRenaming2));
     	ret = AbstractSuffixValueRestriction.relabel(ret, relabelActionValueRenaming(actionValueRenaming1, uExt1AncestorRenaming));
@@ -1340,6 +1360,22 @@ public abstract class EqualityTheory implements Theory {
     		if (!renaming.containsKey(actionVals[i]) && !prefixVals.contains(actionVals[i])) {
         		SuffixValue sv = new SuffixValue(actionVals[i].getDataType(), i + 1);
     			renaming.put(actionVals[i], sv);
+    		}
+    	}
+    	return renaming;
+    }
+
+    private static Mapping<DataValue, SuffixValue> actionValueRenaming(Word<PSymbolInstance> uExt, Bijection<DataValue> uRpBijection) {
+    	DataValue[] actionVals = uExt.lastSymbol().getParameterValues();
+    	List<DataValue> prefixVals = Arrays.asList(DataWords.valsOf(uExt.prefix(uExt.length() - 1)));
+    	Mapping<DataValue, SuffixValue> renaming = new Mapping<>();
+
+    	for (int i = 0; i < actionVals.length; i++) {
+    		if (!renaming.containsKey(actionVals[i])) {
+    			if (!prefixVals.contains(actionVals[i]) || !uRpBijection.containsKey(actionVals[i])) {
+            		SuffixValue sv = new SuffixValue(actionVals[i].getDataType(), i + 1);
+        			renaming.put(actionVals[i], sv);
+    			}
     		}
     	}
     	return renaming;

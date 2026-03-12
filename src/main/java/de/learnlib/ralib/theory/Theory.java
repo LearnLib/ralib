@@ -117,7 +117,7 @@ public interface Theory {
      */
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
-            Constants constants, ConstraintSolver solver);
+            List<DataValue> prior, Constants constants, ConstraintSolver solver);
 
     /**
      * Restrict suffix value by examining relation between corresponding data value in {@code suffix}

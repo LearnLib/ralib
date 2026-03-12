@@ -10,8 +10,8 @@ import java.util.Set;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.ConcretizingTreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -52,7 +52,7 @@ public class CTInnerNode extends CTNode {
 	}
 
 	@Override
-	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
+	protected CTLeaf sift(Prefix prefix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		List<SymbolicSuffix> suffixes = getSuffixes();
 		CTPath path = CTPath.computePath(oracle, prefix, suffixes, ioMode);
 
@@ -88,7 +88,7 @@ public class CTInnerNode extends CTNode {
 	 * @param inputs
 	 * @return a mapping of prefixes in {@code leaf} to their new leaf nodes
 	 */
-	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode, ParameterizedSymbol[] inputs) {
+	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode, ParameterizedSymbol[] inputs) {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
 		List<SymbolicSuffix> suffixes = getSuffixes();

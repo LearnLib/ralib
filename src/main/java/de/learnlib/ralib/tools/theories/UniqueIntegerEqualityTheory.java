@@ -72,7 +72,7 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
 	@Override
 	public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
 			ParameterizedSymbol ps, Expression<Boolean> guard, int param,
-			Constants constants, ConstraintSolver solver) {
+			List<DataValue> prior, Constants constants, ConstraintSolver solver) {
 		throw new RuntimeException("Not implemented");
 	}
 

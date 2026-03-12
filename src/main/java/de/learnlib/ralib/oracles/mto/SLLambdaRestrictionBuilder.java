@@ -253,6 +253,7 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
     	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = isEqualityTheory(suffixTypes) ?
     			EqualityTheory.restrictionFromSDTs(sdt1, sdt2, u1Extended, u2Extended, u1.getRpBijection(), u2.getRpBijection(), consts, suffix, solver) :
     				genericRestrictions(suffix, u1, u1Extended, u2, u2Extended);
+    	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u1.getRpBijection().toVarMapping());
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
     	restrictions.putAll(actionRestrictions);
