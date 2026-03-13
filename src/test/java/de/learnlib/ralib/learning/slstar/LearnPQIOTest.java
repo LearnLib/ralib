@@ -40,7 +40,6 @@ import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;

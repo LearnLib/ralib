@@ -22,7 +22,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.sllambda.SLLambda;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;

@@ -35,7 +35,6 @@ import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.slstar.Row;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
