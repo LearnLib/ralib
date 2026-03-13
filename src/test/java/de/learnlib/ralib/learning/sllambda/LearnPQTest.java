@@ -127,20 +127,20 @@ public class LearnPQTest extends RaLibTestSuite {
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(4);
 
-        Measurements[] ralambdaCount = new Measurements [SEEDS];
-        Measurements[] rastarCount = new Measurements [SEEDS];
+        Measurements[] sllambdaCount = new Measurements [SEEDS];
+        Measurements[] slstarCount = new Measurements [SEEDS];
         for (int i = 0; i < SEEDS; i++) {
             runner.setSeed(i);
             runner.run(RaLearningAlgorithmName.SLLAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
-            ralambdaCount[i] = runner.getMeasurements();
+            sllambdaCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
             runner.run(RaLearningAlgorithmName.SLSTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
-            rastarCount[i] = runner.getMeasurements();
+            slstarCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
         }
 
 	// hard-coded results from first seed
-        Assert.assertEquals(Arrays.toString(ralambdaCount), "[{TQ: 88, Resets: 876, Inputs: 0}]");
-        Assert.assertEquals(Arrays.toString(rastarCount),   "[{TQ: 55, Resets: 5721, Inputs: 0}]");
+        Assert.assertEquals(Arrays.toString(sllambdaCount), "[{TQ: 88, Resets: 876, Inputs: 0}]");
+        Assert.assertEquals(Arrays.toString(slstarCount),   "[{TQ: 55, Resets: 5721, Inputs: 0}]");
     }
 }
