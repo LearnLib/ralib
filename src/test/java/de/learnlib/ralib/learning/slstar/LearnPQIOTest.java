@@ -82,7 +82,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
                 -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        SLStar rastar = new SLStar(mto, hypFactory, mlo,
+        SLStar slstar = new SLStar(mto, hypFactory, mlo,
                 consts, true, sul.getActionSymbols());
 
         IORandomWalk iowalk = new IORandomWalk(random,
@@ -103,8 +103,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
+            slstar.learn();
+            Hypothesis hyp = slstar.getHypothesis();
             //System.out.println(hyp);
 
             DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
@@ -116,10 +116,10 @@ public class LearnPQIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
-            rastar.addCounterexample(ce);
+            slstar.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = rastar.getHypothesis();
+        RegisterAutomaton hyp = slstar.getHypothesis();
         RegisterAutomatonImporter imp = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/pq3.xml");
 

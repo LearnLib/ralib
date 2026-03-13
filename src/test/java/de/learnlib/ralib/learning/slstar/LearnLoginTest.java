@@ -76,11 +76,11 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        SLStar rastar = new SLStar(mto, hypFactory, slo,
+        SLStar slstar = new SLStar(mto, hypFactory, slo,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
 
-        rastar.learn();
-        RegisterAutomaton hyp = rastar.getHypothesis();
+        slstar.learn();
+        RegisterAutomaton hyp = slstar.getHypothesis();
         // System.out.println(hyp);
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
@@ -90,10 +90,10 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)));
 
-        rastar.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        slstar.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rastar.learn();
-        hyp = rastar.getHypothesis();
+        slstar.learn();
+        hyp = slstar.getHypothesis();
         // System.out.println(hyp);
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 

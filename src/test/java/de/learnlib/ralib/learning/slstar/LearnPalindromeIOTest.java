@@ -94,14 +94,14 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        SLStar rastar = new SLStar(mto, hypFactory, mlo, consts, true, actions);
+        SLStar slstar = new SLStar(mto, hypFactory, mlo, consts, true, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
         for (int check = 0; check < 10; ++check) {
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
+            slstar.learn();
+            Hypothesis hyp = slstar.getHypothesis();
             logger.log(Level.FINE, "HYP: {0}", hyp);
 
             DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
@@ -114,10 +114,10 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            rastar.addCounterexample(ce);
+            slstar.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = rastar.getHypothesis();
+        RegisterAutomaton hyp = slstar.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 

@@ -78,16 +78,16 @@ public class LearnBoundedListTest {
                 teachers, consts, solver);
 
         List<ParameterizedSymbol> alphabet = Arrays.asList(INSERT, PUSH, POP);
-        SLStar rastar = new SLStar(mto, hypFactory, mlo, consts, false,
+        SLStar slstar = new SLStar(mto, hypFactory, mlo, consts, false,
                 alphabet.toArray(new ParameterizedSymbol[alphabet.size()]));
 
-        rastar.learn();
-        Hypothesis hypothesis = rastar.getHypothesis();
+        slstar.learn();
+        Hypothesis hypothesis = slstar.getHypothesis();
 
         for (Word<PSymbolInstance> ce : ces) {
-            rastar.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, dwOracle.answerQuery(ce)));
-            rastar.learn();
-            hypothesis = rastar.getHypothesis();
+            slstar.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, dwOracle.answerQuery(ce)));
+            slstar.learn();
+            hypothesis = slstar.getHypothesis();
         }
         return hypothesis;
     }
