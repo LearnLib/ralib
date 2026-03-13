@@ -181,7 +181,7 @@ public class SLCT implements RaLearningAlgorithm {
 
 	@Override
 	public RaLearningAlgorithmName getName() {
-		return RaLearningAlgorithmName.RADT;
+		return RaLearningAlgorithmName.SLCT;
 	}
 
 	public ClassificationTree getCT() {

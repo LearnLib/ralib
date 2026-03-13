@@ -131,10 +131,10 @@ public class LearnPQTest extends RaLibTestSuite {
         Measurements[] rastarCount = new Measurements [SEEDS];
         for (int i = 0; i < SEEDS; i++) {
             runner.setSeed(i);
-            runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
+            runner.run(RaLearningAlgorithmName.SLLAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
             ralambdaCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
-            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
+            runner.run(RaLearningAlgorithmName.SLSTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
             rastarCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
         }

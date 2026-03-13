@@ -198,14 +198,14 @@ public class LearnStackTest extends RaLibTestSuite {
         runner.setMaxDepth(6);
         for (int seed = 0; seed < SEEDS; seed++) {
             runner.setSeed(seed);
-            Hypothesis hypLambda = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
+            Hypothesis hypLambda = runner.run(RaLearningAlgorithmName.SLLAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
             measuresLambda[seed] = runner.getMeasurements();
             runner.resetMeasurements();
 
             Assert.assertEquals(hypLambda.getStates().size(), 4);
             Assert.assertEquals(hypLambda.getTransitions().size(), 10);
 
-            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
+            runner.run(RaLearningAlgorithmName.SLSTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
             measuresStar[seed] = runner.getMeasurements();
             runner.resetMeasurements();
         }
