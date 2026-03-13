@@ -107,7 +107,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        SLStar rastar = new SLStar(mto, hypFactory, mlo, consts, true, actions);
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,

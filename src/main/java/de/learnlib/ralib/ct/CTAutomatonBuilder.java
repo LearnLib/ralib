@@ -23,7 +23,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.AutomatonBuilder;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rastar.SLStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
@@ -91,13 +91,13 @@ public class CTAutomatonBuilder {
 
 	private void computeLocations() {
 		// compute initial location
-		CTLeaf initial = ct.getLeaf(RaStar.EMPTY_PREFIX);
+		CTLeaf initial = ct.getLeaf(SLStar.EMPTY_PREFIX);
 		RALocation l0 = hyp.addInitialState(initial.isAccepting());
-		locations.put(RaStar.EMPTY_PREFIX, l0);
+		locations.put(SLStar.EMPTY_PREFIX, l0);
 		for (Word<PSymbolInstance> sp : initial.getShortPrefixes()) {
 			locations.put(sp, l0);
 		}
-		hyp.setAccessSequence(l0, RaStar.EMPTY_PREFIX);
+		hyp.setAccessSequence(l0, SLStar.EMPTY_PREFIX);
 		leaves.put(initial, l0);
 
 		// compute non-initial locations

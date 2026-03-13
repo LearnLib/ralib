@@ -21,7 +21,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rastar.SLStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
@@ -79,7 +79,7 @@ public class ClassificationTree {
 		shortPrefixes = new LinkedHashSet<>();
 		outputs = outputSuffixes(inputs);
 
-		root = new CTInnerNode(null, RaStar.EMPTY_SUFFIX);
+		root = new CTInnerNode(null, SLStar.EMPTY_SUFFIX);
 	}
 
 	public Set<CTLeaf> getLeaves() {
@@ -169,7 +169,7 @@ public class ClassificationTree {
 	 * Initialize the classification tree by sifting the empty prefix.
 	 */
 	public void initialize() {
-		sift(RaStar.EMPTY_PREFIX);
+		sift(SLStar.EMPTY_PREFIX);
 	}
 
 	///////////////////////////////////////////

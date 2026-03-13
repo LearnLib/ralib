@@ -49,7 +49,7 @@ import net.automatalib.word.Word;
  *
  * @author falk
  */
-public class RaStar implements RaLearningAlgorithm {
+public class SLStar implements RaLearningAlgorithm {
 
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
 
@@ -75,9 +75,9 @@ public class RaStar implements RaLearningAlgorithm {
 
     private final boolean ioMode;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaStar.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SLStar.class);
 
-    public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory,
+    public SLStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory,
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             ParameterizedSymbol ... inputs) {
 
@@ -100,7 +100,7 @@ public class RaStar implements RaLearningAlgorithm {
         this.hypOracleFactory = hypOracleFactory;
     }
 
-    public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory,
+    public SLStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory,
             SDTLogicOracle sdtLogicOracle, Constants consts,
             ParameterizedSymbol ... inputs) {
 

@@ -227,7 +227,7 @@ public class Row implements PrefixContainer {
     }
 
     boolean isAccepting() {
-        Cell c = this.cells.get(RaStar.EMPTY_SUFFIX);
+        Cell c = this.cells.get(SLStar.EMPTY_SUFFIX);
         return c.isAccepting();
     }
 

@@ -21,7 +21,7 @@ import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rastar.SLStar;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -72,7 +72,7 @@ public class SLCT implements RaLearningAlgorithm {
         counterexamples = new ArrayDeque<>();
     	hyp = null;
     	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
-    	ct.sift(RaStar.EMPTY_PREFIX);
+    	ct.sift(SLStar.EMPTY_PREFIX);
     }
 
 	@Override
