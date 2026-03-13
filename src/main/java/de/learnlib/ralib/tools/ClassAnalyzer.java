@@ -117,7 +117,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private IORandomWalk randomWalk = null;
 
-    private RaLearningAlgorithm rastar;
+    private RaLearningAlgorithm learner;
 
     private IOCounterexampleLoopRemover ceOptLoops;
 
@@ -248,7 +248,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             };
 
             boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
-            this.rastar = switch (this.learner) {
+            this.learner = switch (this.learnerName) {
                 case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
                     new SLStar(mto, hypFactory, mlo, consts, true, actions);
                 case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
@@ -258,7 +258,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 case AbstractToolWithRandomWalk.LEARNER_RADT ->
                     new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
                 default ->
-                    throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
+                    throw new ConfigurationException("Unknown Learning algorithm: " + this.learnerName);
             };
 
             if (findCounterexamples) {
@@ -322,8 +322,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         while (maxRounds < 0 || rounds < maxRounds) {
 
             rounds++;
-            rastar.learn();
-            hyp = rastar.getHypothesis();
+            learner.learn();
+            hyp = learner.getHypothesis();
             System.out.println("HYP:------------------------------------------------");
             System.out.println(hyp);
             System.out.println("----------------------------------------------------");
@@ -370,7 +370,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             System.out.println("### HYP TRACE: " + hypTrace);
 
             assert !hypTrace.equals(sysTrace);
-            rastar.addCounterexample(ce);
+            learner.addCounterexample(ce);
         }
 
         System.out.println("=============================== STOP ===============================");
