@@ -23,7 +23,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.AutomatonBuilder;
-import de.learnlib.ralib.learning.rastar.SLStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
@@ -41,8 +41,8 @@ import net.automatalib.word.Word;
  * Builder class for building a {@link CTHypothesis} from a {@link ClassificationTree}.
  * This class implements similar functionality as {@link AutomatonBuilder} and
  * {@link de.learnlib.ralib.learning.IOAutomatonBuilder},
- * but tailored for the {@link de.learnlib.ralib.learning.ralambda.SLLambda} and
- * {@link de.learnlib.ralib.learning.ralambda.SLCT} learning algorithms.
+ * but tailored for the {@link de.learnlib.ralib.learning.sllambda.SLLambda} and
+ * {@link de.learnlib.ralib.learning.sllambda.SLCT} learning algorithms.
  *
  * {@code CTAutomatonBuilder} supports construction of automata from an incomplete classification tree,
  * so long as the classification tree is closed and consistent.

@@ -12,7 +12,7 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.SLStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.ConcretizingTreeOracle;
@@ -24,11 +24,11 @@ import gov.nasa.jpf.constraints.api.Expression;
 /**
  * This data structure stores the SDTs from tree queries for a prefix along a path
  * in a {@link ClassificationTree}. It contains much of the same functionality as
- * {@link de.learnlib.ralib.learning.rastar.Row}, but adapted for use with classification trees.
+ * {@link de.learnlib.ralib.learning.slstar.Row}, but adapted for use with classification trees.
  *
  * @author fredrik
  * @author falk
- * @see de.learnlib.ralib.learning.rastar.Row
+ * @see de.learnlib.ralib.learning.slstar.Row
  */
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;
