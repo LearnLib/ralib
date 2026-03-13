@@ -40,7 +40,7 @@ import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.ralambda.SLCT;
 import de.learnlib.ralib.learning.ralambda.SLLambda;
 import de.learnlib.ralib.learning.ralambda.SLLambdaEq;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rastar.SLStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -219,7 +219,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
         this.rastar = switch (this.learner) {
             case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
-                new RaStar(mto, hypFactory, mlo, consts, true, actions);
+                new SLStar(mto, hypFactory, mlo, consts, true, actions);
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
                 new SLLambda(mto, teachers, consts, true, solver, actions);
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ ->

@@ -21,7 +21,7 @@ import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.ralambda.SLCT;
 import de.learnlib.ralib.learning.ralambda.SLLambda;
 import de.learnlib.ralib.learning.ralambda.SLLambdaEq;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rastar.SLStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -116,7 +116,7 @@ public class RaLibLearningExperimentRunner {
 			RaLearningAlgorithm learner;
 			learner = switch (algorithmName) {
 			case RASTAR ->
-			    new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
+			    new SLStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
 			case RALAMBDA ->
 			    new SLLambda(mto, teachers, consts, ioMode, solver, actionSymbols);
 			case RALAMBDAEQ ->

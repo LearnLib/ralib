@@ -28,7 +28,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rastar.SLStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -275,17 +275,17 @@ public class CTConsistencyTest extends RaLibTestSuite {
         sbbRestr.put(s1, new TrueRestriction(s1));
         sbbRestr.put(s2, new TrueRestriction(s2));
 
-        SymbolicSuffix sa = new SymbolicSuffix(RaStar.EMPTY_PREFIX, a0);
-        SymbolicSuffix sb = new SymbolicSuffix(RaStar.EMPTY_PREFIX, b0);
-        SymbolicSuffix sab = new SymbolicSuffix(RaStar.EMPTY_PREFIX, a0b1);
+        SymbolicSuffix sa = new SymbolicSuffix(SLStar.EMPTY_PREFIX, a0);
+        SymbolicSuffix sb = new SymbolicSuffix(SLStar.EMPTY_PREFIX, b0);
+        SymbolicSuffix sab = new SymbolicSuffix(SLStar.EMPTY_PREFIX, a0b1);
         SymbolicSuffix sbb = new SymbolicSuffix(Word.fromSymbols(BETA, BETA), sbbRestr);
 
         ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, ALPHA, BETA);
         ct.initialize();
 
-        ct.refine(ct.getLeaf(RaStar.EMPTY_PREFIX), sa);
-        ct.refine(ct.getLeaf(RaStar.EMPTY_PREFIX), sb);
-        ct.refine(ct.getLeaf(RaStar.EMPTY_PREFIX), sab);
+        ct.refine(ct.getLeaf(SLStar.EMPTY_PREFIX), sa);
+        ct.refine(ct.getLeaf(SLStar.EMPTY_PREFIX), sb);
+        ct.refine(ct.getLeaf(SLStar.EMPTY_PREFIX), sab);
 
         ct.sift(a0a1a0);
         ct.sift(a0a1);

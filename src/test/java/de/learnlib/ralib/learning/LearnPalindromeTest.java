@@ -20,7 +20,7 @@ import de.learnlib.ralib.example.palindrome.PalindromeGenerator;
 import de.learnlib.ralib.example.palindrome.PalindromeOracle;
 import de.learnlib.ralib.learning.ralambda.SLLambda;
 import de.learnlib.ralib.learning.ralambda.SLLambdaEq;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rastar.SLStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -100,7 +100,7 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		RaLearningAlgorithm learner = switch (name) {
 		case RALAMBDA -> new SLLambda(mto, teachers, consts, false, solver, IN);
 		case RALAMBDAEQ -> new SLLambdaEq(mto, teachers, consts, false, solver, IN);
-		case RASTAR -> new RaStar(mto, hypFactory, slo, consts, false, IN);
+		case RASTAR -> new SLStar(mto, hypFactory, slo, consts, false, IN);
 		default -> throw new RuntimeException("Unsupported algorithm %s".formatted(name.name()));
 		};
 		learner.setStatisticCounter(queryStats);

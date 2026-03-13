@@ -78,7 +78,7 @@ public class LearnBoundedListTest {
                 teachers, consts, solver);
 
         List<ParameterizedSymbol> alphabet = Arrays.asList(INSERT, PUSH, POP);
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, false,
+        SLStar rastar = new SLStar(mto, hypFactory, mlo, consts, false,
                 alphabet.toArray(new ParameterizedSymbol[alphabet.size()]));
 
         rastar.learn();
