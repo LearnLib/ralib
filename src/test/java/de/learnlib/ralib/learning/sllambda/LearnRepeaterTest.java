@@ -20,7 +20,6 @@ import de.learnlib.ralib.example.repeater.Repeater;
 import de.learnlib.ralib.example.repeater.RepeaterSUL;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.QueryStatistics;
-import de.learnlib.ralib.learning.sllambda.SLLambda;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;

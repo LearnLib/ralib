@@ -22,7 +22,6 @@ import de.learnlib.ralib.example.list.ArrayListDataWordOracle;
 import de.learnlib.ralib.example.list.ArrayListIODataWordOracle;
 import de.learnlib.ralib.example.list.ArrayListWrapper;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.sllambda.SLLambda;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
