@@ -1,8 +1,8 @@
 package de.learnlib.ralib.learning;
 
 public enum RaLearningAlgorithmName {
-	RASTAR,
-	RALAMBDA,
-	RALAMBDAEQ,
-	RADT
+	SLSTAR,
+	SLLAMBDA,
+	SLLAMBDAEQ,
+	SLCT
 }

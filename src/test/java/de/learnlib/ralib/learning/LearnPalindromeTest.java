@@ -49,17 +49,17 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 
 	@Test(enabled = true)
 	public void testLearnPalindromeSLStar() {
-		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RASTAR);
+		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.SLSTAR);
 	}
 
 	@Test(enabled = true)
 	public void testLearnPalindromeSLLambda() {
-		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RALAMBDA);
+		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.SLLAMBDA);
 	}
 
 	@Test(enabled = true)
 	public void testLearnPalindromeSLLambdaEq() {
-		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RALAMBDAEQ);
+		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.SLLAMBDAEQ);
 	}
 
 	public void testLearnPalindrome(int size, RaLearningAlgorithmName name) {
@@ -98,9 +98,9 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		QueryStatistics queryStats = new QueryStatistics(mes, cacheOracle);
 
 		RaLearningAlgorithm learner = switch (name) {
-		case RALAMBDA -> new SLLambda(mto, teachers, consts, false, solver, IN);
-		case RALAMBDAEQ -> new SLLambdaEq(mto, teachers, consts, false, solver, IN);
-		case RASTAR -> new SLStar(mto, hypFactory, slo, consts, false, IN);
+		case SLLAMBDA -> new SLLambda(mto, teachers, consts, false, solver, IN);
+		case SLLAMBDAEQ -> new SLLambdaEq(mto, teachers, consts, false, solver, IN);
+		case SLSTAR -> new SLStar(mto, hypFactory, slo, consts, false, IN);
 		default -> throw new RuntimeException("Unsupported algorithm %s".formatted(name.name()));
 		};
 		learner.setStatisticCounter(queryStats);

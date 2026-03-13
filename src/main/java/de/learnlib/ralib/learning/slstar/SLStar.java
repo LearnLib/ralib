@@ -211,6 +211,6 @@ public class SLStar implements RaLearningAlgorithm {
 
     @Override
     public RaLearningAlgorithmName getName() {
-        return RaLearningAlgorithmName.RASTAR;
+        return RaLearningAlgorithmName.SLSTAR;
     }
 }

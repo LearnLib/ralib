@@ -96,7 +96,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         runner.setMaxDepth(6);
         for (int seed = 0; seed < SEEDS; seed++) {
 	    runner.setSeed(seed);
-	    Hypothesis hyp = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	    Hypothesis hyp = runner.run(RaLearningAlgorithmName.SLLAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
 	    measuresLambda[seed] = runner.getMeasurements();
 	    runner.resetMeasurements();
 
@@ -104,7 +104,7 @@ public class LearnLoginTest extends RaLibTestSuite {
 	    Assert.assertEquals(hyp.getTransitions().size(), 14);
 	    logger.log(Level.FINE, "HYP: {0}", hyp);
 
-	    hyp = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	    hyp = runner.run(RaLearningAlgorithmName.SLSTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
 	    measuresStar[seed] = runner.getMeasurements();
 	    runner.resetMeasurements();
         }

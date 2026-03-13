@@ -50,7 +50,7 @@ public class LearnDtlsServerTest extends RaLibTestSuite {
         IOEquivalenceTest eqOracle = new IOEquivalenceTest(model, teachers, consts, false, actions);
         runner.setEqOracle(eqOracle);
         runner.setIoMode(true);
-        Hypothesis result = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, actions);
+        Hypothesis result = runner.run(RaLearningAlgorithmName.SLLAMBDA, dwOracle, teachers, consts, solver, actions);
         DefaultQuery<PSymbolInstance, Boolean> ce = eqOracle.findCounterExample(result, null);
         Assert.assertNull(ce);
     }

@@ -199,7 +199,7 @@ public class SLLambda implements RaLearningAlgorithm {
 
 	@Override
 	public RaLearningAlgorithmName getName() {
-		return RaLearningAlgorithmName.RALAMBDA;
+		return RaLearningAlgorithmName.SLLAMBDA;
 	}
 
 	public ClassificationTree getCT() {
