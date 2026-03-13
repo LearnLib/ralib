@@ -16,7 +16,6 @@ import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.ElementRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
@@ -54,8 +53,9 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 
 	@Override
 	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
-		assert mapping.containsKey(equalParam);
-		return SuffixValueRestriction.equalityRestriction(parameter, mapping.get(equalParam));
+//		assert mapping.containsKey(equalParam);
+//		return SuffixValueRestriction.equalityRestriction(parameter, mapping.get(equalParam));
+		return this;
 	}
 
 	@Override

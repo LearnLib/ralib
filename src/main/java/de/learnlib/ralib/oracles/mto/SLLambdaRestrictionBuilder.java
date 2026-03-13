@@ -35,11 +35,15 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 	protected final ConstraintSolver solver;
 
 	public SLLambdaRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
-		this(restrBuilder.consts, restrBuilder.teachers, solver);
+		this(restrBuilder.consts, restrBuilder.teachers, solver, DEFAULT_VERSION);
 	}
 
 	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
-		super(consts, teachers);
+		this(consts, teachers, solver, DEFAULT_VERSION);
+	}
+
+	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, Version version) {
+		super(consts, teachers, version);
 		if (teachers == null) {
 			throw new IllegalArgumentException("Non-null argument expected");
 		}
@@ -67,6 +71,9 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 			Word<PSymbolInstance> u,
 			RegisterValuation prefixValuation,
 			RegisterValuation uValuation) {
+		if (getVersion() != Version.V3) {
+			return super.restrictSuffix(prefix, suffix);
+		}
 		Map<SuffixValue, AbstractSuffixValueRestriction> restrs = new LinkedHashMap<>();
 		DataValue[] suffixVals = DataWords.valsOf(suffix);
 		for (int i = 0; i < suffixVals.length; i++) {
@@ -99,6 +106,9 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 			Word<PSymbolInstance> u,
 			RegisterValuation prefixValuation,
 			RegisterValuation uValuation) {
+		if (getVersion() != Version.V3) {
+			return new SymbolicSuffix(prefix, suffix, this);
+		}
 		return new SymbolicSuffix(DataWords.actsOf(suffix),
 				restrictSuffix(prefix, suffix, u, prefixValuation, uValuation));
 	}
@@ -128,6 +138,9 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 			RegisterValuation prefixValuation,
 			RegisterValuation u1Valuation,
 			RegisterValuation u2Valuation) {
+		if (getVersion() != Version.V3) {
+			return new SymbolicSuffix(prefix, suffix, this);
+		}
 		Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = restrictSuffix(prefix, suffix, u1, prefixValuation, u1Valuation);
 		Map<SuffixValue, AbstractSuffixValueRestriction> restr2 = restrictSuffix(prefix, suffix, u2, prefixValuation, u2Valuation);
 		Map<SuffixValue, AbstractSuffixValueRestriction> restr = new LinkedHashMap<>();

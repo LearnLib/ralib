@@ -24,7 +24,20 @@ public class SymbolicSuffixRestrictionBuilder {
 	public enum Version {
 		V1,
 		V2,
-		V3
+		V3;
+
+		public static Version fromInt(int v) {
+			switch(v) {
+			case 1:
+				return V1;
+			case 2:
+				return V2;
+			case 3:
+				return V3;
+			default:
+				throw new IllegalArgumentException("Invalid version number: " + v);
+			}
+		}
 	};
 
 	public final static Version DEFAULT_VERSION = Version.V3;
@@ -119,5 +132,9 @@ public class SymbolicSuffixRestrictionBuilder {
             }
         }
         return revealedRegisters.size() == registers.length;
+    }
+
+    public Version getVersion() {
+    	return version;
     }
 }

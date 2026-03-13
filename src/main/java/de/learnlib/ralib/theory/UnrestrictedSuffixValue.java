@@ -24,7 +24,8 @@ public class UnrestrictedSuffixValue extends AbstractSuffixValueRestriction {
 
 	@Override
 	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
-		return new SuffixValueRestriction(parameter, ExpressionUtil.TRUE);
+//		return new SuffixValueRestriction(parameter, ExpressionUtil.TRUE);
+		return this;
 	}
 
 	@Override

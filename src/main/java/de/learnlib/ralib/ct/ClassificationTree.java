@@ -700,9 +700,10 @@ public class ClassificationTree {
 			return sllambdaRestrBuilder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, v, sdt1, sdt2);
 		}
 
-		Word<ParameterizedSymbol> actions = v.getActions();
-		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(u1Ext.lastSymbol().getBaseSymbol()), actions);
-		return new SymbolicSuffix(extended);
+		return suffixBuilder.extendDistinguishingSuffix(u1Ext, sdt1, u2Ext, sdt2, v);
+//		Word<ParameterizedSymbol> actions = v.getActions();
+//		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(u1Ext.lastSymbol().getBaseSymbol()), actions);
+//		return new SymbolicSuffix(extended);
 	}
 
 	/**
@@ -729,9 +730,10 @@ public class ClassificationTree {
 			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, v, sdtIf, sdtElse);
 		}
 
-		Word<ParameterizedSymbol> actions = v.getActions();
-		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(uIf.lastSymbol().getBaseSymbol()), actions);
-		return new SymbolicSuffix(extended);
+		return suffixBuilder.extendDistinguishingSuffix(uIf, sdtIf, uElse, sdtElse, v);
+//		Word<ParameterizedSymbol> actions = v.getActions();
+//		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(uIf.lastSymbol().getBaseSymbol()), actions);
+//		return new SymbolicSuffix(extended);
 	}
 
 	/**
