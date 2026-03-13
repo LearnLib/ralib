@@ -21,7 +21,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.SLStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;

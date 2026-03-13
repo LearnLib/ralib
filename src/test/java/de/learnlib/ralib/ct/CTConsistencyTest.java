@@ -27,7 +27,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.SLStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;

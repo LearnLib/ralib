@@ -30,7 +30,7 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.learning.rastar.SLStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
 import de.learnlib.ralib.smt.SMTUtil;
