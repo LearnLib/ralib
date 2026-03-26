@@ -9,7 +9,7 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDT;
@@ -17,11 +17,11 @@ import de.learnlib.ralib.theory.SDT;
 /**
  * This data structure stores the SDTs from tree queries for a prefix along a path
  * in a {@link ClassificationTree}. It contains much of the same functionality as
- * {@link de.learnlib.ralib.learning.rastar.Row}, but adapted for use with classification trees.
+ * {@link de.learnlib.ralib.learning.slstar.Row}, but adapted for use with classification trees.
  *
  * @author fredrik
  * @author falk
- * @see de.learnlib.ralib.learning.rastar.Row
+ * @see de.learnlib.ralib.learning.slstar.Row
  */
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;
@@ -54,7 +54,7 @@ public class CTPath {
 	}
 
 	public boolean isAccepting() {
-		SDT s = sdts.get(RaStar.EMPTY_SUFFIX);
+		SDT s = sdts.get(SLStar.EMPTY_SUFFIX);
 		return s.isAccepting();
 	}
 
@@ -136,9 +136,9 @@ public class CTPath {
 	 */
 	public static CTPath computePath(TreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
 		CTPath r = new CTPath(ioMode);
-		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
-		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
-		r.putSDT(RaStar.EMPTY_SUFFIX, sdt);
+		SDT sdt = prefix.getSDT(SLStar.EMPTY_SUFFIX);
+		sdt = sdt == null ? oracle.treeQuery(prefix, SLStar.EMPTY_SUFFIX) : sdt;
+		r.putSDT(SLStar.EMPTY_SUFFIX, sdt);
 		for (SymbolicSuffix s : suffixes) {
 			sdt = prefix.getSDT(s);
 			if (sdt == null) {

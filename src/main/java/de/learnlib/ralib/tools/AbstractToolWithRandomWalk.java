@@ -157,7 +157,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected ConstraintSolver solver;
 
-    protected String learner = LEARNER_SLSTAR;
+    protected String learnerName = LEARNER_SLSTAR;
 
     private static final Random RANDOM = new Random();
 
@@ -183,7 +183,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         this.exportModel = OPTION_EXPORT_MODEL.parse(config);
         this.useFresh = OPTION_USE_FRESH_VALUES.parse(config);
 
-        this.learner = OPTION_LEARNER.parse(config);
+        this.learnerName = OPTION_LEARNER.parse(config);
 
         String[] parsed = OPTION_TEACHERS.parse(config).split("\\+", -1);
         for (String s : parsed) {

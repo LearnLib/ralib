@@ -37,9 +37,9 @@ import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
-import de.learnlib.ralib.learning.ralambda.SLCT;
-import de.learnlib.ralib.learning.ralambda.SLLambda;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.sllambda.SLCT;
+import de.learnlib.ralib.learning.sllambda.SLLambda;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -109,7 +109,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
     private IOEquivalenceTest eqTest;
 
-    private RaLearningAlgorithm rastar;
+    private RaLearningAlgorithm learner;
 
     private IOCounterexampleLoopRemover ceOptLoops;
 
@@ -213,18 +213,18 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             }
         };
 
-        this.rastar = switch (this.learner) {
+        this.learner = switch (this.learnerName) {
             case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
-                new RaStar(mto, hypFactory, mlo, consts, true, actions);
+                new SLStar(mto, hypFactory, mlo, consts, true, actions);
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
                 new SLLambda(mto, teachers, consts, true, solver, actions);
             case AbstractToolWithRandomWalk.LEARNER_RADT ->
                 new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
             default ->
-                throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
+                throw new ConfigurationException("Unknown Learning algorithm: " + this.learnerName);
         };
         QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, trackingSULTest);
-        this.rastar.setStatisticCounter(queryStats);
+        this.learner.setStatisticCounter(queryStats);
 
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
@@ -284,13 +284,13 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         ArrayList<Integer> ceLengthsShortened = new ArrayList<>();
         Hypothesis hyp = null;
 
-        QueryStatistics queryStats = rastar.getQueryStatistics();
+        QueryStatistics queryStats = learner.getQueryStatistics();
 
         int rounds = 0;
         while (maxRounds < 0 || rounds < maxRounds) {
             rounds++;
-            rastar.learn();
-            hyp = rastar.getHypothesis();
+            learner.learn();
+            hyp = learner.getHypothesis();
             System.out.println("HYP:------------------------------------------------");
             System.out.println(hyp);
             System.out.println("----------------------------------------------------");
@@ -358,13 +358,13 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             assert model.accepts(ce.getInput());
             assert !hyp.accepts(ce.getInput());
 
-            rastar.addCounterexample(ce);
+            learner.addCounterexample(ce);
         }
 
         System.out.println("=============================== STOP ===============================");
         SimpleProfiler.logResults();
 
-        System.out.println("Learner: " + rastar.getClass().getSimpleName());
+        System.out.println("Learner: " + learner.getClass().getSimpleName());
 
         for (Entry<DataType, Theory> e : teachers.entrySet()) {
             System.out.println("Theory: " + e.getKey() + " -> " + e.getValue().getClass().getName());
