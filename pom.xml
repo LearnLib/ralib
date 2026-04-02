@@ -106,7 +106,7 @@
         <maven.compiler.release>21</maven.compiler.release>
 
         <!-- Dependency versions appear alphabetically below -->
-        <checker-qual.version>3.54.0</checker-qual.version>
+        <checker-qual.version>3.54.1</checker-qual.version>
         <commons-lang.version>3.20.0</commons-lang.version>
         <gson.version>2.13.2</gson.version>
         <error-prone.version>2.48.0</error-prone.version>
@@ -190,6 +190,7 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
+                            <verbose>true</verbose>
                             <failOnWarning>true</failOnWarning>
                             <ignoreUnusedRuntime>true</ignoreUnusedRuntime>
                         </configuration>
@@ -274,6 +275,7 @@
                 <configuration>
                     <threshold>High</threshold>
                     <includeFilterFile>.spotbugs/include.xml</includeFilterFile>
+                    <includeTests>true</includeTests>
                 </configuration>
                 <executions>
                     <execution>
