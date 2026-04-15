@@ -88,7 +88,7 @@ public class PriorityQueueSUL extends DataWordSUL {
         } else if (x == null) {
             return new PSymbolInstance(NOK);
         } else {
-            assert (null != x);
+            // assert (null != x);
             return new PSymbolInstance(OUTPUT, new DataValue(DOUBLE_TYPE, new BigDecimal(x.toString())));
         }
     }
