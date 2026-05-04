@@ -494,7 +494,7 @@ public class ClassificationTree {
 		for (SymbolicSuffix v : getLeaf(uElse).getSuffixes()) {
 			SDT sdtA = pA.getSDT(v).toRegisterSDT(uIf, consts);
 			SDT sdtB = pB.getSDT(v).toRegisterSDT(uElse, consts);
-			if (!SDT.equivalentUnderId(sdtA, sdtB)) {
+			if (!SDT.equivalentUnderId(sdtA, sdtB) && !SDT.equalUnderActionRemapping(sdtA, sdtB, pA, pB)) {
 				CTLeaf uLeaf = getLeaf(uIf.prefix(uIf.length() - 1));
 				assert uLeaf != null;
 
@@ -675,6 +675,31 @@ public class ClassificationTree {
 		return false;
 	}
 
+//	private boolean equalUnderActionRemapping(SDT sdtIf, SDT sdtElse, Prefix uIf, Prefix uElse) {
+//		Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
+//		List<DataValue> valsIf = Arrays.asList(DataWords.valsOf(u));
+//		ArrayList<DataValue> actionValsIf = new ArrayList<>(Arrays.asList(uIf.lastSymbol().getParameterValues()));
+//		Set<SDTGuardElement> varsIf = sdtIf.getVariables();
+//		Mapping<Register, Register> renaming = new Mapping<>();
+//		for (SDTGuardElement e : varsIf) {
+//			if (SDTGuardElement.isRegister(e)) {
+//				Register r = (Register) e;
+//				int rid = r.getId();
+//				if (rid > valsIf.size()) {
+//					continue;
+//				}
+//				DataValue d = valsIf.get(rid - 1);
+//				int index = actionValsIf.indexOf(d);
+//				if (index >= 0) {
+//					Register nr = new Register(r.getDataType(), index + valsIf.size() + 1);
+//					renaming.put(r, nr);
+//				}
+//			}
+//		}
+//		return sdtElse.isEquivalent(sdtIf, SDTRelabeling.fromMapping(renaming));
+////		return SDT.equivalentUnderBijection(sdtIf.relabel(SDTRelabeling.fromMapping(renaming)), sdtElse) != null;
+//	}
+
 	/**
 	 * Form a {@code SymbolicSuffix} by prepending {@code v} by the last symbol of {@code u1} and {@code u2}.
 	 * The new suffix will be optimized for separating {@code u1} and {@code u2}.
@@ -727,7 +752,8 @@ public class ClassificationTree {
 			Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
 			CTLeaf uLeaf = getLeaf(u);
 			Prefix uPref = uLeaf.getPrefix(u);
-			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, v, sdtIf, sdtElse);
+			boolean sameLeaf = (leafIf == leafElse);
+			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, v, sdtIf, sdtElse, sameLeaf);
 		}
 
 		return suffixBuilder.extendDistinguishingSuffix(uIf, sdtIf, uElse, sdtElse, v);

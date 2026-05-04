@@ -7,6 +7,7 @@ import java.util.Map;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.ceanalysis.PrefixFinder.Result;
+import de.learnlib.ralib.ceanalysis.PrefixFinderFactory;
 import de.learnlib.ralib.ct.CTAutomatonBuilder;
 import de.learnlib.ralib.ct.CTHypothesis;
 import de.learnlib.ralib.ct.ClassificationTree;
@@ -49,6 +50,8 @@ public class SLLambda implements RaLearningAlgorithm {
 
     private final ConstraintSolver solver;
 
+    protected final PrefixFinderFactory prefixFinderFactory;
+
     public SLLambda(TreeOracle sulOracle, Map<DataType, Theory> teachers,
     		Constants consts, boolean ioMode, ConstraintSolver solver,
     		SymbolicSuffixRestrictionBuilder.Version restrictionBuilderVersion,
@@ -65,6 +68,7 @@ public class SLLambda implements RaLearningAlgorithm {
     	SymbolicSuffixRestrictionBuilder ctRBuilder = restrictionBuilderVersion == SymbolicSuffixRestrictionBuilder.Version.V3 ?
     			restrictionBuilder :
     				new SymbolicSuffixRestrictionBuilder(consts, teachers, restrictionBuilderVersion);
+    	prefixFinderFactory = new PrefixFinderFactory(sulOracle, teachers, restrictionBuilder, solver, consts);
     	ct = new ClassificationTree(sulOracle, solver, ctRBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.initialize();
     }
@@ -123,6 +127,17 @@ public class SLLambda implements RaLearningAlgorithm {
 		hyp = ab.buildHypothesis();
 	}
 
+	protected PrefixFinder createPrefixFinder() {
+//        return new PrefixFinder(sulOracle,
+//        		hyp,
+//        		ct,
+//        		teachers,
+//        		restrictionBuilder,
+//        		solver,
+//        		consts);
+		return prefixFinderFactory.create(hyp, ct);
+	}
+
 	private boolean analyzeCounterExample() {
 		if (counterexamples.isEmpty()) {
 			return false;
@@ -146,13 +161,7 @@ public class SLLambda implements RaLearningAlgorithm {
         	queryStats.analyzeCE(ceWord);
         }
 
-        PrefixFinder prefixFinder = new PrefixFinder(sulOracle,
-        		hyp,
-        		ct,
-        		teachers,
-        		restrictionBuilder,
-        		solver,
-        		consts);
+        PrefixFinder prefixFinder = createPrefixFinder();
 
         Result res = prefixFinder.analyzeCounterExample(ceWord);
 

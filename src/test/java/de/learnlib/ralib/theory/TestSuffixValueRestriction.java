@@ -79,7 +79,7 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	AbstractSuffixValueRestriction restr2Con = builder2.constructRestrictedSuffix(prefix2, suffix2, u2, val2, uval2).getRestriction(s2);
 //    	AbstractSuffixValueRestriction restr2Reg = theory.restrictSuffixValue(s1, prefix2, suffix2, val2, consts2);
 //    	AbstractSuffixValueRestriction restr2Con = theory.restrictSuffixValue(s2, prefix2, suffix2, val2, consts2);
-    	Assert.assertEquals(restr2Reg.toString(), "((s1 == r1) OR Fresh(s1))");
+    	Assert.assertEquals(restr2Reg.toString(), "(s1 == r1)");
     	Assert.assertEquals(restr2Con.toString(), "(s2 == c1)");
 
     	// equal suffix

@@ -65,17 +65,17 @@ public class PrefixFinder {
 	 */
 	public record Result(Word<PSymbolInstance> prefix, ResultType result) {};
 
-	private final CTHypothesis hyp;
-	private final ClassificationTree ct;
+	protected final CTHypothesis hyp;
+	protected final ClassificationTree ct;
 
-	private final TreeOracle sulOracle;
-	private final Map<DataType, Theory> teachers;
+	protected final TreeOracle sulOracle;
+	protected final Map<DataType, Theory> teachers;
 
-	private final SLLambdaRestrictionBuilder restrBuilder;
+	protected final SLLambdaRestrictionBuilder restrBuilder;
 
-	private final ConstraintSolver solver;
+	protected final ConstraintSolver solver;
 
-	private final Constants consts;
+	protected final Constants consts;
 
 	public PrefixFinder(TreeOracle sulOracle, CTHypothesis hyp, ClassificationTree ct,
 			Map<DataType, Theory> teachers, SLLambdaRestrictionBuilder restrBuilder,
@@ -101,6 +101,8 @@ public class PrefixFinder {
 		RARun run = hyp.getRun(ce);
 		for (int i = ce.length(); i >= 1; i--) {
 			RALocation loc = run.getLocation(i-1);
+//			Word<PSymbolInstance> pref = run.getPrefix(i-1);
+//			Word<PSymbolInstance> suff = run.getSuffix(i-1);
 			PSymbolInstance symbol = run.getTransitionSymbol(i);
 			RegisterValuation runValuation = run.getValuation(i-1);
 			ParameterizedSymbol action = symbol.getBaseSymbol();
@@ -142,8 +144,17 @@ public class PrefixFinder {
 		throw new IllegalStateException("Found no counterexample in " + ce);
 	}
 
-	private Expression<Boolean> conjunctionWithRestriction(Expression<Boolean> guard, SymbolicSuffix suffix, Word<PSymbolInstance> u, Set<Register> regs, Constants consts) {
-		DataType[] types = suffix.getActions().firstSymbol().getPtypes();
+	protected Expression<Boolean> conjunctionWithRestriction(Expression<Boolean> guard, SymbolicSuffix suffix, Word<PSymbolInstance> u, Set<Register> regs, Constants consts) {
+		DataType[] types = null;
+		for (ParameterizedSymbol ps : suffix.getActions()) {
+			if (ps.getArity() > 0) {
+				types = ps.getPtypes();
+				break;
+			}
+		}
+		if (types == null) {
+			return guard;
+		}
 		SuffixValueGenerator sgen = new SuffixValueGenerator();
 
 		Set<SymbolicDataValue> vals = new LinkedHashSet<>();
@@ -158,9 +169,13 @@ public class PrefixFinder {
 		vals.addAll(regs);
 		vals.addAll(consts.keySet());
 
-		Expression[] restrictionExpressions = new Expression[types.length + 1];
+		List<Expression<Boolean>> restrictionExpressions = new ArrayList<>();
 		VarMapping<SuffixValue, Parameter> paramMapping = new VarMapping<>();
 		for (int i = 0; i < types.length; i++) {
+			if (!teachers.containsKey(types[i]) || !teachers.get(types[i]).isUsingSuffixOptimization()) {
+				continue;
+			}
+
 			SuffixValue s = sgen.next(types[i]);
 			Parameter p = new Parameter(s.getDataType(), s.getId());
 			AbstractSuffixValueRestriction r = suffix.getRestriction(s);
@@ -170,13 +185,12 @@ public class PrefixFinder {
 			expr = vvv.apply(expr, pmap);
 
 			ReplacingVarsVisitor rvv = new ReplacingVarsVisitor();
-//			VarMapping<SuffixValue, Parameter> paramMapping = new VarMapping<>();
 			paramMapping.put(s, p);
 			Expression<Boolean> renamedExpr = rvv.apply(expr, paramMapping);
-			restrictionExpressions[i] = renamedExpr;
+			restrictionExpressions.add(renamedExpr);
 		}
-		restrictionExpressions[restrictionExpressions.length - 1] = guard;
-		Expression<Boolean> con = ExpressionUtil.and(restrictionExpressions);
+		restrictionExpressions.add(guard);
+		Expression<Boolean> con = ExpressionUtil.and(restrictionExpressions.toArray(new Expression[restrictionExpressions.size()]));
 		return con;
 	}
 

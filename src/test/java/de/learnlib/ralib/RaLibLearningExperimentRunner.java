@@ -20,6 +20,7 @@ import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.ralambda.SLCT;
 import de.learnlib.ralib.learning.ralambda.SLLambda;
+import de.learnlib.ralib.learning.ralambda.SLLambdaEq;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -130,6 +131,9 @@ public class RaLibLearningExperimentRunner {
 			case RADT:
 			    learner = new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
 			    break;
+			case RALAMBDAEQ:
+				learner = new SLLambdaEq(mto, teachers, consts, ioMode, solver, actionSymbols);
+				break;
 			default:
 				throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));
 			}

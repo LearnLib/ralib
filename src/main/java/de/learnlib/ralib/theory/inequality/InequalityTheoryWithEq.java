@@ -66,6 +66,11 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     boolean useSuffixOpt = false;
 
+    @Override
+    public boolean isUsingSuffixOptimization() {
+    	return useSuffixOpt;
+    }
+
     /**
      * Given a prefix and a potential, generate data values for each equivalence class.
      *

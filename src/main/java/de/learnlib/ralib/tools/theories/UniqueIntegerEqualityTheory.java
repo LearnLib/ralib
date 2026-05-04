@@ -99,4 +99,9 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
 			RegisterValuation uValuation, Constants consts) {
 		return this.restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
 	}
+
+	@Override
+	public boolean isUsingSuffixOptimization() {
+		return false;
+	}
 }

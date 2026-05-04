@@ -149,4 +149,5 @@ public interface Theory {
 
     boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);
 
+    boolean isUsingSuffixOptimization();
 }

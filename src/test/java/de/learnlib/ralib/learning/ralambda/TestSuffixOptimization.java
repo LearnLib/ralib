@@ -263,7 +263,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     	expRestrAlt1.put(s2, DisjunctionRestriction.create(s2, new UnmappedEqualityRestriction(s2), new FreshSuffixValue(s2)));
     	expRestrAlt1.put(s3, SuffixValueRestriction.equalityRestriction(s3, d0));
     	expRestrAlt1.put(s4, new FreshSuffixValue(s4));
-    	expRestrAlt1.put(s5, SuffixValueRestriction.equalityRestriction(s5, s2));
+    	expRestrAlt1.put(s5, SuffixValueRestriction.equalityRestriction(s5, s1, s2));
     	SymbolicSuffix expectedAlt1 = new SymbolicSuffix(Word.fromSymbols(B, B, A), expRestrAlt1);
 
     	SymbolicSuffix actual = builder.extendSuffix(u1, u1Ext, u2, u2Ext, suffix, u1ExtSdt, u2ExtSdt);
