@@ -98,7 +98,7 @@ public class PrefixFinderEq extends PrefixFinder {
 			SDT sdt = sulOracle.treeQuery(u, vHyp);
 			Branching branching = sulOracle.getInitialBranching(u, action.getBaseSymbol(), sdt);
 			Set<Expression<Boolean>> guards = branching.guardSet();
-			Set<Word<PSymbolInstance>> sulExtensions = this.instantiateGuards(guards, v, u, hyp.getRun(u).getValuation(u.length()).keySet(), action.getBaseSymbol());
+			Set<Word<PSymbolInstance>> sulExtensions = instantiateGuards(guards, vHyp, u, hyp.getRun(u).getValuation(u.length()).keySet(), action.getBaseSymbol());
 			Set<Word<PSymbolInstance>> hypExtensions = ct.getExtensions(u, action.getBaseSymbol());
 			for (Word<PSymbolInstance> uExt : sulExtensions) {
 				if (!hypExtensions.contains(uExt)) {
