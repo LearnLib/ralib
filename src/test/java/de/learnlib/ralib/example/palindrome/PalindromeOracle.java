@@ -12,7 +12,7 @@ import net.automatalib.word.Word;
 public class PalindromeOracle implements DataWordOracle {
 
 	public static final DataType TYPE = new DataType("int");
-	public static final InputSymbol in = new InputSymbol("in", new DataType[] {TYPE});
+	public static final InputSymbol IN = new InputSymbol("in", new DataType[] {TYPE});
 
 	private final Palindrome pal;
 
@@ -37,7 +37,7 @@ public class PalindromeOracle implements DataWordOracle {
 	}
 
 	private boolean answer(PSymbolInstance psi) {
-		if (!psi.getBaseSymbol().equals(in)) {
+		if (!psi.getBaseSymbol().equals(IN)) {
 			return false;
 		}
 		int d = psi.getParameterValues()[0].getValue().intValue();
