@@ -111,13 +111,13 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         Assert.assertEquals(Arrays.toString(measuresLambda),
 			    "[{TQ: 74, Resets: 2102, Inputs: 0}," +
-			    " {TQ: 72, Resets: 2089, Inputs: 0}," +
-			    " {TQ: 74, Resets: 1422, Inputs: 0}," +
-			    " {TQ: 72, Resets: 1479, Inputs: 0}," +
-			    " {TQ: 74, Resets: 1433, Inputs: 0}," +
-			    " {TQ: 72, Resets: 2225, Inputs: 0}," +
 			    " {TQ: 74, Resets: 2089, Inputs: 0}," +
-			    " {TQ: 72, Resets: 1268, Inputs: 0}," +
+			    " {TQ: 74, Resets: 1422, Inputs: 0}," +
+			    " {TQ: 74, Resets: 1479, Inputs: 0}," +
+			    " {TQ: 74, Resets: 1433, Inputs: 0}," +
+			    " {TQ: 74, Resets: 2225, Inputs: 0}," +
+			    " {TQ: 74, Resets: 2089, Inputs: 0}," +
+			    " {TQ: 74, Resets: 1268, Inputs: 0}," +
 			    " {TQ: 79, Resets: 1277, Inputs: 0}," +
 			    " {TQ: 74, Resets: 1225, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
