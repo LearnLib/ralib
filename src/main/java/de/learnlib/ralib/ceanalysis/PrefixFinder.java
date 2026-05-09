@@ -107,9 +107,10 @@ public class PrefixFinder {
 			RegisterValuation runValuation = run.getValuation(i-1);
 			ParameterizedSymbol action = symbol.getBaseSymbol();
 
-			Expression<Boolean> gHyp = run.getGuard(i, consts);
+//			Expression<Boolean> gHyp = run.getGuard(i, consts);
 
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
+				Expression<Boolean> gHyp = getHypGuard(run, i, u);
 				RegisterValuation uValuation = hyp.getRun(u).getValuation(u.size());
 				SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run.getPrefix(i-1), run.getSuffix(i-1), u, runValuation, uValuation);
 				SymbolicSuffix uv = restrBuilder.concretize(v,
@@ -126,9 +127,9 @@ public class PrefixFinder {
 				for (Expression<Boolean> gSul : branching.guardSet()) {
 					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
 						renaming.putAll(uToRunRenaming);
-						gSul = conjunctionWithRestriction(gSul, uv, u, hyp.getRun(u).getValuation(u.size()).keySet(), consts);
-						if (isGuardSatisfied(gSul, renaming, symbol)) {
-							Optional<Result> res = checkTransition(run, i, u, action, gHyp, gSul);
+						Expression<Boolean> gSulConj = conjunctionWithRestriction(gSul, uv, u, hyp.getRun(u).getValuation(u.size()).keySet(), consts);
+						if (isGuardSatisfied(gSulConj, renaming, symbol)) {
+							Optional<Result> res = checkTransition(run, i, u, action, gHyp, gSulConj);
 							if (res.isEmpty()) {
 								res = checkLocation(run, i, u, action);
 							}
@@ -472,5 +473,20 @@ public class PrefixFinder {
 		mapping.putAll(consts);
 
 		return solver.isSatisfiable(guardRenamed, mapping);
+	}
+
+	private Expression<Boolean> getHypGuard(RARun run, int i, Word<PSymbolInstance> u) {
+		RegisterValuation runVal = run.getValuation(i - 1);
+		RegisterValuation uVal = hyp.getRun(u).getValuation(u.size());
+		Mapping<DataValue, DataValue> renaming = new Mapping<>();
+		for (Map.Entry<Register, DataValue> runValEntry : runVal.entrySet()) {
+			DataValue replace = runValEntry.getValue();
+			DataValue by = uVal.get(runValEntry.getKey());
+			renaming.put(replace, by);
+		}
+
+        ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+        Expression<Boolean> guard = run.getGuard(i, consts);
+        return rvv.apply(guard, renaming);
 	}
 }
