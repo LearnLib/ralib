@@ -103,7 +103,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             // get the register value from the valuation
             DataValue sdi = new DataValue(type, val.getValue(si));
             // add the register value as a constant
-            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, sdi.getValue());
+            gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> wm = new gov.nasa.jpf.constraints.expressions.Constant<BigDecimal>(BuiltinTypes.DECIMAL, sdi.getValue());
             // add the constant equivalence expression to the list
             eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si));
 
@@ -113,7 +113,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             // get the register value from the valuation
             DataValue sdi = new DataValue(type, val.getValue(si));
             // add the register value as a constant
-            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, sdi.getValue());
+            gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> wm = new gov.nasa.jpf.constraints.expressions.Constant<BigDecimal>(BuiltinTypes.DECIMAL, sdi.getValue());
             // add the constant equivalence expression to the list
             eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si));
             throw new RuntimeException("this seems to be wrong ...");
@@ -124,7 +124,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
                 assert r != null;
                 DataValue ri = (r instanceof DataValue dataValue) ? dataValue :
                         new DataValue(type, (BigDecimal) val.getValue( (Variable) r));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, ri.getValue());
+                gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> wm = new gov.nasa.jpf.constraints.expressions.Constant<BigDecimal>(BuiltinTypes.DECIMAL, ri.getValue());
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, r.asExpression()));
             }
@@ -133,7 +133,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
                 assert l != null;
                 DataValue li = (l instanceof DataValue dataValue) ? dataValue :
                         new DataValue(type, (BigDecimal) val.getValue( (Variable) l));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, li.getValue());
+                gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> wm = new gov.nasa.jpf.constraints.expressions.Constant<BigDecimal>(BuiltinTypes.DECIMAL, li.getValue());
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, l.asExpression()));
             }
@@ -168,14 +168,14 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 
             // add disequalities
             for (DataValue au : alreadyUsedValues) {
-                gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, au.getValue());
+                gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> w = new gov.nasa.jpf.constraints.expressions.Constant<BigDecimal>(BuiltinTypes.DECIMAL, au.getValue());
                 Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp);
                 eList.add(auExpr);
             }
 
             if (newVal.containsValueFor(sp)) {
                 DataValue spDouble = new DataValue(type, newVal.getValue(sp));
-                gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, spDouble.getValue());
+                gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> spw = new gov.nasa.jpf.constraints.expressions.Constant<BigDecimal>(BuiltinTypes.DECIMAL, spDouble.getValue());
                 Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, sp);
                 eList.add(spExpr);
             }

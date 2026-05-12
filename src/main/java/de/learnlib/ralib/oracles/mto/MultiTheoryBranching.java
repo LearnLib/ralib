@@ -87,7 +87,7 @@ public class MultiTheoryBranching implements Branching {
         }
 
         protected Map<SuffixValue, Set<DataValue>> collectDVs() {
-            Map<SuffixValue, Set<DataValue>> dvs = new LinkedHashMap();
+            Map<SuffixValue, Set<DataValue>> dvs = new LinkedHashMap<>();
             if (! this.next.keySet().isEmpty()) {
                 dvs.put(this.parameter, this.next.keySet());
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
@@ -98,7 +98,7 @@ public class MultiTheoryBranching implements Branching {
         }
 
         protected Map<SuffixValue, Set<SDTGuard>> collectGuards() {
-            Map<SuffixValue, Set<SDTGuard>> guards = new LinkedHashMap();
+            Map<SuffixValue, Set<SDTGuard>> guards = new LinkedHashMap<>();
             if (! this.next.keySet().isEmpty()) {
                 guards.put(this.parameter, new LinkedHashSet<SDTGuard>(this.guards.values()));
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
@@ -110,7 +110,7 @@ public class MultiTheoryBranching implements Branching {
 
         protected SDT buildFakeSDT() {
             if (! this.next.keySet().isEmpty()) {
-                Map<SDTGuard, SDT> map = new LinkedHashMap();
+                Map<SDTGuard, SDT> map = new LinkedHashMap<>();
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
                     SDTGuard guard = guards.get(e.getKey());
                     map.put(guard, e.getValue().buildFakeSDT());
@@ -188,15 +188,13 @@ public class MultiTheoryBranching implements Branching {
                     System.arraycopy(dvs, 0, newDvs, 0, dvLength);
                     newDvs[dvLength] = d;
                     // add the guard to the guardlist
-                    List newGuards = new ArrayList<>();
+                    List<SDTGuard> newGuards = new ArrayList<>();
                     newGuards.addAll(guards);
                     newGuards.add(nextGuard);
                     // proceed down in the tree to the next node
                     collectDataValuesAndGuards(nextNode, dvgMap, newDvs, newGuards, visited);
-
                 }
             }
-
         }
         if (this.action.getArity() > 0 && dvs.length == this.action.getArity()) {
             dvgMap.put(dvs, guards);

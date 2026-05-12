@@ -45,7 +45,7 @@ public class RemappingIterator<T extends TypedValue> implements Iterable<Bijecti
 
 		next = advance(replace, by, permit);
 
-		return new Bijection<>(vars);
+		return new Bijection<T>(vars);
 	}
 
 	@Override
