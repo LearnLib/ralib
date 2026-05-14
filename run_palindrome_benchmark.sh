@@ -57,15 +57,18 @@ case "$alg" in
     ;;
 esac
 
-jvm_args=""
+maven_opts=""
 if [[ -n ${mem} ]]; then
-  jvm_args="-Xms$mem -Xmx$mem"
+  maven_opts="-Xms$mem -Xmx$mem"
 fi
 
 for ((i=1; i<=$max_size; i++)); do
   echo "Running experiments for size $i using algorithm(s) $alg, memory setting $mem and output folder $out"
-  echo mvn test -Dtest=LearnPalindromeTest$test_method -DargLine="$jvm_args" -Dpalindrome.size=$i
-  mvn test -Dtest=LearnPalindromeTest$test_method -DargLine="-$jvm_args" -Dpalindrome.size=$i > $out/palindrome-size-$i-$alg.txt 2>$1
+  echo MAVEN_OPTS="\"$maven_opts\"" mvn test -Dtest=LearnPalindromeTest$test_method -DargLine="$jvm_args" -Dpalindrome.size=$i
+  MAVEN_OPTS="$maven_opts" mvn test -Dtest=LearnPalindromeTest$test_method -Dpalindrome.size=$i > $out/palindrome-size-$i-$alg.txt 2>$1
+  if [ $? -ne 0 ]; then
+    break
+  fi
 done
 
 echo "Benchmark executed"
