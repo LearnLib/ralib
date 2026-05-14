@@ -7,10 +7,10 @@ out="${SCRIPT_DIR}/palindrome_results"
 alg=""
 
 print_usage() {
-  echo "Usage $0 [-a|--alg {SLStar|SLLambda|SLLeq}][-m|--mem mem][-o|--out out] max_size_palindrome"
+  echo "Usage $0 [-a|--alg alg][-m|--mem mem][-o|--out out] max_size_palindrome"
   echo "Where:"
-  echo " alg is the algorithm;"
-  echo " mem is the amount of heap allocated;"
+  echo " alg is the algorithm {SLStar|SLLambda|SLLeq};"
+  echo " mem is the amount of heap allocated (e.g., 124m, 150g, etc.);"
   echo " out is the output directory where to store the results."
 }
 
