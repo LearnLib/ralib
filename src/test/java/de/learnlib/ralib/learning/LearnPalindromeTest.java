@@ -1,8 +1,5 @@
 package de.learnlib.ralib.learning;
 
-import static de.learnlib.ralib.example.palindrome.PalindromeOracle.IN;
-import static de.learnlib.ralib.example.palindrome.PalindromeOracle.TYPE;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,6 +15,8 @@ import de.learnlib.ralib.equivalence.RAEquivalenceTest;
 import de.learnlib.ralib.example.palindrome.Palindrome;
 import de.learnlib.ralib.example.palindrome.PalindromeGenerator;
 import de.learnlib.ralib.example.palindrome.PalindromeOracle;
+import static de.learnlib.ralib.example.palindrome.PalindromeOracle.IN;
+import static de.learnlib.ralib.example.palindrome.PalindromeOracle.TYPE;
 import de.learnlib.ralib.learning.ralambda.SLLambda;
 import de.learnlib.ralib.learning.ralambda.SLLambdaEq;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -31,6 +30,7 @@ import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.util.statistic.SimpleProfiler;
 
 public class LearnPalindromeTest extends RaLibTestSuite {
 
@@ -104,6 +104,8 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 	}
 
 	private void learn(RaLearningAlgorithm learner, RAEquivalenceTest checker, RaLearningAlgorithmName name) {
+		final String __RUN__ = "overall execution time";
+		SimpleProfiler.start(__RUN__);
 		learner.learn();
 		DefaultQuery<PSymbolInstance, Boolean> ce = checker.findCounterExample(learner.getHypothesis(), null);
 		while (ce != null) {
@@ -112,7 +114,8 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 			learner.learn();
 			ce = checker.findCounterExample(learner.getHypothesis(), null);
 		}
-
+		SimpleProfiler.stop(__RUN__);
+		System.out.println(SimpleProfiler.cumulated(__RUN__).getSummary());
 		System.out.println(learner.getQueryStatistics());
 		Hypothesis hyp = learner.getHypothesis();
 		System.out.println("Hyp. Locations: " + hyp.getStates().size());
