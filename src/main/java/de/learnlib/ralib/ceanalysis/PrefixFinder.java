@@ -1,6 +1,7 @@
 package de.learnlib.ralib.ceanalysis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,6 +23,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterValuation;
+import de.learnlib.ralib.data.SDTGuardElement;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -97,41 +100,83 @@ public class PrefixFinder {
 	 * @param ce
 	 * @return
 	 */
+//	public Result analyzeCounterExample(Word<PSymbolInstance> ce) {
+//		RARun run = hyp.getRun(ce);
+//		for (int i = ce.length(); i >= 1; i--) {
+//			RALocation loc = run.getLocation(i-1);
+////			Word<PSymbolInstance> pref = run.getPrefix(i-1);
+////			Word<PSymbolInstance> suff = run.getSuffix(i-1);
+//			PSymbolInstance symbol = run.getTransitionSymbol(i);
+//			RegisterValuation runValuation = run.getValuation(i-1);
+//			ParameterizedSymbol action = symbol.getBaseSymbol();
+//
+////			Expression<Boolean> gHyp = run.getGuard(i, consts);
+//
+//			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
+//				Expression<Boolean> gHyp = getHypGuard(run, i, u);
+//				RegisterValuation uValuation = hyp.getRun(u).getValuation(u.size());
+//				SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run.getPrefix(i-1), run.getSuffix(i-1), u, runValuation, uValuation);
+//				SymbolicSuffix uv = restrBuilder.concretize(v,
+//						hyp.getRun(u).getValuation(u.size()),
+//						ParameterValuation.fromPSymbolWord(u),
+//						consts);
+//				SDT sdt = sulOracle.treeQuery(u, uv);
+//
+//				Set<DataValue> uVals = hyp.getLeaf(loc).getPrefix(u).getRegisters();
+//				Mapping<DataValue, DataValue> uToRunRenaming = valuationRenaming(u, runValuation);
+//				Set<Mapping<DataValue, DataValue>> uToRunExtendedRenamings = extendedValuationRenamings(sdt, uVals, run, i);
+//
+//				Branching branching = sulOracle.getInitialBranching(u, action, sdt);
+//				for (Expression<Boolean> gSul : branching.guardSet()) {
+//					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
+//						renaming.putAll(uToRunRenaming);
+//						Expression<Boolean> gSulConj = conjunctionWithRestriction(gSul, uv, u, hyp.getRun(u).getValuation(u.size()).keySet(), consts);
+//						if (isGuardSatisfied(gSulConj, renaming, symbol)) {
+//							Optional<Result> res = checkTransition(run, i, u, action, gHyp, gSulConj);
+//							if (res.isEmpty()) {
+//								res = checkLocation(run, i, u, action);
+//							}
+//							if (res.isPresent()) {
+//								return res.get();
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		throw new IllegalStateException("Found no counterexample in " + ce);
+//	}
 	public Result analyzeCounterExample(Word<PSymbolInstance> ce) {
 		RARun run = hyp.getRun(ce);
 		for (int i = ce.length(); i >= 1; i--) {
 			RALocation loc = run.getLocation(i-1);
-//			Word<PSymbolInstance> pref = run.getPrefix(i-1);
-//			Word<PSymbolInstance> suff = run.getSuffix(i-1);
+			RALocation locNext = run.getLocation(i);
 			PSymbolInstance symbol = run.getTransitionSymbol(i);
 			RegisterValuation runValuation = run.getValuation(i-1);
 			ParameterizedSymbol action = symbol.getBaseSymbol();
+
+			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
+			SymbolicSuffix v = new SymbolicSuffix(ce.prefix(i-1), ce.suffix(ce.length() - i + 1), restrBuilder);
 
 //			Expression<Boolean> gHyp = run.getGuard(i, consts);
 
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
 				Expression<Boolean> gHyp = getHypGuard(run, i, u);
-				RegisterValuation uValuation = hyp.getRun(u).getValuation(u.size());
-				SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run.getPrefix(i-1), run.getSuffix(i-1), u, runValuation, uValuation);
-				SymbolicSuffix uv = restrBuilder.concretize(v,
-						hyp.getRun(u).getValuation(u.size()),
-						ParameterValuation.fromPSymbolWord(u),
-						consts);
-				SDT sdt = sulOracle.treeQuery(u, uv);
+				SDT sdt = sulOracle.treeQuery(u, v);
 
 				Set<DataValue> uVals = hyp.getLeaf(loc).getPrefix(u).getRegisters();
 				Mapping<DataValue, DataValue> uToRunRenaming = valuationRenaming(u, runValuation);
 				Set<Mapping<DataValue, DataValue>> uToRunExtendedRenamings = extendedValuationRenamings(sdt, uVals, run, i);
 
 				Branching branching = sulOracle.getInitialBranching(u, action, sdt);
-				for (Expression<Boolean> gSul : branching.guardSet()) {
+				for (Expression<Boolean> gSUL : branching.guardSet()) {
 					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
 						renaming.putAll(uToRunRenaming);
-						Expression<Boolean> gSulConj = conjunctionWithRestriction(gSul, uv, u, hyp.getRun(u).getValuation(u.size()).keySet(), consts);
-						if (isGuardSatisfied(gSulConj, renaming, symbol)) {
-							Optional<Result> res = checkTransition(run, i, u, action, gHyp, gSulConj);
+						if (isGuardSatisfied(gSUL, renaming, symbol)) {
+							Optional<Result> res = checkTransition(locNext, u, action, vNext, gHyp, gSUL);
 							if (res.isEmpty()) {
-								res = checkLocation(run, i, u, action);
+								res = checkLocation(locNext, u, action, vNext);
 							}
 							if (res.isPresent()) {
 								return res.get();
@@ -322,13 +367,75 @@ public class PrefixFinder {
 	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
 	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
 	 */
-	private Optional<Result> checkTransition(RARun run,
-			int id,
+//	private Optional<Result> checkTransition(RARun run,
+//			int id,
+//			ShortPrefix u,
+//			ParameterizedSymbol action,
+//			Expression<Boolean> hypGuard,
+//			Expression<Boolean> sulGuard) {
+//		RALocation loc = run.getLocation(id);
+//		// rename hyp guard to match RP
+//        ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+//        Expression<Boolean> hypGuardRenamed = rvv.apply(hypGuard, u.getRpBijection().inverse().toVarMapping());
+//        Expression<Boolean> conjunction = ExpressionUtil.and(hypGuardRenamed, sulGuard);
+//
+//        // instantiate a representative data value for the conjunction
+//        DataType[] types = action.getPtypes();
+//        DataValue[] reprDataVals = new DataValue[types.length];
+//        List<DataValue> prior = new ArrayList<>();
+//        for (int i = 0; i < types.length; i++) {
+//        	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, prior, consts, solver);
+//        	if (reprDataVal.isEmpty()) {
+//        		// guard unsat
+//        		return Optional.empty();
+//        	}
+//        	reprDataVals[i] = reprDataVal.get();
+//        	prior.add(reprDataVals[i]);
+//        }
+//        PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
+//        Word<PSymbolInstance> uExtSul = u.append(psi);
+//
+//        // check whether leaf of loc contains an extension of u that is equivalent to uExtSul after v
+//		CTLeaf leaf = hyp.getLeaf(loc);
+//		Iterator<Word<PSymbolInstance>> extensions = ct.getExtensions(u, action)
+//				.stream()
+//				.filter(w -> leaf.getPrefixes().contains(w))
+//				.iterator();
+//		while (extensions.hasNext()) {
+//			Word<PSymbolInstance> uExtHyp = extensions.next();
+//	        SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run.getPrefix(id),
+//	        		run.getSuffix(id),
+//	        		uExtSul,
+//	        		uExtHyp,
+//	        		run.getValuation(id),
+//	        		hyp.getRun(uExtSul).getValuation(uExtSul.size()),
+//	        		hyp.getRun(uExtHyp).getValuation(uExtHyp.size()));
+//	        SymbolicSuffix vSul = restrBuilder.concretize(v,
+//	        		hyp.getRun(uExtSul).getValuation(uExtSul.size()),
+//	        		ParameterValuation.fromPSymbolWord(uExtSul),
+//	        		consts);
+//	        SymbolicSuffix vHyp = restrBuilder.concretize(v,
+//	        		hyp.getRun(uExtHyp).getValuation(uExtHyp.size()),
+//	        		ParameterValuation.fromPSymbolWord(uExtHyp),
+//	        		consts);
+//			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, vHyp).toRegisterSDT(uExtHyp, consts);
+//			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, vSul).toRegisterSDT(uExtSul, consts);
+//
+//			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
+//				return Optional.empty();  // there is an equivalent extension, so no discrepancy
+//			}
+//		}
+//
+//		// no equivalent extension exists
+//		Result res = new Result(uExtSul, ResultType.TRANSITION);
+//		return Optional.of(res);
+//	}
+	private Optional<Result> checkTransition(RALocation loc,
 			ShortPrefix u,
 			ParameterizedSymbol action,
+			SymbolicSuffix v,
 			Expression<Boolean> hypGuard,
 			Expression<Boolean> sulGuard) {
-		RALocation loc = run.getLocation(id);
 		// rename hyp guard to match RP
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
         Expression<Boolean> hypGuardRenamed = rvv.apply(hypGuard, u.getRpBijection().inverse().toVarMapping());
@@ -348,9 +455,9 @@ public class PrefixFinder {
         	prior.add(reprDataVals[i]);
         }
         PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
-        Word<PSymbolInstance> uExtSul = u.append(psi);
+        Word<PSymbolInstance> uExtSUL = u.append(psi);
 
-        // check whether leaf of loc contains an extension of u that is equivalent to uExtSul after v
+        // check whether leaf of loc contains an extension of u that is equivalent to uExtSUL after v
 		CTLeaf leaf = hyp.getLeaf(loc);
 		Iterator<Word<PSymbolInstance>> extensions = ct.getExtensions(u, action)
 				.stream()
@@ -358,33 +465,20 @@ public class PrefixFinder {
 				.iterator();
 		while (extensions.hasNext()) {
 			Word<PSymbolInstance> uExtHyp = extensions.next();
-	        SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run.getPrefix(id),
-	        		run.getSuffix(id),
-	        		uExtSul,
-	        		uExtHyp,
-	        		run.getValuation(id),
-	        		hyp.getRun(uExtSul).getValuation(uExtSul.size()),
-	        		hyp.getRun(uExtHyp).getValuation(uExtHyp.size()));
-	        SymbolicSuffix vSul = restrBuilder.concretize(v,
-	        		hyp.getRun(uExtSul).getValuation(uExtSul.size()),
-	        		ParameterValuation.fromPSymbolWord(uExtSul),
-	        		consts);
-	        SymbolicSuffix vHyp = restrBuilder.concretize(v,
-	        		hyp.getRun(uExtHyp).getValuation(uExtHyp.size()),
-	        		ParameterValuation.fromPSymbolWord(uExtHyp),
-	        		consts);
-			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, vHyp).toRegisterSDT(uExtHyp, consts);
-			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, vSul).toRegisterSDT(uExtSul, consts);
+			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, v).toRegisterSDT(uExtHyp, consts);
+			SDT uExtSULSDT = sulOracle.treeQuery(uExtSUL, v).toRegisterSDT(uExtSUL, consts);
 
-			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
+//			if (SDT.equivalentUnderId(uExtHypSDT, uExtSULSDT)) {
+			if (this.equivalentSDTsWithEqualityMapping(uExtSULSDT, uExtHypSDT, uExtSUL)) {
 				return Optional.empty();  // there is an equivalent extension, so no discrepancy
 			}
 		}
 
 		// no equivalent extension exists
-		Result res = new Result(uExtSul, ResultType.TRANSITION);
+		Result res = new Result(uExtSUL, ResultType.TRANSITION);
 		return Optional.of(res);
 	}
+
 
 	/**
 	 * Check for a location discrepancy. This is done by checking whether there is some
@@ -400,11 +494,58 @@ public class PrefixFinder {
 	 * @param action the symbol of the next transition
 	 * @return an {@code Optional} containing the result if there is a location discrepancy, or an empty {@code Optional} otherwise
 	 */
-	private Optional<Result> checkLocation(RARun run,
-			int id,
+//	private Optional<Result> checkLocation(RARun run,
+//			int id,
+//			Word<PSymbolInstance> u,
+//			ParameterizedSymbol action) {
+//		RALocation locNext = run.getLocation(id);
+//		CTLeaf leafNext = hyp.getLeaf(locNext);
+//		Iterator<Prefix> extensions = ct.getExtensions(u, action)
+//				.stream()
+//				.filter(w -> leafNext.getPrefixes().contains(w))
+//				.map(w -> leafNext.getPrefix(w))
+//				.iterator();
+//		while (extensions.hasNext()) {
+//			Prefix uExtended = extensions.next();
+//			Bijection<DataValue> uExtBijection = uExtended.getRpBijection();
+//			boolean noEquivU = true;
+//			for (Prefix uNext : leafNext.getShortPrefixes()) {
+//				Bijection<DataValue> uNextBijection = uNext.getRpBijection();
+//				Bijection<DataValue> gamma = uNextBijection.compose(uExtBijection.inverse());
+//				SymbolicSuffix vuNext = restrBuilder.constructRestrictedSuffix(run.getPrefix(id),
+//						run.getSuffix(id),
+//						uNext,
+//						uExtended,
+//						run.getValuation(id),
+//						hyp.getRun(uNext).getValuation(uNext.size()),
+//						hyp.getRun(uExtended).getValuation(uExtended.size()));
+//				SymbolicSuffix vuExt = restrBuilder.concretize(vuNext,
+//						hyp.getRun(uExtended).getValuation(uExtended.size()),
+//						consts,
+//						ParameterValuation.fromPSymbolWord(uExtended));
+//				vuNext = restrBuilder.concretize(vuNext,
+//						hyp.getRun(uNext).getValuation(uNext.size()),
+//						consts,
+//						ParameterValuation.fromPSymbolWord(uNext));
+//				SDT uExtSDT = sulOracle.treeQuery(uExtended, vuExt);
+//				SDT uNextSDT = sulOracle.treeQuery(uNext, vuNext);
+//				if (SDT.equivalentUnderBijection(uNextSDT, uExtSDT, gamma) != null) {
+//					noEquivU = false;
+//					break;
+//				}
+//			}
+//			if (noEquivU) {
+//				Result res = new Result(uExtended, ResultType.LOCATION);
+//				return Optional.of(res);
+//			}
+//		}
+//
+//		return Optional.empty();
+//	}
+	private Optional<Result> checkLocation(RALocation locNext,
 			Word<PSymbolInstance> u,
-			ParameterizedSymbol action) {
-		RALocation locNext = run.getLocation(id);
+			ParameterizedSymbol action,
+			SymbolicSuffix v) {
 		CTLeaf leafNext = hyp.getLeaf(locNext);
 		Iterator<Prefix> extensions = ct.getExtensions(u, action)
 				.stream()
@@ -418,23 +559,8 @@ public class PrefixFinder {
 			for (Prefix uNext : leafNext.getShortPrefixes()) {
 				Bijection<DataValue> uNextBijection = uNext.getRpBijection();
 				Bijection<DataValue> gamma = uNextBijection.compose(uExtBijection.inverse());
-				SymbolicSuffix vuNext = restrBuilder.constructRestrictedSuffix(run.getPrefix(id),
-						run.getSuffix(id),
-						uNext,
-						uExtended,
-						run.getValuation(id),
-						hyp.getRun(uNext).getValuation(uNext.size()),
-						hyp.getRun(uExtended).getValuation(uExtended.size()));
-				SymbolicSuffix vuExt = restrBuilder.concretize(vuNext,
-						hyp.getRun(uExtended).getValuation(uExtended.size()),
-						consts,
-						ParameterValuation.fromPSymbolWord(uExtended));
-				vuNext = restrBuilder.concretize(vuNext,
-						hyp.getRun(uNext).getValuation(uNext.size()),
-						consts,
-						ParameterValuation.fromPSymbolWord(uNext));
-				SDT uExtSDT = sulOracle.treeQuery(uExtended, vuExt);
-				SDT uNextSDT = sulOracle.treeQuery(uNext, vuNext);
+				SDT uExtSDT = sulOracle.treeQuery(uExtended, v);
+				SDT uNextSDT = sulOracle.treeQuery(uNext, v);
 				if (SDT.equivalentUnderBijection(uNextSDT, uExtSDT, gamma) != null) {
 					noEquivU = false;
 					break;
@@ -488,5 +614,32 @@ public class PrefixFinder {
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
         Expression<Boolean> guard = run.getGuard(i, consts);
         return rvv.apply(guard, renaming);
+	}
+
+	/**
+	 * For each register r<sub>i</sub> in {@code sdtElse} that is not present in {@code sdtIf}, check whether data value d<sub>i</sub> of {@code uIf} is equal to some other register in {@code sdtIf}.
+	 * If so, maps r<sub>i</sub> to that register and returns {@code true} if {@code sdtIf} and {@code sdtElse} are equivalent under that remapping.
+	 *
+	 * @param sdtIf
+	 * @param sdtElse
+	 * @param uIf
+	 * @param uElse
+	 * @return {@code true} if and only if {@code sdtIf} and {@code sdtElse} are equivalent when collapsing equivalent registers of {@code uIf}
+	 */
+	private boolean equivalentSDTsWithEqualityMapping(SDT sdtIf, SDT sdtElse, Word<PSymbolInstance> uIf) {
+		ArrayList<DataValue> uIfVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(uIf)));
+		Mapping<Register, Register> renaming = new Mapping<>();
+		for (SDTGuardElement elem : sdtElse.getVariables()) {
+			if (elem instanceof Register r && !sdtIf.getVariables().contains(r)) {
+				DataValue d = uIfVals.get(r.getId() - 1);
+				assert d != null : "Incompatible SDTs";
+				int index = uIfVals.indexOf(d);
+				if (index >= 0) {
+					Register rEq = new Register(d.getDataType(), index + 1);
+					renaming.put(r, rEq);
+				}
+			}
+		}
+		return sdtIf.isEquivalent(sdtElse, SDTRelabeling.fromMapping(renaming));
 	}
 }
