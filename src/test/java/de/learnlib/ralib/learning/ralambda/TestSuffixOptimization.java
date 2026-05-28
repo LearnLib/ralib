@@ -46,7 +46,7 @@ import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaEqRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
@@ -175,7 +175,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     	iet.setUseSuffixOpt(true);
     	Map<DataType, Theory> teachers = Map.of(TINT, iet);
 
-    	SLLambdaRestrictionBuilder builder = new SLLambdaRestrictionBuilder(new Constants(), teachers, new ConstraintSolver());
+    	SLLambdaEqRestrictionBuilder builder = new SLLambdaEqRestrictionBuilder(new Constants(), teachers, new ConstraintSolver());
 
     	SuffixValue s1 = new SuffixValue(TINT, 1);
     	SuffixValue s2 = new SuffixValue(TINT, 2);

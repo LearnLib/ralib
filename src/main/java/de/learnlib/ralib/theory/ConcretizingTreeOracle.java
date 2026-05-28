@@ -11,7 +11,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaEqRestrictionBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -39,7 +39,7 @@ public class ConcretizingTreeOracle implements TreeOracle {
 		mapping.putAll(regs);
 		mapping.putAll(params);
 		mapping.putAll(consts);
-		SymbolicSuffix concreteSuffix = SLLambdaRestrictionBuilder.concretize(suffix, mapping);
+		SymbolicSuffix concreteSuffix = SLLambdaEqRestrictionBuilder.concretize(suffix, mapping);
 		return oracle.treeQuery(prefix, concreteSuffix);
 //		return treeQuery(prefix, suffix);
 	}

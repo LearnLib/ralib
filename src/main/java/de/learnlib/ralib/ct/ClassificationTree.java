@@ -28,7 +28,7 @@ import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaEqRestrictionBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
@@ -639,7 +639,7 @@ public class ClassificationTree {
 		SDT u_sdt = prefixes.get(ua).getPrefix(ua).getSDT(v);
 		assert u_sdt != null : "SDT for symbolic suffix " + v + " does not exist for prefix " + ua;
 
-		if (restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
+		if (restrBuilder instanceof SLLambdaEqRestrictionBuilder sllambdaRestrBuilder) {
 			Prefix uPref = getLeaf(u).getPrefix(u);
 			Prefix uExtPref = getLeaf(ua).getPrefix(ua);
 			return sllambdaRestrBuilder.extendSuffix(uPref, uExtPref, v, u_sdt);
@@ -660,7 +660,7 @@ public class ClassificationTree {
 	private boolean suffixRevealsNewGuard(SymbolicSuffix av, ShortPrefix u) {
 //		assert !leaf.getShortPrefixes().isEmpty() : "No short prefix in leaf " + leaf;
 //		ShortPrefix u = leaf.getShortPrefixes().iterator().next();
-		if (restrBuilder instanceof SLLambdaRestrictionBuilder rBuilder && rBuilder.hasUnmappedRestrictionValue(av, u.getRegisters())) {
+		if (restrBuilder instanceof SLLambdaEqRestrictionBuilder rBuilder && rBuilder.hasUnmappedRestrictionValue(av, u.getRegisters())) {
 			return false;
 		}
 		SDT sdt = oracle.treeQuery(u, av.relabel(u.getRpBijection().inverse().toVarMapping()), u.getRegisters());
@@ -713,7 +713,7 @@ public class ClassificationTree {
 	private SymbolicSuffix extendSuffixLocation(Word<PSymbolInstance> u1Ext, Word<PSymbolInstance> u2Ext, SymbolicSuffix v) {
 		SDT sdt1 = getLeaf(u1Ext).getPrefix(u1Ext).getSDT(v);
 		SDT sdt2 = getLeaf(u2Ext).getPrefix(u2Ext).getSDT(v);
-		if (restrBuilder != null && restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
+		if (restrBuilder != null && restrBuilder instanceof SLLambdaEqRestrictionBuilder sllambdaRestrBuilder) {
 			Word<PSymbolInstance> u1 = u1Ext.prefix(u1Ext.size() - 1);
 			Word<PSymbolInstance> u2 = u2Ext.prefix(u2Ext.size() - 1);
 			CTLeaf leaf = getLeaf(u1);
@@ -748,7 +748,7 @@ public class ClassificationTree {
 		Prefix uElsePref = leafElse.getPrefix(uElse);
 		SDT sdtIf = uIfPref.getSDT(v);
 		SDT sdtElse = uElsePref.getSDT(v);
-		if (restrBuilder != null && restrBuilder instanceof SLLambdaRestrictionBuilder sllambdaRestrBuilder) {
+		if (restrBuilder != null && restrBuilder instanceof SLLambdaEqRestrictionBuilder sllambdaRestrBuilder) {
 			Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
 			CTLeaf uLeaf = getLeaf(u);
 			Prefix uPref = uLeaf.getPrefix(u);

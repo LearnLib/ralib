@@ -7,7 +7,7 @@ import de.learnlib.ralib.ct.ClassificationTree;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaEqRestrictionBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -42,8 +42,8 @@ public class PrefixFinderFactory {
 
 	public PrefixFinder create(CTHypothesis hyp, ClassificationTree ct) {
 		if (type == PrefixFinderType.Eq) {
-			assert restrBuilder instanceof SLLambdaRestrictionBuilder;
-			return new PrefixFinderEq(sulOracle, hyp, ct, teachers, (SLLambdaRestrictionBuilder) restrBuilder, solver, consts);
+			assert restrBuilder instanceof SLLambdaEqRestrictionBuilder;
+			return new PrefixFinderEq(sulOracle, hyp, ct, teachers, (SLLambdaEqRestrictionBuilder) restrBuilder, solver, consts);
 		}
 		return new PrefixFinder(sulOracle, hyp, ct, teachers, restrBuilder, solver, consts);
 	}

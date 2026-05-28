@@ -34,21 +34,21 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
-public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder {
+public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuilder {
 
 	public final static SymbolicSuffixRestrictionBuilder.Version VERSION = SymbolicSuffixRestrictionBuilder.Version.V3;
 
 	protected final ConstraintSolver solver;
 
-	public SLLambdaRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
+	public SLLambdaEqRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
 		this(restrBuilder.consts, restrBuilder.teachers, solver, VERSION);
 	}
 
-	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
+	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
 		this(consts, teachers, solver, VERSION);
 	}
 
-	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, Version version) {
+	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, Version version) {
 		super(consts, teachers, version);
 		if (teachers == null) {
 			throw new IllegalArgumentException("Non-null argument expected");

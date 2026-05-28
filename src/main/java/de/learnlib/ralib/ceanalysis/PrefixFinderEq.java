@@ -25,7 +25,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaEqRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
@@ -39,7 +39,7 @@ import net.automatalib.word.Word;
 public class PrefixFinderEq extends PrefixFinder {
 
 	public PrefixFinderEq(TreeOracle sulOracle, CTHypothesis hyp, ClassificationTree ct, Map<DataType, Theory> teachers,
-			SLLambdaRestrictionBuilder restrBuilder, ConstraintSolver solver, Constants consts) {
+			SLLambdaEqRestrictionBuilder restrBuilder, ConstraintSolver solver, Constants consts) {
 		super(sulOracle, hyp, ct, teachers, restrBuilder, solver, consts);
 		if (!isEqTheory(teachers)) {
 			throw new RuntimeException("PrefixFinderEq onlu supports theories of type EqualityTheory");
@@ -65,8 +65,8 @@ public class PrefixFinderEq extends PrefixFinder {
 		throw new IllegalStateException("Found no counterexample in " + ce);
 	}
 
-	private SLLambdaRestrictionBuilder getRestrBuilder() {
-		return (SLLambdaRestrictionBuilder) restrBuilder;
+	private SLLambdaEqRestrictionBuilder getRestrBuilder() {
+		return (SLLambdaEqRestrictionBuilder) restrBuilder;
 	}
 
 	private Optional<Result> checkTransition(ShortPrefix u, RARun run, int i) {
