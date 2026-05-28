@@ -36,14 +36,16 @@ import net.automatalib.word.Word;
 
 public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder {
 
+	public final static SymbolicSuffixRestrictionBuilder.Version VERSION = SymbolicSuffixRestrictionBuilder.Version.V3;
+
 	protected final ConstraintSolver solver;
 
 	public SLLambdaRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
-		this(restrBuilder.consts, restrBuilder.teachers, solver, DEFAULT_VERSION);
+		this(restrBuilder.consts, restrBuilder.teachers, solver, VERSION);
 	}
 
 	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
-		this(consts, teachers, solver, DEFAULT_VERSION);
+		this(consts, teachers, solver, VERSION);
 	}
 
 	public SLLambdaRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, Version version) {
@@ -75,7 +77,7 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 			Word<PSymbolInstance> u,
 			RegisterValuation prefixValuation,
 			RegisterValuation uValuation) {
-		if (getVersion() != Version.V3) {
+		if (getVersion() != VERSION) {
 			return super.restrictSuffix(prefix, suffix);
 		}
 		Map<SuffixValue, AbstractSuffixValueRestriction> restrs = new LinkedHashMap<>();
@@ -110,7 +112,7 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 			Word<PSymbolInstance> u,
 			RegisterValuation prefixValuation,
 			RegisterValuation uValuation) {
-		if (getVersion() != Version.V3) {
+		if (getVersion() != VERSION) {
 			return new SymbolicSuffix(prefix, suffix, this);
 		}
 		return new SymbolicSuffix(DataWords.actsOf(suffix),
@@ -142,7 +144,7 @@ public class SLLambdaRestrictionBuilder extends SymbolicSuffixRestrictionBuilder
 			RegisterValuation prefixValuation,
 			RegisterValuation u1Valuation,
 			RegisterValuation u2Valuation) {
-		if (getVersion() != Version.V3) {
+		if (getVersion() != VERSION) {
 			return new SymbolicSuffix(prefix, suffix, this);
 		}
 		Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = restrictSuffix(prefix, suffix, u1, prefixValuation, u1Valuation);
