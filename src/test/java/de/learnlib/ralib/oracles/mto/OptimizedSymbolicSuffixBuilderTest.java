@@ -326,18 +326,18 @@ public class OptimizedSymbolicSuffixBuilderTest {
         OptimizedSymbolicSuffixBuilder builder2 = new OptimizedSymbolicSuffixBuilder(consts2, restrictionBuilder2);
 
         SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4), restrictionBuilder1);
-        SymbolicSuffix actual1 = builder1.extendSuffix(word1.prefix(2), sdtPath1, suffix1.getActions());
+        SymbolicSuffix actual1 = builder1.extendSuffix(word1.prefix(2), sdtPath1, suffix1);
         Assert.assertEquals(actual1, expected1);
 
         SymbolicSuffix expected2 = new SymbolicSuffix(word2.prefix(1), word2.suffix(4), restrictionBuilder1);
-        SymbolicSuffix actual2 = builder1.extendSuffix(word2.prefix(2), sdtPath2, suffix2.getActions());
+        SymbolicSuffix actual2 = builder1.extendSuffix(word2.prefix(2), sdtPath2, suffix2);
         Assert.assertEquals(actual2, expected2);
 
         SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), restrictionBuilder2);
-        SymbolicSuffix actual3 = builder1.extendSuffix(word3.prefix(2), sdtPath3, suffix3.getActions());
+        SymbolicSuffix actual3 = builder1.extendSuffix(word3.prefix(2), sdtPath3, suffix3);
         Assert.assertEquals(actual3, expected3);
 
-        SymbolicSuffix actual4 = builder2.extendSuffix(word4.prefix(2), sdtPath4, suffix4.getActions());
+        SymbolicSuffix actual4 = builder2.extendSuffix(word4.prefix(2), sdtPath4, suffix4);
         Assert.assertEquals(actual4.getFreeValues().size(), 1);
     }
 
@@ -385,7 +385,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         ConstraintSolver solver = new ConstraintSolver();
 
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
-        SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, prefix2, sdt2, Word.fromSymbols(a, a, a), solver);
+        SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, prefix2, sdt2, builder.unrestrictedSuffix(Word.fromSymbols(a, a, a)), solver);
         Map<SuffixValue, AbstractSuffixValueRestriction> expectedRestr12 = new LinkedHashMap<>();
         expectedRestr12.put(s1, new FreshSuffixValue(s1));
         expectedRestr12.put(s2, new EqualRestriction(s2, s1));
@@ -415,7 +415,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
                         new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
                                 new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
-        SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, prefix4, sdt4,  Word.fromSymbols(a, a, a), solver);
+        SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, prefix4, sdt4, builder.unrestrictedSuffix(Word.fromSymbols(a, a, a)), solver);
         Map<SuffixValue, AbstractSuffixValueRestriction> expectedRestr34 = new LinkedHashMap<>();
         expectedRestr34.put(s1, new FreshSuffixValue(s1));
         expectedRestr34.put(s2, new UnrestrictedSuffixValue(s2));

@@ -40,7 +40,7 @@ public class SymbolicSuffixRestrictionBuilder {
 		}
 	};
 
-	public final static Version DEFAULT_VERSION = Version.V3;
+	public final static Version DEFAULT_VERSION = Version.V2;
 
     protected final Map<DataType, Theory> teachers;
 
