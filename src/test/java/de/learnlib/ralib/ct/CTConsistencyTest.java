@@ -33,7 +33,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
@@ -66,7 +66,7 @@ public class CTConsistencyTest extends RaLibTestSuite {
 		Constants consts = new Constants();
         ConstraintSolver solver = new ConstraintSolver();
 
-		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver);
+		SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         RegisterAutomaton sul = AUTOMATON;
@@ -122,7 +122,7 @@ public class CTConsistencyTest extends RaLibTestSuite {
 		Constants consts = new Constants();
         ConstraintSolver solver = TestUtil.getZ3Solver();
 
-		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver);
+        SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
@@ -246,7 +246,7 @@ public class CTConsistencyTest extends RaLibTestSuite {
 		Constants consts = new Constants();
         ConstraintSolver solver = TestUtil.getZ3Solver();
 
-		SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver);
+        SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
