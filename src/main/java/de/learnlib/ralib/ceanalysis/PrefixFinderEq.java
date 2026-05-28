@@ -65,6 +65,10 @@ public class PrefixFinderEq extends PrefixFinder {
 		throw new IllegalStateException("Found no counterexample in " + ce);
 	}
 
+	private SLLambdaRestrictionBuilder getRestrBuilder() {
+		return (SLLambdaRestrictionBuilder) restrBuilder;
+	}
+
 	private Optional<Result> checkTransition(ShortPrefix u, RARun run, int i) {
 		int arity = run.getTransitionSymbol(i).getBaseSymbol().getArity();
 		if (arity == 0) {
@@ -93,8 +97,8 @@ public class PrefixFinderEq extends PrefixFinder {
 
 		if (potmatch.isEmpty()) {
 			Word<PSymbolInstance> suffix = run.getSuffix(i - 1);
-			SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(prefix, suffix, u, prefixValuation, uValuation);
-			SymbolicSuffix vHyp = restrBuilder.concretize(v, uValuation, ParameterValuation.fromPSymbolWord(u), consts);
+			SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefix, suffix, u, prefixValuation, uValuation);
+			SymbolicSuffix vHyp = getRestrBuilder().concretize(v, uValuation, ParameterValuation.fromPSymbolWord(u), consts);
 			SDT sdt = sulOracle.treeQuery(u, vHyp);
 			Branching branching = sulOracle.getInitialBranching(u, action.getBaseSymbol(), sdt);
 			Set<Expression<Boolean>> guards = branching.guardSet();
@@ -130,9 +134,9 @@ public class PrefixFinderEq extends PrefixFinder {
 //					}
 					RegisterValuation uExtSulValuation = hyp.getRun(uExtSul).getValuation(uExtSul.length());
 					RegisterValuation uExtHypValuation = hyp.getRun(uExtHyp).getValuation(uExtHyp.length());
-					SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(prefixNext, suffixNext, uExtSul, prefixExtValuation, uExtSulValuation);
-					SymbolicSuffix vSul = restrBuilder.concretize(v, uExtSulValuation, ParameterValuation.fromPSymbolWord(uExtSul), consts);
-					SymbolicSuffix vHyp = restrBuilder.concretize(v, uExtHypValuation, ParameterValuation.fromPSymbolWord(uExtHyp), consts);
+					SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefixNext, suffixNext, uExtSul, prefixExtValuation, uExtSulValuation);
+					SymbolicSuffix vSul = getRestrBuilder().concretize(v, uExtSulValuation, ParameterValuation.fromPSymbolWord(uExtSul), consts);
+					SymbolicSuffix vHyp = getRestrBuilder().concretize(v, uExtHypValuation, ParameterValuation.fromPSymbolWord(uExtHyp), consts);
 
 					SDT sdtSul = sulOracle.treeQuery(uExtSul, vSul).toRegisterSDT(uExtSul, consts);
 					SDT sdtHyp = sulOracle.treeQuery(uExtHyp, vHyp).toRegisterSDT(uExtHyp, consts);
@@ -166,10 +170,10 @@ public class PrefixFinderEq extends PrefixFinder {
 			Bijection<DataValue> uExtBijection = uExt.getRpBijection();
 			for (ShortPrefix uNext : leafNext.getShortPrefixes()) {
 				RegisterValuation uNextValuation = hyp.getRun(uNext).getValuation(uNext.length());
-				SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(prefix, suffix, uExt, uNext, prefixValuation, uExtValuation, uNextValuation);
+				SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefix, suffix, uExt, uNext, prefixValuation, uExtValuation, uNextValuation);
 
-				SymbolicSuffix vuExt = restrBuilder.concretize(v, uExtValuation, ParameterValuation.fromPSymbolWord(uExt), consts);
-				SymbolicSuffix vuNext = restrBuilder.concretize(v, uNextValuation, ParameterValuation.fromPSymbolWord(uNext), consts);
+				SymbolicSuffix vuExt = getRestrBuilder().concretize(v, uExtValuation, ParameterValuation.fromPSymbolWord(uExt), consts);
+				SymbolicSuffix vuNext = getRestrBuilder().concretize(v, uNextValuation, ParameterValuation.fromPSymbolWord(uNext), consts);
 
 				Bijection<DataValue> uNextBijection = uNext.getRpBijection();
 				Bijection<DataValue> gamma = uNextBijection.compose(uExtBijection.inverse());

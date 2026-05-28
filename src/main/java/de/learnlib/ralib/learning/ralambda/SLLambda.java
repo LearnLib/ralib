@@ -19,7 +19,6 @@ import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -40,7 +39,7 @@ public class SLLambda implements RaLearningAlgorithm {
     private final TreeOracle sulOracle;
 
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
-    private SLLambdaRestrictionBuilder restrictionBuilder;
+    private SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
     private final Map<DataType, Theory> teachers;
 
@@ -54,29 +53,32 @@ public class SLLambda implements RaLearningAlgorithm {
 
     public SLLambda(TreeOracle sulOracle, Map<DataType, Theory> teachers,
     		Constants consts, boolean ioMode, ConstraintSolver solver,
-    		SymbolicSuffixRestrictionBuilder.Version restrictionBuilderVersion,
+//    		SymbolicSuffixRestrictionBuilder.Version restrictionBuilderVersion,
+    		SymbolicSuffixRestrictionBuilder restrBuilder,
     		ParameterizedSymbol ... inputs) {
     	this.sulOracle = sulOracle;
     	this.teachers = teachers;
     	this.consts = consts;
     	this.ioMode = ioMode;
     	this.solver = solver;
-    	restrictionBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver, restrictionBuilderVersion);
+//    	restrictionBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver, restrictionBuilderVersion);
+    	restrictionBuilder = restrBuilder;
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
     	counterexamples = new LinkedList<>();
     	hyp = null;
-    	SymbolicSuffixRestrictionBuilder ctRBuilder = restrictionBuilderVersion == SymbolicSuffixRestrictionBuilder.Version.V3 ?
-    			restrictionBuilder :
-    				new SymbolicSuffixRestrictionBuilder(consts, teachers, restrictionBuilderVersion);
+//    	SymbolicSuffixRestrictionBuilder ctRBuilder = restrictionBuilderVersion == SymbolicSuffixRestrictionBuilder.Version.V3 ?
+//    			restrictionBuilder :
+//    				new SymbolicSuffixRestrictionBuilder(consts, teachers, restrictionBuilderVersion);
     	prefixFinderFactory = new PrefixFinderFactory(sulOracle, teachers, restrictionBuilder, solver, consts);
-    	ct = new ClassificationTree(sulOracle, solver, ctRBuilder, suffixBuilder, consts, ioMode, inputs);
+//    	ct = new ClassificationTree(sulOracle, solver, ctRBuilder, suffixBuilder, consts, ioMode, inputs);
+    	ct = new ClassificationTree(sulOracle, solver, restrBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.initialize();
     }
 
     public SLLambda(TreeOracle sulOracle, Map<DataType, Theory> teachers,
     		Constants consts, boolean ioMode, ConstraintSolver solver,
     		ParameterizedSymbol ... inputs) {
-    	this(sulOracle, teachers, consts, ioMode, solver, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION, inputs);
+    	this(sulOracle, teachers, consts, ioMode, solver, new SymbolicSuffixRestrictionBuilder(consts, teachers), inputs);
     }
 
 	@Override

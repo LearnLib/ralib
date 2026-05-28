@@ -36,7 +36,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
 import de.learnlib.ralib.smt.ReplacingVarsVisitor;
@@ -74,14 +74,14 @@ public class PrefixFinder {
 	protected final TreeOracle sulOracle;
 	protected final Map<DataType, Theory> teachers;
 
-	protected final SLLambdaRestrictionBuilder restrBuilder;
+	protected final SymbolicSuffixRestrictionBuilder restrBuilder;
 
 	protected final ConstraintSolver solver;
 
 	protected final Constants consts;
 
 	public PrefixFinder(TreeOracle sulOracle, CTHypothesis hyp, ClassificationTree ct,
-			Map<DataType, Theory> teachers, SLLambdaRestrictionBuilder restrBuilder,
+			Map<DataType, Theory> teachers, SymbolicSuffixRestrictionBuilder restrBuilder,
 			ConstraintSolver solver, Constants consts) {
 		this.hyp = hyp;
 		this.ct = ct;

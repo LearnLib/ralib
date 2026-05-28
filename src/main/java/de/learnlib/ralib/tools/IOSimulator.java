@@ -50,7 +50,6 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.sul.CachingSUL;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
@@ -220,8 +219,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                 break;
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-            	SymbolicSuffixRestrictionBuilder.Version rbVersion = SymbolicSuffixRestrictionBuilder.Version.fromInt(OPTION_SUFFIXOPT_VERSION.parse(config));
-                this.rastar = new SLLambda(mto, teachers, consts, true, solver, rbVersion, actions);
+//            	SymbolicSuffixRestrictionBuilder.Version rbVersion = SymbolicSuffixRestrictionBuilder.Version.fromInt(OPTION_SUFFIXOPT_VERSION.parse(config));
+//                this.rastar = new SLLambda(mto, teachers, consts, true, solver, rbVersion, actions);
+            	this.rastar = new SLLambda(mto, teachers, consts, true, solver, actions);
                 break;
             case AbstractToolWithRandomWalk.LEARNER_RADT:
             	this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
