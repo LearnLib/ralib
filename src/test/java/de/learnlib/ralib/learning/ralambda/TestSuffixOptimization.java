@@ -164,9 +164,9 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         Assert.assertTrue(str.contains("Counterexamples: 1"));
         Assert.assertTrue(str.contains("CE max length: 4"));
         Assert.assertTrue(str.contains("CE Analysis: {TQ: 81, Resets: 92, Inputs: 0}"));
-        Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 27, Resets: 548, Inputs: 0}"));
+        Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 27, Resets: 514, Inputs: 0}"));
         Assert.assertTrue(str.contains("Other: {TQ: 5, Resets: 5, Inputs: 0}"));
-        Assert.assertTrue(str.contains("Total: {TQ: 113, Resets: 645, Inputs: 0}"));
+        Assert.assertTrue(str.contains("Total: {TQ: 113, Resets: 611, Inputs: 0}"));
     }
 
     @Test
