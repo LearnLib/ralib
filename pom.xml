@@ -112,7 +112,7 @@
         <error-prone.version>2.49.0</error-prone.version>
         <guava.version>33.6.0-jre</guava.version>
         <jakarta-xml.version>4.0.5</jakarta-xml.version>
-        <jaxb-runtime.version>4.0.8</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.18.0</learnlib.version>
 
@@ -120,7 +120,7 @@
         <assembly-plugin.version>3.8.0</assembly-plugin.version>
         <central-publish-plugin.version>0.10.0</central-publish-plugin.version>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
-        <dependency-plugin.version>3.10.0</dependency-plugin.version>
+        <dependency-plugin.version>3.11.0</dependency-plugin.version>
         <deploy-plugin.version>3.1.4</deploy-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
         <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
@@ -128,7 +128,7 @@
         <source-plugin.version>3.4.0</source-plugin.version>
         <spotless-plugin.version>3.6.0</spotless-plugin.version>
         <spotbugs-plugin.version>4.9.8.3</spotbugs-plugin.version>
-        <surefire-plugin.version>3.5.5</surefire-plugin.version>
+        <surefire-plugin.version>3.5.6</surefire-plugin.version>
     </properties>
 
     <build>
