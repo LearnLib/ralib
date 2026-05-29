@@ -335,7 +335,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
             SDTGuard.SDTAndGuard andGuard = guard1 instanceof SDTGuard.SDTAndGuard sdtAndGuard ?
                     sdtAndGuard : (SDTGuard.SDTAndGuard) guard2;
             SDTGuard otherGuard = guard2 instanceof SDTGuard.SDTAndGuard ? guard1 : guard2;
-            List<SDTGuard> conjuncts = andGuard.conjuncts();
+            List<SDTGuard> conjuncts = new ArrayList<SDTGuard>(andGuard.conjuncts());
             conjuncts.add(otherGuard);
             return new SDTGuard.SDTAndGuard(guard1.getParameter(), conjuncts);
         }
