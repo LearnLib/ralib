@@ -93,7 +93,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	@Override
 	public boolean isFalse() {
-		return false;
+		return !disjuncts.isEmpty();
 	}
 
 	@Override
@@ -117,6 +117,17 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
 		disjuncts.forEach(r -> relabeled.add(r.relabel(renaming)));
 		return create(parameter, relabeled);
+	}
+
+	@Override
+	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
+		List<ElementRestriction> restrictions = new ArrayList<>();
+		for (AbstractSuffixValueRestriction r : disjuncts) {
+			if (r instanceof ElementRestriction er && er.containsElement(element)) {
+				restrictions.addAll(er.getRestrictions(element));
+			}
+		}
+		return restrictions;
 	}
 
 	@Override
@@ -151,17 +162,6 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 			}
 		}
 		return create(getParameter(), replaced);
-	}
-
-	@Override
-	public List<ElementRestriction> getRestrictions(Expression<BigDecimal> element) {
-		List<ElementRestriction> restrictions = new ArrayList<>();
-		for (AbstractSuffixValueRestriction r : disjuncts) {
-			if (r instanceof ElementRestriction er && er.containsElement(element)) {
-				restrictions.addAll(er.getRestrictions(element));
-			}
-		}
-		return restrictions;
 	}
 
 	@Override

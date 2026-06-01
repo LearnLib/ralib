@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -51,6 +50,10 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		}
 	}
 
+	public ConjunctionRestriction(SuffixValue parameter, AbstractSuffixValueRestriction ... conjuncts) {
+		this(parameter, Arrays.asList(conjuncts));
+	}
+
 	public ConjunctionRestriction(ConjunctionRestriction other, int shift) {
 		super(other, shift);
 		conjuncts = new ArrayList<>();
@@ -70,7 +73,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
 		Collection<AbstractSuffixValueRestriction> conc = new ArrayList<>();
 		conjuncts.forEach(r -> conc.add(r.concretize(mapping)));
-		return new ConjunctionRestriction(parameter, conc);
+		return create(parameter, conc);
 	}
 
 	@Override
@@ -95,12 +98,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	@Override
 	public boolean containsFresh() {
-		for (AbstractSuffixValueRestriction r : conjuncts) {
-			if (!r.containsFresh()) {
-				return false;
-			}
-		}
-		return true;
+		return conjuncts.stream().filter(AbstractSuffixValueRestriction::containsFresh).findAny().isPresent();
 	}
 
 	@Override
@@ -254,8 +252,13 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 	}
 
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> conjuncts) {
-		conjuncts = conjuncts.stream().distinct().filter(c -> !c.isTrue()).collect(Collectors.toList());
-		if (conjuncts.isEmpty()) {
+		if (conjuncts != null) {
+			conjuncts = flattenConjuncts(conjuncts);
+		} else {
+			conjuncts = new ArrayList<>();
+		}
+		boolean isTrue = conjuncts.stream().filter(d -> d.isTrue()).findAny().isPresent();
+		if (conjuncts.isEmpty() || isTrue) {
 			return new TrueRestriction(parameter);
 		}
 		if (conjuncts.size() == 1) {
@@ -272,4 +275,15 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 		return create(parameter, Arrays.asList(conjuncts));
 	}
 
+	private static Set<AbstractSuffixValueRestriction> flattenConjuncts(Collection<? extends AbstractSuffixValueRestriction> conjuncts) {
+		Set<AbstractSuffixValueRestriction> dis = new LinkedHashSet<>();
+		for (AbstractSuffixValueRestriction r : conjuncts) {
+			if (r instanceof ConjunctionRestriction cr) {
+				dis.addAll(flattenConjuncts(cr.conjuncts));
+			} else {
+				dis.add(r);
+			}
+		}
+		return dis;
+	}
 }
