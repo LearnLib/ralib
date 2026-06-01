@@ -171,6 +171,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 	 * @param valuations valuations of registers and prefix parameters
 	 * @return {@code suffix} with conretized restrictions
 	 */
+	@SafeVarargs
 	public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> ... valuations) {
 		Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
 		for (Mapping<? extends SymbolicDataValue, DataValue> m : valuations) {

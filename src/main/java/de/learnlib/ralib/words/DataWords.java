@@ -35,6 +35,7 @@ import net.automatalib.word.Word;
  */
 public final class DataWords {
 
+	@SafeVarargs
 	public static <T> Word<T> concatenate(Word<T> ... words) {
 		Word<T> con = Word.epsilon();
 		for (Word<T> word : words) {
