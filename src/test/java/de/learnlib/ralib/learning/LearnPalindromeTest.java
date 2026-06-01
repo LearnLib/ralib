@@ -62,7 +62,7 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		RegisterAutomaton model = PalindromeGenerator.generate(size);
 
 		RaLearningAlgorithm algorithm = makeLearner(name);
-		printHeader();
+//		printHeader();
 
 		Map<DataType, Theory> teachers = new LinkedHashMap<>();
 		teachers.put(TYPE, new IntegerEqualityTheory(TYPE));
@@ -107,21 +107,21 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		learner.learn();
 		DefaultQuery<PSymbolInstance, Boolean> ce = checker.findCounterExample(learner.getHypothesis(), null);
 		while (ce != null) {
-			System.out.println(ce);
+//			System.out.println(ce);
 			learner.addCounterexample(ce);
 			learner.learn();
 			ce = checker.findCounterExample(learner.getHypothesis(), null);
 		}
 
-		System.out.println(learner.getQueryStatistics());
-		Hypothesis hyp = learner.getHypothesis();
-		System.out.println("Hyp. Locations: " + hyp.getStates().size());
-		System.out.println("Hyp. Transitions: " + hyp.getTransitions().size());
+//		System.out.println(learner.getQueryStatistics());
+//		Hypothesis hyp = learner.getHypothesis();
+//		System.out.println("Hyp. Locations: " + hyp.getStates().size());
+//		System.out.println("Hyp. Transitions: " + hyp.getTransitions().size());
 
 		// input locations + transitions
-		System.out.println("Hyp. Input Locations: " + hyp.getInputStates().size());
-		System.out.println("Hyp. Input Transitions: " + hyp.getInputTransitions().size());
+//		System.out.println("Hyp. Input Locations: " + hyp.getInputStates().size());
+//		System.out.println("Hyp. Input Transitions: " + hyp.getInputTransitions().size());
 
-		System.out.println("Hyp. Registers: " + hyp.getRegisters().size());
+//		System.out.println("Hyp. Registers: " + hyp.getRegisters().size());
 	}
 }
