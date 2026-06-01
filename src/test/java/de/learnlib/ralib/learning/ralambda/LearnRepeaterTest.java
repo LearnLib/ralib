@@ -85,4 +85,57 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         Assert.assertTrue(str.contains("Other: {TQ: 0, Resets: 1, Inputs: 0}"));
         Assert.assertTrue(str.contains("Total: {TQ: 0, Resets: 13, Inputs: 0}"));
     }
+
+    @Test
+    public void testLearnRepeaterSLLEQ() {
+
+        Constants consts = new Constants();
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory theory = new IntegerEqualityTheory(TINT);
+        theory.setUseSuffixOpt(true);
+        teachers.put(TINT, theory);
+
+        RepeaterSUL sul = new RepeaterSUL();
+        IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
+
+        ConstraintSolver solver = new ConstraintSolver();
+
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
+
+        Measurements measurements = new Measurements();
+        QueryStatistics stats = new QueryStatistics(measurements, ioOracle);
+
+        SLLambda learner = new SLLambdaEq(mto, teachers, consts, true, solver, sul.getActionSymbols());
+        learner.setStatisticCounter(stats);
+
+        learner.learn();
+
+        Repeater repeater = new Repeater();
+        Assert.assertEquals(repeater.repeat(0), (Integer)0);
+        Assert.assertEquals(repeater.repeat(0), (Integer)0);
+        Assert.assertNull(repeater.repeat(0));
+
+        Word<PSymbolInstance> ce =
+            Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)));
+
+        learner.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, false));
+
+        learner.learn();
+
+        String str = stats.toString();
+        Assert.assertTrue(str.contains("Counterexamples: 1"));
+        Assert.assertTrue(str.contains("CE max length: 6"));
+        Assert.assertTrue(str.contains("CE Analysis: {TQ: 0, Resets: 7, Inputs: 0}"));
+        Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 0, Resets: 3, Inputs: 0}"));
+        Assert.assertTrue(str.contains("Other: {TQ: 0, Resets: 1, Inputs: 0}"));
+        Assert.assertTrue(str.contains("Total: {TQ: 0, Resets: 11, Inputs: 0}"));
+    }
 }
