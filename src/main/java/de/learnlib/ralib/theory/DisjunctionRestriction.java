@@ -109,7 +109,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		return false;
+		return disjuncts.stream().filter(d -> d.revealsRegister(r)).findAny().isPresent();
 	}
 
 	@Override

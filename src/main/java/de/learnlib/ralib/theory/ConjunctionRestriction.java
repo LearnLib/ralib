@@ -109,7 +109,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		return false;
+		return conjuncts.stream().filter(c -> c.revealsRegister(r)).findAny().isPresent();
 	}
 
 	@Override

@@ -88,7 +88,7 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		return false;
+		return regs.stream().filter(e -> e.equals(r)).findAny().isPresent();
 	}
 
 	@Override

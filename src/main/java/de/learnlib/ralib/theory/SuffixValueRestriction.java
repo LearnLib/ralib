@@ -158,8 +158,7 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("Not supported for this type of restriction");
 	}
 
 	@Override
