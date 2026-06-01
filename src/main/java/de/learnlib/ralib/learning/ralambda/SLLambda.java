@@ -36,12 +36,8 @@ public class SLLambda implements RaLearningAlgorithm {
 
     private CTHypothesis hyp;
 
-    private final TreeOracle sulOracle;
-
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
     private SymbolicSuffixRestrictionBuilder restrictionBuilder;
-
-    private final Map<DataType, Theory> teachers;
 
     private QueryStatistics queryStats;
 
@@ -53,24 +49,16 @@ public class SLLambda implements RaLearningAlgorithm {
 
     public SLLambda(TreeOracle sulOracle, Map<DataType, Theory> teachers,
     		Constants consts, boolean ioMode, ConstraintSolver solver,
-//    		SymbolicSuffixRestrictionBuilder.Version restrictionBuilderVersion,
     		SymbolicSuffixRestrictionBuilder restrBuilder,
     		ParameterizedSymbol ... inputs) {
-    	this.sulOracle = sulOracle;
-    	this.teachers = teachers;
     	this.consts = consts;
     	this.ioMode = ioMode;
     	this.solver = solver;
-//    	restrictionBuilder = new SLLambdaRestrictionBuilder(consts, teachers, solver, restrictionBuilderVersion);
     	restrictionBuilder = restrBuilder;
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
     	counterexamples = new LinkedList<>();
     	hyp = null;
-//    	SymbolicSuffixRestrictionBuilder ctRBuilder = restrictionBuilderVersion == SymbolicSuffixRestrictionBuilder.Version.V3 ?
-//    			restrictionBuilder :
-//    				new SymbolicSuffixRestrictionBuilder(consts, teachers, restrictionBuilderVersion);
     	prefixFinderFactory = new PrefixFinderFactory(sulOracle, teachers, restrictionBuilder, solver, consts);
-//    	ct = new ClassificationTree(sulOracle, solver, ctRBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct = new ClassificationTree(sulOracle, solver, restrBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.initialize();
     }
@@ -130,13 +118,6 @@ public class SLLambda implements RaLearningAlgorithm {
 	}
 
 	protected PrefixFinder createPrefixFinder() {
-//        return new PrefixFinder(sulOracle,
-//        		hyp,
-//        		ct,
-//        		teachers,
-//        		restrictionBuilder,
-//        		solver,
-//        		consts);
 		return prefixFinderFactory.create(hyp, ct);
 	}
 

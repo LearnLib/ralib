@@ -15,7 +15,6 @@ public class SLLambdaEq extends SLLambda {
 
 	public SLLambdaEq(TreeOracle sulOracle, Map<DataType, Theory> teachers, Constants consts, boolean ioMode,
 			ConstraintSolver solver, ParameterizedSymbol ... inputs) {
-//		super(sulOracle, teachers, consts, ioMode, solver, SymbolicSuffixRestrictionBuilder.Version.V3, inputs);
 		super(sulOracle, teachers, consts, ioMode, solver, new SLLambdaEqRestrictionBuilder(consts, teachers, solver), inputs);
 		prefixFinderFactory.setPrefixFinderType(PrefixFinderFactory.PrefixFinderType.Eq);
 	}

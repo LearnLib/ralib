@@ -82,13 +82,10 @@ public class PrefixFinderEq extends PrefixFinder {
 		Word<PSymbolInstance> prefixNext = run.getPrefix(i);
 		Word<PSymbolInstance> suffixNext = run.getSuffix(i);
 		RegisterValuation prefixValuation = run.getValuation(i - 1);
-//		RegisterValuation prefixExtValuation = extendValuation(prefixValuation, run.getTransitionSymbol(i), DataWords.paramValLength(u));
 		RegisterValuation prefixExtValuation = run.getValuation(i);
 
 		PSymbolInstance action = run.getTransitionSymbol(i);
 		DataValue d = action.getParameterValues()[did];
-//		dvals[did] = d;
-//		did = did + 1;
 
 		EqualityTheory et = (EqualityTheory) teachers.get(d.getDataType());
 		RegisterValuation uValuation = hyp.getRun(u).getValuation(u.length());
@@ -98,7 +95,7 @@ public class PrefixFinderEq extends PrefixFinder {
 		if (potmatch.isEmpty()) {
 			Word<PSymbolInstance> suffix = run.getSuffix(i - 1);
 			SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefix, suffix, u, prefixValuation, uValuation);
-			SymbolicSuffix vHyp = getRestrBuilder().concretize(v, uValuation, ParameterValuation.fromPSymbolWord(u), consts);
+			SymbolicSuffix vHyp = SLLambdaEqRestrictionBuilder.concretize(v, uValuation, ParameterValuation.fromPSymbolWord(u), consts);
 			SDT sdt = sulOracle.treeQuery(u, vHyp);
 			Branching branching = sulOracle.getInitialBranching(u, action.getBaseSymbol(), sdt);
 			Set<Expression<Boolean>> guards = branching.guardSet();
@@ -129,18 +126,14 @@ public class PrefixFinderEq extends PrefixFinder {
 					continue;
 				}
 				for (Word<PSymbolInstance> uExtHyp : extensions) {
-//					if (uExtHyp.equals(uExtSul)) {
-//						continue POTMATCH;
-//					}
 					RegisterValuation uExtSulValuation = hyp.getRun(uExtSul).getValuation(uExtSul.length());
 					RegisterValuation uExtHypValuation = hyp.getRun(uExtHyp).getValuation(uExtHyp.length());
 					SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefixNext, suffixNext, uExtSul, prefixExtValuation, uExtSulValuation);
-					SymbolicSuffix vSul = getRestrBuilder().concretize(v, uExtSulValuation, ParameterValuation.fromPSymbolWord(uExtSul), consts);
-					SymbolicSuffix vHyp = getRestrBuilder().concretize(v, uExtHypValuation, ParameterValuation.fromPSymbolWord(uExtHyp), consts);
+					SymbolicSuffix vSul = SLLambdaEqRestrictionBuilder.concretize(v, uExtSulValuation, ParameterValuation.fromPSymbolWord(uExtSul), consts);
+					SymbolicSuffix vHyp = SLLambdaEqRestrictionBuilder.concretize(v, uExtHypValuation, ParameterValuation.fromPSymbolWord(uExtHyp), consts);
 
 					SDT sdtSul = sulOracle.treeQuery(uExtSul, vSul).toRegisterSDT(uExtSul, consts);
 					SDT sdtHyp = sulOracle.treeQuery(uExtHyp, vHyp).toRegisterSDT(uExtHyp, consts);
-//					if (SDT.equivalentUnderId(sdtSul, sdtHyp)) {
 					if (SDT.equalUnderActionRemapping(sdtSul, sdtHyp, uExtSul, uExtHyp)) {
 						continue POTMATCH;
 					}
@@ -155,7 +148,6 @@ public class PrefixFinderEq extends PrefixFinder {
 		Word<PSymbolInstance> prefix = run.getPrefix(i);
 		Word<PSymbolInstance> suffix = run.getSuffix(i);
 		RegisterValuation prefixValuation = run.getValuation(i);
-		CTLeaf leaf = hyp.getLeaf(run.getLocation(i - 1));
 		CTLeaf leafNext = hyp.getLeaf(run.getLocation(i));
 		PSymbolInstance action = prefix.lastSymbol();
 
@@ -172,8 +164,8 @@ public class PrefixFinderEq extends PrefixFinder {
 				RegisterValuation uNextValuation = hyp.getRun(uNext).getValuation(uNext.length());
 				SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefix, suffix, uExt, uNext, prefixValuation, uExtValuation, uNextValuation);
 
-				SymbolicSuffix vuExt = getRestrBuilder().concretize(v, uExtValuation, ParameterValuation.fromPSymbolWord(uExt), consts);
-				SymbolicSuffix vuNext = getRestrBuilder().concretize(v, uNextValuation, ParameterValuation.fromPSymbolWord(uNext), consts);
+				SymbolicSuffix vuExt = SLLambdaEqRestrictionBuilder.concretize(v, uExtValuation, ParameterValuation.fromPSymbolWord(uExt), consts);
+				SymbolicSuffix vuNext = SLLambdaEqRestrictionBuilder.concretize(v, uNextValuation, ParameterValuation.fromPSymbolWord(uNext), consts);
 
 				Bijection<DataValue> uNextBijection = uNext.getRpBijection();
 				Bijection<DataValue> gamma = uNextBijection.compose(uExtBijection.inverse());
@@ -186,18 +178,6 @@ public class PrefixFinderEq extends PrefixFinder {
 			return Optional.of(new Result(uExt, ResultType.LOCATION));
 		}
 		return Optional.empty();
-	}
-
-	private RegisterValuation extendValuation(RegisterValuation valuation, PSymbolInstance psi, int offset) {
-		RegisterValuation ret = new RegisterValuation();
-		ret.putAll(valuation);
-		int id = offset + 1;
-		for (DataValue d : psi.getParameterValues()) {
-			Register r = new Register(d.getDataType(), id);
-			ret.put(r, d);
-			id = id + 1;
-		}
-		return ret;
 	}
 
 	private Set<Word<PSymbolInstance>> instantiateGuards(Set<Expression<Boolean>> guards, SymbolicSuffix suffix, Word<PSymbolInstance> u, Set<Register> regs, ParameterizedSymbol action) {

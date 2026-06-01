@@ -379,8 +379,6 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
      * @return a restricted suffix, extended from {@code suffix}, which reveals unmapped data values in {@code u}
      */
     public SymbolicSuffix extendSuffix(Prefix u, Prefix uExtended, SymbolicSuffix suffix, SDT sdt) {
-    	// TODO: REMOVE TEMPORARY HACK FOR REGISTER CLOSEDNESS AND FIX THE PROBLEMS INSTEAD
-//    	return unrestricted(uExtended.lastSymbol().getBaseSymbol(), suffix);
     	ParameterizedSymbol action = uExtended.lastSymbol().getBaseSymbol();
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
     	List<DataValue> uVals = Arrays.asList(DataWords.valsOf(u));
@@ -396,14 +394,11 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 
     	// compute restrictions for action
     	Map<SuffixValue, AbstractSuffixValueRestriction> actionRestrictions = new LinkedHashMap<>();
-//    	for (DataType type : action.getPtypes()) {
     	for (DataValue d : uExtended.lastSymbol().getParameterValues()) {
     		DataType type = d.getDataType();
     		SuffixValue s = sgen.next(type);
     		Theory theory = teachers.get(type);
     		if (theory instanceof EqualityTheory) {
-//    			EqualityTheory et = (EqualityTheory) theory;
-//    			AbstractSuffixValueRestriction restr = et.restrictSuffixValue(s, u, uExtended.lastSymbol(), u.getRegisters(), missingRegisters, consts);
     			AbstractSuffixValueRestriction restr = uVals.contains(d) ?
     					(u.getRegisters().contains(d) ? new EqualityRestriction(s, Set.of(d)) :
     						DisjunctionRestriction.create(s, new UnmappedEqualityRestriction(s), new FreshSuffixValue(s))) :
@@ -431,34 +426,12 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return new SymbolicSuffix(actions, restrictions);
     }
 
-    private Map<SuffixValue, AbstractSuffixValueRestriction> restrictActionRegClosed(Prefix u, Prefix uExt) {
-    	List<DataValue> uVals = Arrays.asList(DataWords.valsOf(u));
-    	DataValue[] symbVals = uExt.lastSymbol().getParameterValues();
-
-    	SuffixValueGenerator sgen = new SuffixValueGenerator();
-    	Map<SuffixValue, AbstractSuffixValueRestriction> restr = new LinkedHashMap<>();
-    	for (DataValue d : symbVals) {
-    		SuffixValue s = sgen.next(d.getDataType());
-    		if (uVals.contains(d)) {
-    			if (u.getRegisters().contains(d)) {
-    				restr.put(s, new EqualityRestriction(s, Set.of(d)));
-    			} else {
-    				restr.put(s, DisjunctionRestriction.create(s, new UnmappedEqualityRestriction(s), new FreshSuffixValue(s)));
-    			}
-    		} else {
-    			restr.put(s, new FreshSuffixValue(s));
-    		}
-    	}
-    	return restr;
-    }
-
     /**
      * @param action
      * @param suffix
      * @return unrestricted symbolic suffix constructed by prepending {@code suffix} with {@code action}
      */
     private SymbolicSuffix unrestricted(ParameterizedSymbol action, SymbolicSuffix suffix) {
-    	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
     	DataType[] actionTypes = action.getPtypes();
 
     	SuffixValueGenerator sgen = new SuffixValueGenerator();
@@ -469,10 +442,8 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     		restrictions.put(s, new TrueRestriction(s));
     	}
 
-    	int shift = action.getArity();
     	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : suffix.getRestrictions().entrySet()) {
     		SuffixValue s = sgen.next(e.getKey().getDataType());
-//    		restrictions.put(s, e.getValue().shift(shift));
     		restrictions.put(s, new TrueRestriction(s));
     	}
 
