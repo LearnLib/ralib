@@ -52,8 +52,6 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	public DisjunctionRestriction(SuffixValue parameter, AbstractSuffixValueRestriction ... disjuncts) {
 		this(parameter, Arrays.asList(disjuncts));
-//		super(parameter);
-//		this.disjuncts = Arrays.asList(disjuncts);
 	}
 
 	public DisjunctionRestriction(DisjunctionRestriction other, int shift) {
@@ -111,7 +109,6 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -219,14 +216,6 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 		return this;
 	}
 
-
-//	@Override
-//	public AbstractSuffixValueRestriction relabel(SDTRelabeling relabeling) {
-//		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
-//		disjuncts.forEach(r -> relabeled.add(r.relabel(relabeling)));
-//		return create(parameter, disjuncts);
-//	}
-
 	@Override
 	public String toString() {
 		Iterator<AbstractSuffixValueRestriction> it = disjuncts.iterator();
@@ -263,7 +252,6 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 	}
 
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> disjuncts) {
-//		disjuncts = disjuncts.stream().distinct().filter(d -> !d.isTrue()).collect(Collectors.toList());
 		if (disjuncts != null) {
 			disjuncts = flattenDisjuncts(disjuncts);
 		} else {

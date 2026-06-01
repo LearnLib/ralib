@@ -250,8 +250,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-//                	SymbolicSuffixRestrictionBuilder.Version rbVersion = SymbolicSuffixRestrictionBuilder.Version.fromInt(OPTION_SUFFIXOPT_VERSION.parse(config));
-//                    this.rastar = new SLLambda(mto, teachers, consts, true, solver, rbVersion, actions);
                 	this.rastar = new SLLambda(mto, teachers, consts, true, solver, actions);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_RADT:
@@ -260,7 +258,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ:
                 	boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
                 	this.rastar = new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
-//                	this.rastar = new SLLambdaEq(mto, teachers, consts, true, solver, actions);
                 	break;
                 default:
                     throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);

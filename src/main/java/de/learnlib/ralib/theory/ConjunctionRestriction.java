@@ -111,7 +111,6 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -119,9 +118,6 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 	public <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming) {
 		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
 		conjuncts.forEach(r -> relabeled.add(r.relabel(renaming)));
-//		for (AbstractSuffixValueRestriction r : conjuncts) {
-//			relabeled.add(r.relabel(renaming));
-//		}
 		return create(parameter, relabeled);
 	}
 
@@ -221,13 +217,6 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 	public ConjunctionRestriction cast() {
 		return this;
 	}
-
-//	@Override
-//	public AbstractSuffixValueRestriction relabel(SDTRelabeling relabeling) {
-//		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
-//		conjuncts.forEach(r -> relabeled.add(r.relabel(relabeling)));
-//		return create(parameter, relabeled);
-//	}
 
 	@Override
 	public String toString() {

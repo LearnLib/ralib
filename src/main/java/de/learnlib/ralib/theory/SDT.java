@@ -554,7 +554,6 @@ public class SDT {
 	}
 
 	public static boolean equalUnderActionRemapping(SDT sdtIf, SDT sdtElse, Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse) {
-//		assert uIf.lastSymbol().getBaseSymbol().equals(uElse.lastSymbol().getBaseSymbol()) : "Symbol mismatch";
 		assert DataWords.actsOf(uIf).equals(DataWords.actsOf(uElse)) : "Action mismatch";
 		Word<PSymbolInstance> u = uIf.prefix(uIf.length() - 1);
 		int arity = uIf.lastSymbol().getBaseSymbol().getArity();
@@ -572,7 +571,6 @@ public class SDT {
 				int paramId = r.getId() - prefixArity;
 				DataValue d = uIfVals[paramId - 1];
 				int uId = uVals.indexOf(d);
-//				assert uId >= 0 : "Value " + d + " not present in " + u;
 				if (uId < 0) {
 					continue;
 				}
@@ -581,27 +579,6 @@ public class SDT {
 			}
 		}
 		return sdtIf.isEquivalent(sdtElse, SDTRelabeling.fromMapping(renaming));
-//		Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
-//		List<DataValue> valsIf = Arrays.asList(DataWords.valsOf(u));
-//		ArrayList<DataValue> actionValsIf = new ArrayList<>(Arrays.asList(uIf.lastSymbol().getParameterValues()));
-//		Set<SDTGuardElement> varsIf = sdtIf.getVariables();
-//		Mapping<Register, Register> renaming = new Mapping<>();
-//		for (SDTGuardElement e : varsIf) {
-//			if (SDTGuardElement.isRegister(e)) {
-//				Register r = (Register) e;
-//				int rid = r.getId();
-//				if (rid > valsIf.size()) {
-//					continue;
-//				}
-//				DataValue d = valsIf.get(rid - 1);
-//				int index = actionValsIf.indexOf(d);
-//				if (index >= 0) {
-//					Register nr = new Register(r.getDataType(), index + valsIf.size() + 1);
-//					renaming.put(r, nr);
-//				}
-//			}
-//		}
-//		return sdtElse.isEquivalent(sdtIf, SDTRelabeling.fromMapping(renaming));
 	}
 
     public static SDT makeRejectingSDT(SymbolicSuffix suffix) {

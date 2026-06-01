@@ -58,8 +58,6 @@ public abstract class AbstractSuffixValueRestriction {
 
 	public abstract <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming);
 
-//	public abstract AbstractSuffixValueRestriction relabel(SDTRelabeling relabeling);
-
 	/**
 	 * Generate a generic restriction using Fresh, Unrestricted and Equal restriction types
 	 *
@@ -220,22 +218,6 @@ public abstract class AbstractSuffixValueRestriction {
 			}
 		}
 
-//		replaced.putAll(restr);
-//
-//		AbstractSuffixValueRestriction old = restr.get(param);
-//		if (old == null) {
-//			return replaced;
-//		}
-//
-//		if (old.equals(replace)) {
-//			replaced.remove(param);
-//			replaced.put(param, with);
-//		} else if (old instanceof RestrictionContainer rc && rc.contains(replace)) {
-//			AbstractSuffixValueRestriction nrc = rc.replace(replace, with);
-//			replaced.remove(param);
-//			replaced.put(param, nrc);
-//		}
-
 		return replaced;
 	}
 
@@ -246,16 +228,6 @@ public abstract class AbstractSuffixValueRestriction {
 		}
 		return renamed;
 	}
-
-//	public static Optional<SuffixValue> get(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
-//		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
-//			AbstractSuffixValueRestriction r = e.getValue();
-//			if (r instanceof ElementRestriction er && er.containsElement(element)) {
-//				return Optional.of(e.getKey());
-//			}
-//		}
-//		return Optional.empty();
-//	}
 
 	/**
 	 * @param restrictions

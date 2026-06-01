@@ -51,7 +51,6 @@ public class LesserSuffixValue extends AbstractSuffixValueRestriction {
 	@Override
 	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
 		if (mapping.isEmpty()) {
-//			return new FreshSuffixValue(parameter);
 			return this;
 		}
 		DataValue d = Collections.min(mapping.values());

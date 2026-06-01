@@ -53,8 +53,6 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 
 	@Override
 	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
-//		assert mapping.containsKey(equalParam);
-//		return SuffixValueRestriction.equalityRestriction(parameter, mapping.get(equalParam));
 		return this;
 	}
 

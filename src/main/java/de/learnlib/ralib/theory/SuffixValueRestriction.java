@@ -186,7 +186,6 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 		V firstValue = renaming.values().iterator().next();
 		if (firstKey instanceof DataValue && firstValue instanceof SDTGuardElement) {
 			ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
-//			Mapping<DataValue, Expression<?>> map = new Mapping<>();
 			Mapping<DataValue, SDTGuardElement> map = new Mapping<>();
 			renaming.forEach((k,v) -> map.put((DataValue) k, (SDTGuardElement) v));
 			Expression<Boolean> expr = rvv.apply(this.expr, map);
@@ -236,23 +235,6 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 		return hash;
 	}
 
-//	public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> ... valuations) {
-//		Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
-//		for (SuffixValue sv : suffix.getValues()) {
-//			AbstractSuffixValueRestriction restr = suffix.getRestriction(sv);
-//			if (!(restr instanceof SuffixValueRestriction)) {
-//				throw new IllegalArgumentException("Incompatible restriction: " + restr);
-//			}
-//			SuffixValueRestriction svr = (SuffixValueRestriction) restr;
-//			restrictions.put(sv, svr.concretize(valuations));
-//		}
-//		return new SymbolicSuffix(suffix.getActions(), restrictions);
-//	}
-//
-//	public static SymbolicSuffix concretize(SymbolicSuffix suffix, RegisterValuation regs, Constants consts) {
-//		return concretize(suffix, regs, consts);
-//	}
-
 	public static AbstractSuffixValueRestriction equalityRestriction(SuffixValue s, Expression<?> ... elements) {
 		if (elements.length == 0) {
 			return new FalseRestriction(s);
@@ -276,7 +258,6 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	public static AbstractSuffixValueRestriction equalityRestriction(SuffixValue s, Collection<? extends Expression> elements) {
-//		return equalityRestriction(s, elements.toArray(new SymbolicDataValue[elements.size()]));
 		Expression[] elems = new Expression[elements.size()];
 		int i = 0;
 		for (Expression e : elements) {

@@ -45,22 +45,6 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 		}
 	}
 
-	private static Expression<Boolean> equalityExpression(SuffixValue param, Set<SDTGuardElement> regs) {
-		Expression[] exprs = new Expression[regs.size()];
-		int i = 0;
-		for (SDTGuardElement r : regs) {
-			if (r instanceof DataValue d) {
-				exprs[i] = new NumericBooleanExpression(param, NumericComparator.EQ, d);
-			} else if (r instanceof SymbolicDataValue s) {
-				exprs[i] = new NumericBooleanExpression(param, NumericComparator.EQ, s);
-			} else {
-				throw new RuntimeException("Unknown SDT guard element class: " + r.getClass());
-			}
-			i++;
-		}
-		return ExpressionUtil.and(exprs);
-	}
-
 	@Override
 	public AbstractSuffixValueRestriction shift(int shiftStep) {
 		return new EqualityRestriction(this, shiftStep);
@@ -99,13 +83,11 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 	@Override
 	public AbstractSuffixValueRestriction merge(AbstractSuffixValueRestriction other,
 			Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -139,10 +121,6 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 	public boolean containsFresh() {
 		return false;
 	}
-
-//	public Set<SDTGuardElement> getElements() {
-//		return regs;
-//	}
 
 	@Override
 	public boolean containsElement(Expression<BigDecimal> element) {

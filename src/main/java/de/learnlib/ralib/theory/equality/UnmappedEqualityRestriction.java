@@ -35,29 +35,11 @@ public class UnmappedEqualityRestriction extends AbstractSuffixValueRestriction 
 		mapping.forEach((s,d) -> {if (s.isParameter()) params.add(d);});
 		mapping.forEach((s,d) -> {if (!s.isParameter()) params.remove(d);});
 		return SuffixValueRestriction.equalityRestriction(parameter, params);
-//		Set<DataValue> unmappedVals = new LinkedHashSet<>(mapping.values());
-//		Set<DataValue> mappedVals = new LinkedHashSet<>();
-//		for (Map.Entry<? extends SymbolicDataValue, DataValue> entry : mapping.entrySet()) {
-//			SymbolicDataValue sdv = entry.getKey();
-//			if (sdv.isConstant() || sdv.isRegister() || sdv.isSuffixValue()) {
-//				mappedVals.add(entry.getValue());
-//			}
-//		}
-//		unmappedVals.removeAll(mappedVals);
-//		return SuffixValueRestriction.disequalityRestriction(parameter, mappedVals);
 	}
 
 	@Override
 	public Expression<Boolean> toGuardExpression(Set<SymbolicDataValue> vals) {
 		throw new RuntimeException("Not supported for this type of restrictions");
-//		Set<SymbolicDataValue> nonParams = new LinkedHashSet<>();
-//		vals.stream().filter(s -> !s.isParameter()).forEach(s-> nonParams.add(s));
-//		Expression[] diseqs = new Expression[nonParams.size()];
-//		int i = 0;
-//		for (SymbolicDataValue sdv : nonParams) {
-//			diseqs[i++] = new NumericBooleanExpression(parameter, NumericComparator.NE, sdv);
-//		}
-//		return ExpressionUtil.and(diseqs);
 	}
 
 	@Override
@@ -68,7 +50,6 @@ public class UnmappedEqualityRestriction extends AbstractSuffixValueRestriction 
 
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

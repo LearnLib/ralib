@@ -44,9 +44,6 @@ public class FreshSuffixValue extends AbstractSuffixValueRestriction {
 
 	@Override
 	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
-//		Set<DataValue> vals = new LinkedHashSet<>();
-//		vals.addAll(mapping.values());
-//		return SuffixValueRestriction.disequalityRestriction(parameter, vals);
 		return this;
 	}
 
