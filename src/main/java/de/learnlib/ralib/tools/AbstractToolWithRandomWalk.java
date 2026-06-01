@@ -93,6 +93,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.IntegerOption("suffixopt.version",
             		"Version of suffix optimization to use", 3, true);
 
+    protected static final ConfigurationOption.BooleanOption OPTION_OPTIMIZE_REGCLOSED
+            = new ConfigurationOption.BooleanOption("suffixopt.reg.closed",
+            		"Use improved optimizations for register closedness (" + LEARNER_SLLAMBDAEQ + " only)", Boolean.FALSE, true);
+
     protected static final ConfigurationOption.LongOption OPTION_TIMEOUT
             = new ConfigurationOption.LongOption("max.time.millis",
                     "Maximal run time for experiment in milliseconds", -1L, true);

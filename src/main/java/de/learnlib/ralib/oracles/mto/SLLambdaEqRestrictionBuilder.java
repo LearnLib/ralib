@@ -38,6 +38,8 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 
 	public final static SymbolicSuffixRestrictionBuilder.Version VERSION = SymbolicSuffixRestrictionBuilder.Version.V3;
 
+	private boolean useImprovedRegClosedOpt = false;
+
 	protected final ConstraintSolver solver;
 
 	public SLLambdaEqRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
@@ -414,7 +416,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	// compute restrictions for the suffix part
     	DataType[] suffixTypes = DataWords.typesOf(suffixActions);
     	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = isEqualityTheory(suffixTypes) ?
-    			EqualityTheory.restrictionFromSDT(sdt, u, uExtended, u.getRpBijection(), consts, suffix, solver) :
+    			EqualityTheory.restrictionFromSDT(sdt, u, uExtended, u.getRpBijection(), consts, suffix, solver, useImprovedRegClosedOpt) :
     				genericRestrictions(suffix, u, uExtended, u, uExtended);
     	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u.getRpBijection().toVarMapping());
 
@@ -486,5 +488,9 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	}
 
     	return ret;
+    }
+
+    public void setUseImprovedRegClosedOpt(boolean useImprovedRegClosedOpt) {
+    	this.useImprovedRegClosedOpt = useImprovedRegClosedOpt;
     }
 }

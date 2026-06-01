@@ -258,7 +258,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ:
-                	this.rastar = new SLLambdaEq(mto, teachers, consts, true, solver, actions);
+                	boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
+                	this.rastar = new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
+//                	this.rastar = new SLLambdaEq(mto, teachers, consts, true, solver, actions);
                 	break;
                 default:
                     throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);

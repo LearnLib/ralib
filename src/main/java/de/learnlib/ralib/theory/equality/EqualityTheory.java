@@ -1335,28 +1335,28 @@ public abstract class EqualityTheory implements Theory {
      * @param solver
      * @return
      */
-    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix u, Prefix uExt, Bijection<DataValue> rp, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
-//    	PSymbolInstance symb = uExt.lastSymbol();
-//    	int arity = symb.getBaseSymbol().getArity();
-//    	List<DataValue> actionVals = Arrays.asList(symb.getParameterValues());
+    public static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix u, Prefix uExt, Bijection<DataValue> rp, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver, boolean useImprovedRegClosed) {
+    	PSymbolInstance symb = uExt.lastSymbol();
+    	int arity = symb.getBaseSymbol().getArity();
+    	List<DataValue> actionVals = Arrays.asList(symb.getParameterValues());
 
     	Set<DataValue> missingRegs = new LinkedHashSet<>(sdt.getDataValues());
     	missingRegs.removeAll(rp.keySet());
 
-//    	if (!Collections.disjoint(actionVals, missingRegs)) {
+    	if (!Collections.disjoint(actionVals, missingRegs) || !useImprovedRegClosed) {
     		return transferRestriction(sdt, u, uExt, rp, consts, suffix, solver);
-//    	}
-//
-//    	Bijection<DataValue> ancestorRenaming = uExt.getBijection(uExt.getPath().getPrior(suffix)).inverse();
-//    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestr = suffix.getRestrictions();
-//    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrRenamed = AbstractSuffixValueRestriction.relabel(oldRestr, ancestorRenaming.toVarMapping());
-//
-//    	SDT sdtShifted = sdt.shift(arity);
-//    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrRenamedShifted = AbstractSuffixValueRestriction.shift(oldRestrRenamed, arity);
-//
-//    	Set<DataValue> mappedInPrefix = rp.keySet();
-//
-//    	return restrictionsFromPruning(sdtShifted, missingRegs, oldRestrRenamedShifted, mappedInPrefix, actionVals, solver);
+    	}
+
+    	Bijection<DataValue> ancestorRenaming = uExt.getBijection(uExt.getPath().getPrior(suffix)).inverse();
+    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestr = suffix.getRestrictions();
+    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrRenamed = AbstractSuffixValueRestriction.relabel(oldRestr, ancestorRenaming.toVarMapping());
+
+    	SDT sdtShifted = sdt.shift(arity);
+    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrRenamedShifted = AbstractSuffixValueRestriction.shift(oldRestrRenamed, arity);
+
+    	Set<DataValue> mappedInPrefix = rp.keySet();
+
+    	return restrictionsFromPruning(sdtShifted, missingRegs, oldRestrRenamedShifted, mappedInPrefix, actionVals, solver);
 
 //    	Bijection<DataValue> ancestorRenaming = new Bijection<>();
 //    	ancestorRenaming.putAll(uExt.getBijection(uExt.getPath().getPrior(suffix)));
