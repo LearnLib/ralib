@@ -35,7 +35,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 public class LearnPalindromeTest extends RaLibTestSuite {
 
 	// TODO Create a system for managing configuration of tests.
-	private static final int PALINDROME_SIZE = Integer.valueOf(System.getProperty("palindrome.size", "6"));
+	private static final int PALINDROME_SIZE = Integer.parseInt(System.getProperty("palindrome.size", "6"));
 
 	private void printHeader() {
 		System.out.println("=======================");
