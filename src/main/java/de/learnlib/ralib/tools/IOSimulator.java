@@ -213,7 +213,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
             }
         };
-        
+
         boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
         this.rastar = switch (this.learner) {
             case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
