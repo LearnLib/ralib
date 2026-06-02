@@ -26,10 +26,7 @@ import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -56,12 +53,6 @@ public class LearnStackTest extends RaLibTestSuite {
 
         MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(
               dwOracle, teachers, new Constants(), solver), mes);
-
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
 
         SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, I_PUSH, I_POP);
 

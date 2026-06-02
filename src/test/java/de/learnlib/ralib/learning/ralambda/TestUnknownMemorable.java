@@ -1,12 +1,12 @@
 package de.learnlib.ralib.learning.ralambda;
 
 import java.math.BigDecimal;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -332,7 +332,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 	}
 
 	public static Deque<DefaultQuery<PSymbolInstance, Boolean>> buildSIPCEs(String[] ceStrings, ParameterizedSymbol[] actionSymbols) {
-		Deque<DefaultQuery<PSymbolInstance, Boolean>> ces = new LinkedList<>();
+		Deque<DefaultQuery<PSymbolInstance, Boolean>> ces = new ArrayDeque<>();
 
 		for (String ceString : ceStrings) {
 			Pattern dvPattern = Pattern.compile("\\[(.?)\\[int\\]\\]");

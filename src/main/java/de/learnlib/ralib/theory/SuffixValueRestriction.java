@@ -221,7 +221,7 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
             return false;
         }
 		SuffixValueRestriction other = (SuffixValueRestriction) obj;
-		if (!other.parameter.equals(parameter)) {
+		if (!Objects.equals(parameter, other.parameter)) {
 			return false;
 		}
 		return other.expr.equals(expr);

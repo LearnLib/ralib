@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 The LearnLib Contributors
+ * Copyright (C) 2014-2026 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -184,12 +184,12 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
         }
 
-        DataWordSUL trackingSulTest = this.sulTest;
+        DataWordSUL trackingSULTest = this.sulTest;
 
         if (OPTION_CACHE_TESTS.parse(config)) {
             SULOracle testBack = new SULOracle(sulTest, ERROR);
             IOCache testCache = new IOCache(testBack, ioCache);
-            this.sulTest = new CachingSUL(trackingSulTest, testCache);
+            this.sulTest = new CachingSUL(trackingSULTest, testCache);
         }
 
         if (useFresh) {
@@ -213,25 +213,21 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
             }
         };
-
-        switch (this.learner) {
-            case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
-                this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-                break;
-            case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-            	this.rastar = new SLLambda(mto, teachers, consts, true, solver, actions);
-                break;
-            case AbstractToolWithRandomWalk.LEARNER_RADT:
-            	this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
-            	break;
-            case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ:
-            	boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
-            	this.rastar = new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
-            	break;
-            default:
+        
+        boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
+        this.rastar = switch (this.learner) {
+            case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
+                new RaStar(mto, hypFactory, mlo, consts, true, actions);
+            case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
+                new SLLambda(mto, teachers, consts, true, solver, actions);
+            case AbstractToolWithRandomWalk.LEARNER_RADT ->
+                new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
+            case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ ->
+                new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
+            default ->
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
-        }
-        QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, trackingSulTest);
+        };
+        QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, trackingSULTest);
         this.rastar.setStatisticCounter(queryStats);
 
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);

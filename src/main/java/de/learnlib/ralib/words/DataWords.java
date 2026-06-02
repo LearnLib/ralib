@@ -102,7 +102,6 @@ public final class DataWords {
     /**
      * returns set of unique data values of some type in a data word.
      *
-     * @param
      * @param word
      * @param t
      * @return
@@ -121,7 +120,6 @@ public final class DataWords {
 
     /**
      *
-     * @param
      * @param in
      * @return
      */

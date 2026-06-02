@@ -54,7 +54,12 @@ public class SDT {
      *
      * @return
      */
-    public Set<Register> getRegisters() {
+    // todo: SDTs cannot have registers anymore, this should be data values!
+    // This private method is currently only used in the toString method of this
+    // class. Removing it will require changing many test cases as the toString
+    // method is used to check the correctness of many SDTs.
+    @Deprecated
+    private Set<Register> getRegisters() {
         Set<DataValue> temp = new LinkedHashSet<>();
         this.getVariables().stream().filter(SDTGuardElement::isDataValue).forEach((x) -> {
             temp.add((DataValue) x);
@@ -296,7 +301,7 @@ public class SDT {
     // Returns true if all elements of a boolean array are true.
     private boolean isArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
-        for (int c = 0; c < (maybeArr.length); c++) {
+        for (int c = 0; c < maybeArr.length; c++) {
             //log.trace(maybeArr[c]);
             if (!maybeArr[c]) {
                 maybe = false;
@@ -479,7 +484,7 @@ public class SDT {
 			}
 
 			for (Map.Entry<Expression<Boolean>, Boolean> otherEntry : otherExpressions.entrySet()) {
-				if (outcome != otherEntry.getValue()) {
+				if (!outcome.equals(otherEntry.getValue())) {
 					Expression<Boolean> otherX = otherEntry.getKey();
 					Expression<Boolean> renamed = ExpressionUtil.and(otherX, condition);
 					Expression<Boolean> con = ExpressionUtil.and(x, renamed);
@@ -582,7 +587,7 @@ public class SDT {
 	}
 
     public static SDT makeRejectingSDT(SymbolicSuffix suffix) {
-    	Queue<DataType> types = new LinkedList<>();
+        Queue<DataType> types = new ArrayDeque<>();
     	for (ParameterizedSymbol ps : suffix.getActions()) {
     		for (DataType type : ps.getPtypes()) {
     			types.offer(type);

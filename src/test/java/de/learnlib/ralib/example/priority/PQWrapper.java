@@ -19,7 +19,7 @@ package de.learnlib.ralib.example.priority;
 /**
  * This wrapper limits the size of a priority queue to 3.
  */
-public class PQWrapper extends java.util.PriorityQueue {
+public class PQWrapper<T> extends java.util.PriorityQueue<T> {
 
     public static final int CAPACITY = 3;
     private int capacity;
@@ -36,9 +36,8 @@ public class PQWrapper extends java.util.PriorityQueue {
         this.capacity = capacity;
     }
 
-
     @Override
-    public boolean offer(Object e) {
+    public boolean offer(T e) {
         return this.size() < capacity && super.offer(e);
     }
 

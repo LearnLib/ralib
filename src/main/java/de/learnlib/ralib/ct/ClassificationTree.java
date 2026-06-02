@@ -21,6 +21,7 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -72,7 +73,6 @@ public class ClassificationTree {
 			Constants consts,
 			boolean ioMode,
 			ParameterizedSymbol ... inputs) {
-//		this.oracle = oracle;
 		this.oracle = new ConcretizingTreeOracle(oracle, consts);
 		this.solver = solver;
 		this.ioMode = ioMode;

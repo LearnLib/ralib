@@ -16,9 +16,10 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,16 +42,16 @@ import net.automatalib.word.Word;
  */
 class ObservationTable {
 
-    private final List<SymbolicSuffix> suffixes = new LinkedList<>();
+    private final List<SymbolicSuffix> suffixes = new ArrayList<>();
 
     private final Map<Word<PSymbolInstance>, Component> components
             = new LinkedHashMap<>();
 
-    private final Deque<SymbolicSuffix> newSuffixes = new LinkedList<>();
+    private final Deque<SymbolicSuffix> newSuffixes = new ArrayDeque<>();
 
-    private final Deque<Word<PSymbolInstance>> newPrefixes = new LinkedList<>();
+    private final Deque<Word<PSymbolInstance>> newPrefixes = new ArrayDeque<>();
 
-    private final Deque<Component> newComponents = new LinkedList<>();
+    private final Deque<Component> newComponents = new ArrayDeque<>();
 
     private final TreeOracle oracle;
 

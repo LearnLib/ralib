@@ -64,13 +64,13 @@ public class CTConsistencyTest extends RaLibTestSuite {
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 		Constants consts = new Constants();
-        ConstraintSolver solver = new ConstraintSolver();
 
 		SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
 
@@ -90,7 +90,8 @@ public class CTConsistencyTest extends RaLibTestSuite {
         ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, I_PUSH, I_POP);
 
         ct.initialize();
-        boolean closed = ct.checkLocationClosedness();
+        boolean closed;
+        ct.checkLocationClosedness();
         closed = ct.checkLocationClosedness();
         Assert.assertFalse(closed);
 
@@ -103,7 +104,8 @@ public class CTConsistencyTest extends RaLibTestSuite {
         Assert.assertTrue(closed);
 
         ct.refine(ct.getLeaf(pu0pu1), s1);
-        boolean consistent = ct.checkLocationConsistency();
+        boolean consistent;
+        consistent = ct.checkLocationConsistency();
         Assert.assertFalse(consistent);
 
         ct.sift(pu0po0);
@@ -120,11 +122,11 @@ public class CTConsistencyTest extends RaLibTestSuite {
         teachers.put(DT, new DoubleInequalityTheory(DT));
 
 		Constants consts = new Constants();
-        ConstraintSolver solver = TestUtil.getZ3Solver();
 
-        SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+		SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
 
@@ -244,11 +246,11 @@ public class CTConsistencyTest extends RaLibTestSuite {
         teachers.put(T_INT, iet);
 
 		Constants consts = new Constants();
-        ConstraintSolver solver = TestUtil.getZ3Solver();
 
-        SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+		SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
 

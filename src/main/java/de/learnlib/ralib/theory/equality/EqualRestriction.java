@@ -60,8 +60,8 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 	public AbstractSuffixValueRestriction merge(AbstractSuffixValueRestriction other, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
 		assert other.getParameter().equals(parameter);
 		if (prior.get(equalParam) instanceof FreshSuffixValue) {
-			if (other instanceof EqualRestriction &&
-					((EqualRestriction) other).equalParam.equals(equalParam)) {
+			if (other instanceof EqualRestriction equalRestriction &&
+					equalRestriction.equalParam.equals(equalParam)) {
 				// equality only if the same equality and that parameter is fresh
 				return this;
 			}

@@ -206,7 +206,7 @@ public class SymbolicSuffix {
     			seen.add(sv);
     		} else if (seen.contains(sv)) {
     			int id = dataValues.entrySet()
-   			         .stream().filter((a) -> (a.getValue().equals(sv)))
+			         .stream().filter((a) -> a.getValue().equals(sv))
    			         .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
    			         .findFirst()
    			         .get()

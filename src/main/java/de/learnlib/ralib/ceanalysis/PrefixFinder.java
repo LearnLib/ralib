@@ -100,53 +100,6 @@ public class PrefixFinder {
 	 * @param ce
 	 * @return
 	 */
-//	public Result analyzeCounterExample(Word<PSymbolInstance> ce) {
-//		RARun run = hyp.getRun(ce);
-//		for (int i = ce.length(); i >= 1; i--) {
-//			RALocation loc = run.getLocation(i-1);
-////			Word<PSymbolInstance> pref = run.getPrefix(i-1);
-////			Word<PSymbolInstance> suff = run.getSuffix(i-1);
-//			PSymbolInstance symbol = run.getTransitionSymbol(i);
-//			RegisterValuation runValuation = run.getValuation(i-1);
-//			ParameterizedSymbol action = symbol.getBaseSymbol();
-//
-////			Expression<Boolean> gHyp = run.getGuard(i, consts);
-//
-//			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
-//				Expression<Boolean> gHyp = getHypGuard(run, i, u);
-//				RegisterValuation uValuation = hyp.getRun(u).getValuation(u.size());
-//				SymbolicSuffix v = restrBuilder.constructRestrictedSuffix(run.getPrefix(i-1), run.getSuffix(i-1), u, runValuation, uValuation);
-//				SymbolicSuffix uv = restrBuilder.concretize(v,
-//						hyp.getRun(u).getValuation(u.size()),
-//						ParameterValuation.fromPSymbolWord(u),
-//						consts);
-//				SDT sdt = sulOracle.treeQuery(u, uv);
-//
-//				Set<DataValue> uVals = hyp.getLeaf(loc).getPrefix(u).getRegisters();
-//				Mapping<DataValue, DataValue> uToRunRenaming = valuationRenaming(u, runValuation);
-//				Set<Mapping<DataValue, DataValue>> uToRunExtendedRenamings = extendedValuationRenamings(sdt, uVals, run, i);
-//
-//				Branching branching = sulOracle.getInitialBranching(u, action, sdt);
-//				for (Expression<Boolean> gSul : branching.guardSet()) {
-//					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
-//						renaming.putAll(uToRunRenaming);
-//						Expression<Boolean> gSulConj = conjunctionWithRestriction(gSul, uv, u, hyp.getRun(u).getValuation(u.size()).keySet(), consts);
-//						if (isGuardSatisfied(gSulConj, renaming, symbol)) {
-//							Optional<Result> res = checkTransition(run, i, u, action, gHyp, gSulConj);
-//							if (res.isEmpty()) {
-//								res = checkLocation(run, i, u, action);
-//							}
-//							if (res.isPresent()) {
-//								return res.get();
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		throw new IllegalStateException("Found no counterexample in " + ce);
-//	}
 	public Result analyzeCounterExample(Word<PSymbolInstance> ce) {
 		RARun run = hyp.getRun(ce);
 		for (int i = ce.length(); i >= 1; i--) {
@@ -158,8 +111,6 @@ public class PrefixFinder {
 
 			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
 			SymbolicSuffix v = new SymbolicSuffix(ce.prefix(i-1), ce.suffix(ce.length() - i + 1), restrBuilder);
-
-//			Expression<Boolean> gHyp = run.getGuard(i, consts);
 
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
 				Expression<Boolean> gHyp = getHypGuard(run, i, u);

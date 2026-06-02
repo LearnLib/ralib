@@ -1,7 +1,7 @@
 package de.learnlib.ralib.learning.ralambda;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.Map;
 
 import de.learnlib.query.DefaultQuery;
@@ -56,7 +56,7 @@ public class SLLambda implements RaLearningAlgorithm {
     	this.solver = solver;
     	restrictionBuilder = restrBuilder;
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
-    	counterexamples = new LinkedList<>();
+    	counterexamples = new ArrayDeque<>();
     	hyp = null;
     	prefixFinderFactory = new PrefixFinderFactory(sulOracle, teachers, restrictionBuilder, solver, consts);
     	ct = new ClassificationTree(sulOracle, solver, restrBuilder, suffixBuilder, consts, ioMode, inputs);
@@ -130,8 +130,8 @@ public class SLLambda implements RaLearningAlgorithm {
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
         Word<PSymbolInstance> ceWord = ce.getInput();
         boolean accHyp = hyp.accepts(ceWord);
-        boolean accSul = ce.getOutput();
-        if (accHyp == accSul) {
+        boolean accSUL = ce.getOutput();
+        if (accHyp == accSUL) {
         	// not a ce, dequeue it
         	counterexamples.poll();
         	return true;
@@ -154,14 +154,14 @@ public class SLLambda implements RaLearningAlgorithm {
         	queryStats.processingCounterExample();
 
         switch (res.result()) {
-        case TRANSITION:
+            case TRANSITION -> {
         	assert !ct.getPrefixes().contains(res.prefix()) : "Duplicate prefix: " + res.prefix();
         	ct.sift(res.prefix());
-        	break;
-        case LOCATION:
+	    }
+            case LOCATION -> {
         	assert !ct.getShortPrefixes().contains(res.prefix()) : "Prefix already short: " + res.prefix();
         	ct.expand(res.prefix());
-        	break;
+	    }
         }
 
         boolean closedAndConsistent = false;

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -178,12 +180,6 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     }
 
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval,
-            SDT... sdts) {
-        Node n = createNode(i, prefix, ps, pval, new LinkedHashMap<>(), sdts);
-        return n;
-    }
-
-    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval,
             Map<SuffixValue, Set<DataValue>> oldDvMap, SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
@@ -195,7 +191,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
             SuffixValue p = new SuffixValue(type, i);
 
             // valuation
-            Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(pval, prefix, constants);
+            Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(pval, constants);
 
             // the map may contain no old values for p, in which case we use an empty set
             // (to avoid potential NPE when instantiating guards)
@@ -328,17 +324,17 @@ public class MultiTheoryTreeOracle implements TreeOracle {
             return guard1;
         }
 
-        if (guard1 instanceof SDTGuard.SDTAndGuard && guard2 instanceof SDTGuard.SDTAndGuard) {
-            List<SDTGuard> guards = new ArrayList<SDTGuard>(((SDTGuard.SDTAndGuard) guard1).conjuncts());
-            guards.addAll(((SDTGuard.SDTAndGuard) guard2).conjuncts());
+        if (guard1 instanceof SDTGuard.SDTAndGuard sdtAndGuard1 && guard2 instanceof SDTGuard.SDTAndGuard sdtAndGuard2) {
+            List<SDTGuard> guards = new ArrayList<SDTGuard>(sdtAndGuard1.conjuncts());
+            guards.addAll(sdtAndGuard2.conjuncts());
             return new SDTGuard.SDTAndGuard(guard1.getParameter(), guards);
         }
 
         if (guard1 instanceof SDTGuard.SDTAndGuard || guard2 instanceof SDTGuard.SDTAndGuard) {
-            SDTGuard.SDTAndGuard andGuard = guard1 instanceof SDTGuard.SDTAndGuard ?
-                    (SDTGuard.SDTAndGuard) guard1 : (SDTGuard.SDTAndGuard) guard2;
+            SDTGuard.SDTAndGuard andGuard = guard1 instanceof SDTGuard.SDTAndGuard sdtAndGuard ?
+                    sdtAndGuard : (SDTGuard.SDTAndGuard) guard2;
             SDTGuard otherGuard = guard2 instanceof SDTGuard.SDTAndGuard ? guard1 : guard2;
-            List<SDTGuard> conjuncts = new ArrayList<>(andGuard.conjuncts());
+            List<SDTGuard> conjuncts = new ArrayList<SDTGuard>(andGuard.conjuncts());
             conjuncts.add(otherGuard);
             return new SDTGuard.SDTAndGuard(guard1.getParameter(), conjuncts);
         }
@@ -391,7 +387,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     }
 
     private Mapping<SymbolicDataValue, DataValue> buildValuation(SuffixValuation suffixValuation,
-            Word<PSymbolInstance> prefix, Constants constants) {
+            Constants constants) {
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<SymbolicDataValue, DataValue>();
         valuation.putAll(suffixValuation);
         valuation.putAll(constants);
@@ -463,7 +459,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
         updated[0] = oldBranching.buildFakeSDT();
         System.arraycopy(sdts, 0, updated, 1, sdts.length);
 
-        Node n = createNode(1, prefix, ps, new SuffixValuation(),oldDvs, updated);
+        Node n = createNode(1, prefix, ps, new SuffixValuation(), oldDvs, updated);
         MultiTheoryBranching mtb = new MultiTheoryBranching(prefix, ps, n, constants, updated);
         return mtb;
     }

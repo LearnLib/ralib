@@ -111,7 +111,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private DataWordSUL sulTest;
 
-    private DataWordSUL trackingSulTest;
+    private DataWordSUL trackingSULTest;
 
     private IORandomWalk randomWalk = null;
 
@@ -158,7 +158,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             String className = OPTION_TARGET.parse(config);
             this.target = Class.forName(className);
 
-            String[] mcStrings = OPTION_METHODS.parse(config).split("\\+");
+            String[] mcStrings = OPTION_METHODS.parse(config).split("\\+", -1);
             for (String mcs : mcStrings) {
                 MethodConfig mc = new MethodConfig(mcs, this.target, this.types);
                 this.methods.put(mc.getInput(), mc);
@@ -211,7 +211,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
             sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            trackingSulTest = sulTest;
+            trackingSULTest = sulTest;
             if (this.timeoutMillis > 0L) {
                 this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
             }
@@ -220,7 +220,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             if (OPTION_CACHE_TESTS.parse(config)) {
                 SULOracle testBack = new SULOracle(sulTest,  SpecialSymbols.ERROR);
                 IOCache testCache = new IOCache(testBack, ioCache);
-                this.sulTest = new CachingSUL(trackingSulTest, testCache);
+                this.sulTest = new CachingSUL(trackingSULTest, testCache);
             }
 
 
@@ -245,23 +245,19 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
 
-            switch (this.learner) {
-                case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
-                    this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-                    break;
-                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-                	this.rastar = new SLLambda(mto, teachers, consts, true, solver, actions);
-                    break;
-                case AbstractToolWithRandomWalk.LEARNER_RADT:
-                    this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
-                    break;
-                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ:
-                	boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
-                	this.rastar = new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
-                	break;
-                default:
+            boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
+            this.rastar = switch (this.learner) {
+                case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
+                    new RaStar(mto, hypFactory, mlo, consts, true, actions);
+                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
+                    new SLLambda(mto, teachers, consts, true, solver, actions);
+                case AbstractToolWithRandomWalk.LEARNER_RADT ->
+                    new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
+                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ ->
+                    new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
+                default ->
                     throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
-            }
+            };
 
             if (findCounterexamples) {
 
@@ -345,8 +341,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 break;
             }
 
-            resets = trackingSulTest.getResets();
-            inputs = trackingSulTest.getInputs();
+            resets = trackingSULTest.getResets();
+            inputs = trackingSULTest.getInputs();
 
             SimpleProfiler.start(__LEARN__);
             ceLengths.add(ce.getInput().length());
@@ -365,9 +361,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
             System.out.println("### SYS TRACE: " + sysTrace);
 
-            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, consts);
-            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);
-            Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
+            SimulatorSUL hypSUL = new SimulatorSUL(hyp, teachers, consts);
+            IOOracle ioSUL = new SULOracle(hypSUL, SpecialSymbols.ERROR);
+            Word<PSymbolInstance> hypTrace = ioSUL.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);
 
             assert !hypTrace.equals(sysTrace);

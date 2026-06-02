@@ -87,7 +87,7 @@ public class LearnPQTest extends RaLibTestSuite {
                 new PSymbolInstance(POLL,
                         new DataValue(doubleType, BigDecimal.ONE)));
 
-        DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery(ce);
+        DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<>(ce);
         dwOracle.processQueries(Collections.singleton(ceQuery));
 
         rastar.addCounterexample(ceQuery);

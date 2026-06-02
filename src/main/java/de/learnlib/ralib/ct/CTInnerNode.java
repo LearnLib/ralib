@@ -66,6 +66,7 @@ public class CTInnerNode extends CTNode {
 			}
 		}
 
+        // no child with equivalent SDTs, create a new leaf
 		prefix = new Prefix(prefix, path);
 		prefix.putBijection(suffix);
 		CTLeaf leaf = new CTLeaf(prefix, this);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@ package de.learnlib.ralib.theory.equality;
 
 import java.math.BigDecimal;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +37,11 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -234,7 +240,7 @@ public abstract class EqualityTheory implements Theory {
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace("prefix values : " + prefixValues);
         DataType type = param.getDataType();
-        Deque<SDTGuard> guards = new LinkedList<>();
+        Deque<SDTGuard> guards = new ArrayDeque<>();
         guards.add(guard);
 
         while(!guards.isEmpty()) {
@@ -253,8 +259,8 @@ public abstract class EqualityTheory implements Theory {
                 } else if (SDTGuardElement.isConstant(ereg)) {
                     return constants.get((Constant) ereg);
                 }
-            } else if (current instanceof SDTGuard.SDTAndGuard) {
-                guards.addAll(((SDTGuard.SDTAndGuard) current).conjuncts());
+            } else if (current instanceof SDTGuard.SDTAndGuard sdtAndGuard) {
+                guards.addAll(sdtAndGuard.conjuncts());
             }
             // todo: this only works under the assumption that disjunctions only contain disequality guards
         }
@@ -327,14 +333,12 @@ public abstract class EqualityTheory implements Theory {
     	vals.addAll(prior);
     	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
-
-
-    	if (tryEquality(guard, p, fresh, prior, solver, constants)) {
+    	if (isSatisfiableWithEquality(guard, p, fresh, prior, solver, constants)) {
     		return Optional.of(fresh);
     	}
 
     	for (DataValue val : vals) {
-    		if (tryEquality(guard, p, val, prior, solver, constants)) {
+    		if (isSatisfiableWithEquality(guard, p, val, prior, solver, constants)) {
     			return Optional.of(val);
     		}
     	}
@@ -342,7 +346,7 @@ public abstract class EqualityTheory implements Theory {
     	return Optional.empty();
     }
 
-    private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, List<DataValue> prior, ConstraintSolver solver, Constants consts) {
+    private boolean isSatisfiableWithEquality(Expression<Boolean> guard, Parameter p, DataValue val, List<DataValue> prior, ConstraintSolver solver, Constants consts) {
     	Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
     	ParameterGenerator pgen = new ParameterGenerator();
     	for (DataValue d : prior) {
@@ -618,9 +622,9 @@ public abstract class EqualityTheory implements Theory {
 
     @Override
     public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-    	if (guard instanceof SDTGuard.EqualityGuard && ((SDTGuard.EqualityGuard) guard).register().equals(register)) {
+        if (guard instanceof SDTGuard.EqualityGuard equalityGuard && equalityGuard.register().equals(register)) {
     		return true;
-    	} else if (guard instanceof SDTGuard.DisequalityGuard && ((SDTGuard.DisequalityGuard)guard).register().equals(register)) {
+        } else if (guard instanceof SDTGuard.DisequalityGuard disequalityGuard && disequalityGuard.register().equals(register)) {
     		return true;
     	} else if (guard instanceof SDTGuard.SDTAndGuard ag) {
     		boolean revealsGuard = false;
@@ -752,7 +756,8 @@ public abstract class EqualityTheory implements Theory {
     	Map<List<SDTGuard>, Boolean> paths2 = sdt2.getAllPaths(new ArrayList<>());
     	for (Map.Entry<List<SDTGuard>, Boolean> e1 : paths1.entrySet()) {
     		for (Map.Entry<List<SDTGuard>, Boolean> e2 : paths2.entrySet()) {
-    			if (e1.getValue() != e2.getValue()) {
+    			if (!e1.getValue().equals(e2.getValue())) {
+//    			if (e1.getValue() != e2.getValue()) {
     				// paths have different outcomes
     				List<SDTGuard> path1 = e1.getKey();
     				List<SDTGuard> path2 = e2.getKey();

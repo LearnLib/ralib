@@ -73,8 +73,8 @@ public class RARun {
 		if (transition == null) {
 			return null;
 		}
-		return transition instanceof OutputTransition ?
-				outputGuard((OutputTransition) transition) :
+		return transition instanceof OutputTransition outputTransition ?
+				outputGuard(outputTransition) :
 					transition.getGuard();
 	}
 

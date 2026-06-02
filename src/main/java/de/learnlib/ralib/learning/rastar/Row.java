@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import de.learnlib.logging.Category;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -48,8 +47,6 @@ public class Row implements PrefixContainer {
     private final Word<PSymbolInstance> prefix;
 
     private final Map<SymbolicSuffix, Cell> cells;
-
-    private final RegisterGenerator regGen = new RegisterGenerator();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Row.class);
 

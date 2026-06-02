@@ -184,7 +184,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
         while (iter.hasNext()) {
 
             PSymbolInstance in = iter.next();
-            PSymbolInstance ref = iter.next();
+            PSymbolInstance unused = iter.next();
 
             out = cur.output.get(in);
             cur = cur.next.get(in);

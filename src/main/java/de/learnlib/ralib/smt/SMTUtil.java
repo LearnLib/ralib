@@ -1,5 +1,6 @@
 package de.learnlib.ralib.smt;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import de.learnlib.ralib.data.Bijection;
@@ -34,7 +35,7 @@ public class SMTUtil {
     }
 
     public static Constant constantFor(DataValue sv) {
-        return new Constant(BuiltinTypes.DECIMAL, sv.getValue());
+        return new Constant<BigDecimal>(BuiltinTypes.DECIMAL, sv.getValue());
     }
 
     public static Collection<SymbolicDataValue> getSymbolicDataValues(Expression<Boolean> expr) {
@@ -91,10 +92,10 @@ public class SMTUtil {
     }
 
     public static Constant toConstant(DataValue v) {
-        return new Constant( BuiltinTypes.DECIMAL, (v.getValue()));
+        return new Constant<BigDecimal>(BuiltinTypes.DECIMAL, v.getValue());
     }
 
     public static Variable toVariable(DataValue v) {
-        return new Variable(BuiltinTypes.DECIMAL, v.toString());
+        return new Variable<BigDecimal>(BuiltinTypes.DECIMAL, v.toString());
     }
 }

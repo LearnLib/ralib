@@ -1,40 +1,182 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.learnlib</groupId>
+    <groupId>de.learnlib.ralib</groupId>
     <artifactId>ralib</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>ralib</name>
-    <url>http://maven.apache.org</url>
+    <name>RALib</name>
+    <description>RALib is a library for active learning algorithms for register automata.</description>
+    <url>https://github.com/LearnLib/ralib</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>no-preserve-root</id>
+            <name>Simon Dierl</name>
+            <email>simon.dierl@tu-dortmund.de</email>
+            <organization>TU Dortmund University, Dortmund, Germany</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>pfg666</id>
+            <name>Paul Fiterau-Brostean</name>
+            <email>fiteraup@yahoo.com</email>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>fhowar</id>
+            <name>Falk Howar</name>
+            <email>falk.howar@gmail.com</email>
+            <organization>TU Dortmund University, Dortmund, Germany</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>kostis</id>
+            <name>Kostis Sagonas</name>
+            <email>kostis@it.uu.se</email>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>FredrikTaquist</id>
+            <name>Fredrik Tåquist</name>
+            <email>fredrik.takvist@it.uu.se</email>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Sofia Cassel</name>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Malte Isberner</name>
+            <email>malte.isberner@gmail.com</email>
+            <organization>TU Dortmund University, Dortmund, Germany</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </contributor>
+    </contributors>
+
+    <scm>
+        <connection>scm:git:https://github.com/LearnLib/ralib.git</connection>
+        <developerConnection>scm:git:git@github.com:LearnLib/ralib.git</developerConnection>
+        <url>https://github.com/LearnLib/ralib/tree/main</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>sonatype</id>
+            <url>https://central.sonatype.com</url>
+        </repository>
+        <snapshotRepository>
+            <id>sonatype</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
 
         <!-- Dependency versions appear alphabetically below -->
-        <checker-qual.version>3.50.0</checker-qual.version>
-        <commons-lang.version>3.18.0</commons-lang.version>
-        <gson.version>2.13.1</gson.version>
-        <guava.version>33.4.8-jre</guava.version>
-        <jakarta-xml.version>4.0.2</jakarta-xml.version>
-        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
+        <checker-qual.version>4.1.0</checker-qual.version>
+        <commons-lang.version>3.20.0</commons-lang.version>
+        <gson.version>2.14.0</gson.version>
+        <error-prone.version>2.49.0</error-prone.version>
+        <guava.version>33.6.0-jre</guava.version>
+        <jakarta-xml.version>4.0.5</jakarta-xml.version>
+        <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.18.0</learnlib.version>
 
         <!-- Plugin versions in alphabetical order -->
-        <assembly-plugin.version>3.7.1</assembly-plugin.version>
-        <compiler-plugin.version>3.14.0</compiler-plugin.version>
-        <dependency-plugin.version>3.8.1</dependency-plugin.version>
-        <spotless-plugin.version>2.46.1</spotless-plugin.version>
-        <spotbugs-plugin.version>4.9.4.1</spotbugs-plugin.version>
-        <surefire-plugin.version>3.5.3</surefire-plugin.version>
+        <assembly-plugin.version>3.8.0</assembly-plugin.version>
+        <central-publish-plugin.version>0.10.0</central-publish-plugin.version>
+        <compiler-plugin.version>3.15.0</compiler-plugin.version>
+        <dependency-plugin.version>3.11.0</dependency-plugin.version>
+        <deploy-plugin.version>3.1.4</deploy-plugin.version>
+        <gpg-plugin.version>3.2.8</gpg-plugin.version>
+        <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
+        <release-plugin.version>3.3.1</release-plugin.version>
+        <source-plugin.version>3.4.0</source-plugin.version>
+        <spotless-plugin.version>3.6.0</spotless-plugin.version>
+        <spotbugs-plugin.version>4.9.8.3</spotbugs-plugin.version>
+        <surefire-plugin.version>3.5.6</surefire-plugin.version>
     </properties>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>${central-publish-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${deploy-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${gpg-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${javadoc-plugin.version}</version>
+                    <configuration>
+                        <quiet>true</quiet>
+                        <detectLinks>true</detectLinks>
+                        <linksource>false</linksource>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${release-plugin.version}</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>ralib-@{version}</tagNameFormat>
+                        <preparationGoals>verify</preparationGoals>
+                        <releaseProfiles>bundles,release</releaseProfiles>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${source-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <!-- Dependency analysis -->
             <plugin>
@@ -48,6 +190,7 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
+                            <verbose>true</verbose>
                             <failOnWarning>true</failOnWarning>
                             <ignoreUnusedRuntime>true</ignoreUnusedRuntime>
                         </configuration>
@@ -67,6 +210,7 @@
                                 <include>**/*.xml</include>
                             </includes>
                             <excludes>
+                                <exclude>.idea/**/*.xml</exclude>
                                 <exclude>target/**/*.xml</exclude>
                             </excludes>
                             <endWithNewline />
@@ -105,8 +249,21 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
                 <configuration>
-                    <release>21</release>
                     <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-Xlint:deprecation</arg>
+                        <arg>-XDcompilePolicy=simple</arg>
+                        <arg>--should-stop=ifError=FLOW</arg>
+                        <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                        <arg>-Xplugin:ErrorProne -Xep:EqualsGetClass:OFF -Xep:BigDecimalEquals:OFF -Xep:ArrayAsKeyOfSetOrMap:OFF -Xep:EmptyBlockTag:OFF -Xep:MissingSummary:OFF -Xep:StringConcatToTextBlock:OFF</arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>${error-prone.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -118,6 +275,7 @@
                 <configuration>
                     <threshold>High</threshold>
                     <includeFilterFile>.spotbugs/include.xml</includeFilterFile>
+                    <includeTests>true</includeTests>
                 </configuration>
                 <executions>
                     <execution>
@@ -133,9 +291,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
-                <configuration>
-                    <argLine>--enable-preview</argLine>
-                </configuration>
             </plugin>
 
             <!-- Make a jar archive -->
@@ -252,4 +407,72 @@
             <version>${gson.version}</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <!-- enables building of javadoc and source JARs -->
+            <id>bundles</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <doclint>all,-missing</doclint>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- set certain configurations when performing a release -->
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <deploymentName>RALib ${project.version}</deploymentName>
+                            <publishingServerId>sonatype</publishingServerId>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

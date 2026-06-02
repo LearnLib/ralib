@@ -43,7 +43,7 @@ public class CTBranch {
 	 * @param other the path to compare for equivalence
 	 * @param solver constraint solver to use when comparing for equivalence
 	 * @return {@code Bijection} under which the {@code SDT}s of {@code other} are equivalent to those of {@code this}, or {@code null} if the {@code SDT}s are not equivalent.
-	 * @see SDT
+	 * @see de.learnlib.ralib.theory.SDT
 	 */
 	public Bijection<DataValue> matches(CTPath other, ConstraintSolver solver) {
 		if (!reprPath.typeSizesMatch(other)) {

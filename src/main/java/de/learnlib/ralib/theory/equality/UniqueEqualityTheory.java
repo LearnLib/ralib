@@ -98,6 +98,5 @@ public abstract class UniqueEqualityTheory implements Theory {
         DataValue fresh = this.getFreshValue(new ArrayList<DataValue>(potSet));
         LOGGER.trace(Category.DATASTRUCTURE, "fresh = {}", fresh.toString());
         return fresh;
-
     }
 }

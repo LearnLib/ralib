@@ -39,8 +39,15 @@ import net.automatalib.word.Word;
 
 /**
  * Builder class for building a {@link CTHypothesis} from a {@link ClassificationTree}.
+<<<<<<< HEAD
  * This class implements similar functionality as {@link AutomatonBuilder} and {@link IOAutomatonBuilder},
  * but tailored for the {@link SLLambda} and {@link SLCT} learning algorithms.
+=======
+ * This class implements similar functionality as {@link AutomatonBuilder} and
+ * {@link de.learnlib.ralib.learning.IOAutomatonBuilder},
+ * but tailored for the {@link de.learnlib.ralib.learning.ralambda.SLLambda} and
+ * {@link de.learnlib.ralib.learning.ralambda.SLCT} learning algorithms.
+>>>>>>> main
  *
  * {@code CTAutomatonBuilder} supports construction of automata from an incomplete classification tree,
  * so long as the classification tree is closed and consistent.
@@ -201,7 +208,7 @@ public class CTAutomatonBuilder {
 			return null;
 		}
 
-		if (!ioMode || !(action instanceof OutputSymbol)) {
+		if (!ioMode || !(action instanceof OutputSymbol outputSymbol)) {
 			// create input transition
 			return new Transition(action, guard, src_loc, dest_loc, assignment);
 		}
@@ -225,7 +232,7 @@ public class CTAutomatonBuilder {
         OutputMapping outMap = new OutputMapping(fresh, outmap);
 
         return new OutputTransition(ExpressionUtil.TRUE,
-                outMap, (OutputSymbol) action, src_loc, dest_loc, assignment);
+                outMap, outputSymbol, src_loc, dest_loc, assignment);
 	}
 
 
@@ -245,12 +252,12 @@ public class CTAutomatonBuilder {
                 Parameter p = null;
                 SymbolicDataValue sv = null;
 
-                if (left instanceof Parameter) {
+                if (left instanceof Parameter pleft) {
                     if (right instanceof Parameter) {
                         throw new UnsupportedOperationException("not implemented yet.");
                     }
                     else {
-                        p = (Parameter) left;
+                        p = pleft;
                         sv = right;
                     }
                 }

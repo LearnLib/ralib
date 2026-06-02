@@ -53,7 +53,6 @@ public class OptimizedSymbolicSuffixBuilder {
      * @param prefix (last symbol will be prepended to suffix)
      * @param sdt
      * @param suffix
-     * @param registers - a list of registers that must be revealed by the suffix
      * @return a new suffix formed by prepending suffix with the last symbol of prefix
      */
     public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, SDT sdt, SymbolicSuffix suffix, DataValue... values) {
@@ -322,7 +321,7 @@ public class OptimizedSymbolicSuffixBuilder {
      * to inequivalent locations, based on the SDTs that revealed the source of the inequivalence.
      */
     public SymbolicSuffix extendDistinguishingSuffix(Word<PSymbolInstance> prefix1, SDT sdt1,
-            Word<PSymbolInstance> prefix2,  SDT sdt2,  SymbolicSuffix suffix) {
+            Word<PSymbolInstance> prefix2, SDT sdt2, SymbolicSuffix suffix) {
         assert !prefix1.isEmpty() && !prefix2.isEmpty() && prefix1.lastSymbol().getBaseSymbol().equals(prefix2.lastSymbol().getBaseSymbol());
         // prefix1 = subprefix1 + sym(d1); prefix2 = subprefix2 + sym(d2)
         // our new_suffix will be sym(s1) + suffix
@@ -339,13 +338,8 @@ public class OptimizedSymbolicSuffixBuilder {
      */
     public SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1,
             Word<PSymbolInstance> prefix2,  SDT sdt2,  SymbolicSuffix suffix, ConstraintSolver solver) {
-        // we build valuations which we use to determine satisfiable paths
-        Mapping<SymbolicDataValue, DataValue> valuationSdt1 = buildValuation(prefix1, consts);
-        Mapping<SymbolicDataValue, DataValue> valuationSdt2 = buildValuation(prefix2, consts);
-        Mapping<SymbolicDataValue, DataValue> combined = new Mapping<>();
-        combined.putAll(valuationSdt1);
-        combined.putAll(valuationSdt2);
-        SymbolicSuffix extendedSuffix = distinguishingSuffixFromSDTs(prefix1, sdt1, prefix2, sdt2, combined, suffix, solver);
+        Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(consts);
+        SymbolicSuffix extendedSuffix = distinguishingSuffixFromSDTs(prefix1, sdt1, prefix2, sdt2, valuation, suffix, solver);
         return extendedSuffix;
     }
 
@@ -358,7 +352,7 @@ public class OptimizedSymbolicSuffixBuilder {
             List<List<SDTGuard>> pathsSdt1 = sdt1.getPaths(b);
             List<List<SDTGuard>> pathsSdt2 = sdt2.getPaths(!b);
             for (List<SDTGuard> pathSdt1 : pathsSdt1) {
-                Expression<Boolean>  expr1 = toGuardExpression(pathSdt1);
+                Expression<Boolean> expr1 = toGuardExpression(pathSdt1);
                 for (List<SDTGuard> pathSdt2 : pathsSdt2) {
                     Expression<Boolean>  expr2 = toGuardExpression(pathSdt2);
                     if (solver.isSatisfiable(ExpressionUtil.and(expr1, expr2), valuation)) {
@@ -424,9 +418,8 @@ public class OptimizedSymbolicSuffixBuilder {
         return ExpressionUtil.and(expr.toArray(exprArr));
     }
 
-    private Mapping<SymbolicDataValue, DataValue> buildValuation(Word<PSymbolInstance> prefix, Constants constants) {
+    private Mapping<SymbolicDataValue, DataValue> buildValuation(Constants constants) {
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<SymbolicDataValue, DataValue>();
-        DataValue[] values = DataWords.valsOf(prefix);
         constants.forEach((c, dv) -> valuation.put(c, dv));
         return valuation;
     }

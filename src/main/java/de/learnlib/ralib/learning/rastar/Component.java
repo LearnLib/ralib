@@ -211,8 +211,6 @@ public class Component implements LocationComponent {
         Set<DataValue> memPrefix = prefixRow.memorableValues();
         Set<DataValue> memRow = r.memorableValues();
 
-        int max = DataWords.paramLength(DataWords.actsOf(prefix));
-
         for (DataValue d : memRow) {
             // d is used by next but not stored by this and is from this word
             if (!memPrefix.contains(d) && !curData.contains(d)) {

@@ -3,8 +3,6 @@ package de.learnlib.ralib.theory.inequality;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -16,7 +14,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import gov.nasa.jpf.constraints.api.Valuation;
 
@@ -27,22 +24,21 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
 
         final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        //final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
-        teachers.put(D_TYPE, dit);
+        //teachers.put(D_TYPE, dit);
 
         SuffixValue s1 = new SuffixValue(D_TYPE, 1);
         Register r1 = new Register(D_TYPE, 1);
         Register r2 = new Register(D_TYPE, 2);
 
-        DataValue dv0 = new DataValue(D_TYPE, BigDecimal.ZERO);
+        //DataValue dv0 = new DataValue(D_TYPE, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(D_TYPE, BigDecimal.ONE);
         DataValue dv2 = new DataValue(D_TYPE, BigDecimal.valueOf(2));
         DataValue dv3 = new DataValue(D_TYPE, BigDecimal.valueOf(3));
-        DataValue dv4 = new DataValue(D_TYPE, BigDecimal.valueOf(4));
 
         Valuation val = new Valuation();
-        val.setValue(r1 , dv1.getValue());
+        val.setValue(r1, dv1.getValue());
         val.setValue(r2, dv2.getValue());
 
         Collection<DataValue> alreadyUsed = new ArrayList<>();
@@ -69,7 +65,7 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
         Assert.assertNotEquals(dvle.getValue().compareTo(dv1.getValue()), 1);
         Assert.assertEquals(dvr.getValue().compareTo(dv1.getValue()), 1);
         Assert.assertNotEquals(dvre.getValue().compareTo(dv1.getValue()), -1);
-        Assert.assertTrue(dvi.getValue().compareTo(dv1.getValue()) == 1 && dvi.getValue().compareTo(dv3.getValue()) == -1);
-        Assert.assertFalse(dvic.getValue().compareTo(dv1.getValue()) == -1 && dvic.getValue().compareTo(dv3.getValue()) == 1);
+        Assert.assertTrue(dvi.getValue().compareTo(dv1.getValue()) > 0 && dvi.getValue().compareTo(dv3.getValue()) < 0);
+        Assert.assertFalse(dvic.getValue().compareTo(dv1.getValue()) < 0 && dvic.getValue().compareTo(dv3.getValue()) > 0);
     }
 }

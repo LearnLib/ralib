@@ -1,7 +1,7 @@
 package de.learnlib.ralib.ct;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +98,7 @@ public class CTHypothesis extends Hypothesis {
 
 	@Override
 	protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
-		List<Transition> tseq = new LinkedList<>();
+		List<Transition> tseq = new ArrayList<>();
 		RARun run = getRun(dw);
 		for (int i = 1; i <= dw.size(); i++) {
 			tseq.add(run.getRATransition(i));
@@ -164,15 +164,15 @@ public class CTHypothesis extends Hypothesis {
     }
 
 	private Transition createSinkTransition(RALocation src, RALocation dest, ParameterizedSymbol ps) {
-		if (ps instanceof OutputSymbol) {
+		if (ps instanceof OutputSymbol outputSymbol) {
 			return new OutputTransition(new OutputMapping(),
-					(OutputSymbol) ps,
+					outputSymbol,
 					src, dest,
 					new Assignment(new VarMapping<>()));
 		}
-		if (ps instanceof InputSymbol) {
+		if (ps instanceof InputSymbol inputSymbol) {
 			return new InputTransition(ExpressionUtil.TRUE,
-					(InputSymbol) ps,
+					inputSymbol,
 					src, dest,
 					new Assignment(new VarMapping<>()));
 		}

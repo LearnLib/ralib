@@ -127,8 +127,8 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof Prefix) {
-			return ((Prefix) other).prefix.equals(prefix);
+		if (other instanceof Prefix otherPrefix) {
+			return otherPrefix.prefix.equals(prefix);
 		}
 		return prefix.equals(other);
 	}

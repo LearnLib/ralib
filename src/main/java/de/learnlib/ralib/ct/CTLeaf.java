@@ -1,8 +1,8 @@
 package de.learnlib.ralib.ct;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -42,8 +42,8 @@ public class CTLeaf extends CTNode implements LocationComponent {
 		shortPrefixes = new LinkedHashSet<>();
 		prefixes = new LinkedHashSet<>();
 		prefixes.add(rp);
-		if (rp instanceof ShortPrefix) {
-			((ShortPrefix) rp).updateBranching();
+		if (rp instanceof ShortPrefix sp) {
+			sp.updateBranching();
 		}
 	}
 
@@ -102,6 +102,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 *
 	 * @return {@code true} if this leaf corresponds to an accepting location
 	 */
+	@Override
 	public boolean isAccepting() {
 		return rp.getPath().isAccepting();
 	}
@@ -120,8 +121,8 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	@Override
 	protected CTLeaf sift(Prefix prefix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		prefixes.add(prefix);
-		if (prefix instanceof ShortPrefix) {
-			ShortPrefix sp = (ShortPrefix) prefix;
+		prefixes.add(prefix);
+		if (prefix instanceof ShortPrefix sp) {
 			shortPrefixes.add(sp);
 			sp.updateBranching();
 		}
@@ -138,7 +139,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 * @param inputs all input symbols
 	 * @return {@code u} as a {@code ShortPrefix}
 	 * @see Branching
-	 * @see SDT
+	 * @see de.learnlib.ralib.theory.SDT
 	 * @see CTPath
 	 */
 	protected ShortPrefix elevatePrefix(Word<PSymbolInstance> u, TreeOracle oracle, ParameterizedSymbol ... inputs) {
@@ -149,7 +150,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 		shortPrefixes.add(sp);
 		prefixes.add(sp);
 
-		if (prefix == rp) {
+		if (prefix.equals(rp)) {
 			rp = sp;
 		}
 		return sp;
@@ -159,7 +160,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	public String toString() {
 		String str = "{RP:[" + rp.toString() + "]";
 		for (Prefix u : prefixes) {
-			if (u != rp) {
+			if (!u.equals(rp)) {
 				str = str + ", " + (u instanceof ShortPrefix ? "SP:[" : "[") + u.toString() + "]";
 			}
 		}
@@ -206,7 +207,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 */
 	@Override
 	public Collection<PrefixContainer> getOtherPrefixes() {
-		Collection<PrefixContainer> prefs = new LinkedList<>();
+		Collection<PrefixContainer> prefs = new ArrayList<>();
 		prefs.addAll(prefixes);
 		prefs.remove(rp);
 		return prefs;

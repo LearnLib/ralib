@@ -26,11 +26,11 @@ public class CachingSULTest {
         PriorityQueueSUL sul = new PriorityQueueSUL();
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
-        CachingSUL cachingSul = new CachingSUL(sul, ioCache);
-        cachingSul.pre();
-        PSymbolInstance ok = cachingSul.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
-        PSymbolInstance out = cachingSul.step(new PSymbolInstance(POLL));
-        cachingSul.post();
+        CachingSUL cachingSUL = new CachingSUL(sul, ioCache);
+        cachingSUL.pre();
+        PSymbolInstance ok = cachingSUL.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
+        PSymbolInstance out = cachingSUL.step(new PSymbolInstance(POLL));
+        cachingSUL.post();
         Assert.assertEquals(ok.getBaseSymbol(), OK);
         Assert.assertEquals(out.getBaseSymbol(), OUTPUT);
         Assert.assertEquals(sul.getInputs(), 2);
@@ -42,20 +42,20 @@ public class CachingSULTest {
         PriorityQueueSUL sul = new PriorityQueueSUL();
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
-        CachingSUL cachingSul = new CachingSUL(sul, ioCache);
+        CachingSUL cachingSUL = new CachingSUL(sul, ioCache);
 
-        cachingSul.pre();
-        cachingSul.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
-        cachingSul.step(new PSymbolInstance(POLL));
-        cachingSul.post();
+        cachingSUL.pre();
+        cachingSUL.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
+        cachingSUL.step(new PSymbolInstance(POLL));
+        cachingSUL.post();
 
         Assert.assertEquals(sul.getInputs(), 2);
         Assert.assertEquals(sul.getResets(), 1);
 
-        cachingSul.pre();
-        cachingSul.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
-        cachingSul.step(new PSymbolInstance(POLL));
-        cachingSul.post();
+        cachingSUL.pre();
+        cachingSUL.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
+        cachingSUL.step(new PSymbolInstance(POLL));
+        cachingSUL.post();
 
         Assert.assertEquals(sul.getInputs(), 2);
         Assert.assertEquals(sul.getResets(), 1);

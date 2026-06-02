@@ -45,9 +45,6 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
 
         InputSymbol A = new InputSymbol("a", type);
         DataValue d0 = new DataValue(type, BigDecimal.ZERO);
-        DataValue d1 = new DataValue(type, BigDecimal.ONE);
-        DataValue d2 = new DataValue(type, new BigDecimal(2));
-        DataValue d3 = new DataValue(type, new BigDecimal(3));
         PSymbolInstance symbol = new PSymbolInstance(A, d0);
 
         Word<PSymbolInstance> prefix = Word.epsilon();

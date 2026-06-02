@@ -65,7 +65,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
         long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();
         logger.log(Level.FINE, "SEED={0}", seed);
-        final Random unused = new Random(seed);
+        // final Random unused =
+		new Random(seed);
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");

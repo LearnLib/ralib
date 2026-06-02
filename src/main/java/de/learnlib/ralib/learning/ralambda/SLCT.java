@@ -1,8 +1,8 @@
 package de.learnlib.ralib.learning.ralambda;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public class SLCT implements RaLearningAlgorithm {
     	this.ioMode = ioMode;
     	restrictionBuilder = sulOracle.getRestrictionBuilder();
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
-    	counterexamples = new LinkedList<>();
+        counterexamples = new ArrayDeque<>();
     	hyp = null;
     	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.sift(RaStar.EMPTY_PREFIX);
@@ -124,7 +124,7 @@ public class SLCT implements RaLearningAlgorithm {
         		components.put(u, leaf);
         	}
         }
-        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
+        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle, components);
 
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
 

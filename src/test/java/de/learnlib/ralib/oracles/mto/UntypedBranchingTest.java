@@ -28,11 +28,10 @@ import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ConstraintSolver;
@@ -105,14 +104,6 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "SDT: {0}", res);
 
         SDT sdt = res;
-
-        ParameterGenerator pgen = new ParameterGenerator();
-        RegisterGenerator rgen = new RegisterGenerator();
-
-        Parameter p1 = pgen.next(intType);
-        Parameter p2 = pgen.next(intType);
-        Register r1 = rgen.next(intType);
-        Register r2 = rgen.next(intType);
 
         SDTRelabeling map = new SDTRelabeling();
 

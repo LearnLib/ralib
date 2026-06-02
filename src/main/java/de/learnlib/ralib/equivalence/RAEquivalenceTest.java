@@ -53,7 +53,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         RegisterValuation sys1reg;
         RegisterValuation sys2reg;
 
-        public Tuple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2) {
+        Tuple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = RegisterValuation.copyOf(r1);
@@ -153,7 +153,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
 
-        public Triple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2, Word w, Word t) {
+        Triple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2, Word w, Word t) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = RegisterValuation.copyOf(r1);
@@ -199,6 +199,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
         this.sys2 = a;
 
+        @SuppressWarnings("JdkObsolete")
         LinkedList<Triple> q = new LinkedList<>();
         Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
                 sys1.getInitialRegisters(), sys2.getInitialRegisters(),
@@ -207,7 +208,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         q.offer(start);
 
         if (Boolean.logicalXor(sys1.getInitialState().isAccepting(), sys2.getInitialState().isAccepting())) {
-        	return new DefaultQuery<>(Word.epsilon(), sys1.getInitialState().isAccepting());
+            return new DefaultQuery<>(Word.epsilon(), sys1.getInitialState().isAccepting());
         }
 
         LinkedHashMap<Tuple,ArrayList<Tuple>> visited = new LinkedHashMap<>();

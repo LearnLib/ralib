@@ -77,7 +77,7 @@ public class RAToDot {
             if (!acceptingOnly || loc.isAccepting()) {
                 printLocation(loc);
                 stringRA.append(" [shape=");
-                stringRA.append( (loc.isAccepting()) ? "doublecircle" : "circle");
+                stringRA.append(loc.isAccepting() ? "doublecircle" : "circle");
                 stringRA.append("]");
                 stringRA.append(NEWLINE);
             }
@@ -106,8 +106,8 @@ public class RAToDot {
                 printLocation(t.getDestination());
                 stringRA.append(" [label=<");
 
-                if (t instanceof OutputTransition) {
-                    printOutputLabel( (OutputTransition)t );
+                if (t instanceof OutputTransition outputTransition) {
+                    printOutputLabel( outputTransition );
                 } else {
                     printInputLabel( t );
                 }

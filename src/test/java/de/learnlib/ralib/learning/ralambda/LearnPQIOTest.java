@@ -59,7 +59,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         long seed = -4750580074638681533L;
         logger.log(Level.FINE, "SEED={0}", seed);
-        final Random unused = new Random(seed);
+        // final Random unused =
+	       	new Random(seed);
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
