@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.ct.Prefix;
-import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -21,7 +20,6 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.DisjunctionRestriction;
-import de.learnlib.ralib.theory.ElementRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
@@ -248,6 +246,10 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	ParameterizedSymbol action = u1Extended.lastSymbol().getBaseSymbol();
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
 
+    	if (!isEqualityTheory(DataWords.typesOf(suffixActions))) {
+    		throw new IllegalArgumentException("Only supported for equality theory");
+    	}
+
     	SuffixValueGenerator sgen = new SuffixValueGenerator();
 
     	if (teachers == null) {
@@ -271,10 +273,10 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	actionRestrictions = AbstractSuffixValueRestriction.relabel(actionRestrictions, u1.getRpBijection().toVarMapping());
 
     	// restrictions for suffix
-    	DataType[] suffixTypes = DataWords.typesOf(suffixActions);
-    	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = isEqualityTheory(suffixTypes) ?
-    			EqualityTheory.restrictionFromSDTs(sdt1, sdt2, u1Extended, u2Extended, u1.getRpBijection(), u2.getRpBijection(), false, consts, suffix, solver) :
-    				genericRestrictions(suffix, u1, u1Extended, u2, u2Extended);
+    	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = EqualityTheory.restrictionFromSDTs(sdt1, sdt2,
+    			u1Extended, u2Extended,
+    			u1.getRpBijection(), u2.getRpBijection(),
+    			false, consts, suffix, solver);
     	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u1.getRpBijection().toVarMapping());
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
@@ -327,6 +329,10 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	assert uElse.lastSymbol().getBaseSymbol().equals(action) : "Extensions do not match";
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
 
+    	if (!isEqualityTheory(DataWords.typesOf(suffixActions))) {
+    		throw new IllegalArgumentException("Only supported for equality theory");
+    	}
+
     	SuffixValueGenerator sgen = new SuffixValueGenerator();
 
     	if (teachers == null) {
@@ -352,10 +358,10 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	actionRestrictions = AbstractSuffixValueRestriction.relabel(actionRestrictions, u.getRpBijection().toVarMapping());
 
     	// compute restrictions for suffix part
-    	DataType[] suffixTypes = DataWords.typesOf(suffixActions);
-    	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = isEqualityTheory(suffixTypes) ?
-    			EqualityTheory.restrictionFromSDTs(sdtIf, sdtElse, uIf, uElse, u.getRpBijection(), u.getRpBijection(), sameLeaf, consts, suffix, solver) :
-    				genericRestrictions(suffix, u, uIf, u, uElse);
+    	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = EqualityTheory.restrictionFromSDTs(sdtIf, sdtElse,
+    			uIf, uElse,
+    			u.getRpBijection(), u.getRpBijection(),
+    			sameLeaf, consts, suffix, solver);
     	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u.getRpBijection().toVarMapping());
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
@@ -384,6 +390,10 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	ParameterizedSymbol action = uExtended.lastSymbol().getBaseSymbol();
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
     	List<DataValue> uVals = Arrays.asList(DataWords.valsOf(u));
+
+    	if (!isEqualityTheory(DataWords.typesOf(suffixActions))) {
+    		throw new IllegalArgumentException("Only supported for equality theory");
+    	}
 
     	if (teachers == null) {
     		return unrestricted(action, suffix);
@@ -414,10 +424,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	actionRestrictions = AbstractSuffixValueRestriction.relabel(actionRestrictions, u.getRpBijection().toVarMapping());
 
     	// compute restrictions for the suffix part
-    	DataType[] suffixTypes = DataWords.typesOf(suffixActions);
-    	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = isEqualityTheory(suffixTypes) ?
-    			EqualityTheory.restrictionFromSDT(sdt, u, uExtended, u.getRpBijection(), consts, suffix, solver, useImprovedRegClosedOpt) :
-    				genericRestrictions(suffix, u, uExtended, u, uExtended);
+    	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = EqualityTheory.restrictionFromSDT(sdt, u, uExtended, u.getRpBijection(), consts, suffix, solver, useImprovedRegClosedOpt);
     	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u.getRpBijection().toVarMapping());
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
@@ -465,29 +472,6 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     		}
     	}
     	return true;
-    }
-
-    private Map<SuffixValue, AbstractSuffixValueRestriction> genericRestrictions(SymbolicSuffix suffix, Prefix u1, Prefix u1Ext, Prefix u2, Prefix u2Ext) {
-    	Map<SuffixValue, AbstractSuffixValueRestriction> ret = suffix.getRestrictions();
-    	ret = AbstractSuffixValueRestriction.shift(ret, u1Ext.lastSymbol().getBaseSymbol().getArity());
-
-    	Bijection<DataValue> u1Renaming = u1Ext.getBijection(u1Ext.getPath().getPrior(suffix)).inverse();
-    	Bijection<DataValue> u2Renaming = u1Ext.getBijection(u1Ext.getPath().getPrior(suffix)).inverse();
-
-    	Set<DataValue> vals = new LinkedHashSet<>();
-    	AbstractSuffixValueRestriction.getElements(ret).stream().filter(e -> e instanceof DataValue).forEach(e -> vals.add((DataValue) e));
-    	for (DataValue d : vals) {
-    		DataValue d1 = u1Renaming.get(d);
-    		DataValue d2 = u2Renaming.get(d);
-    		if (d1 == null || !u1.getRegisters().contains(d1) || d2 == null || !u2.getRegisters().contains(d2)) {
-    			for (ElementRestriction er : AbstractSuffixValueRestriction.getRestrictionsOnElement(ret, d)) {
-    				SuffixValue param = er.cast().getParameter();
-    				ret.put(param, new TrueRestriction(param));
-    			}
-    		}
-    	}
-
-    	return ret;
     }
 
     public void setUseImprovedRegClosedOpt(boolean useImprovedRegClosedOpt) {
