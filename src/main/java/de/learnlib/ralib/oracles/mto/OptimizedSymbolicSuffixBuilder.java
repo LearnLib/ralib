@@ -337,7 +337,7 @@ public class OptimizedSymbolicSuffixBuilder {
      * based on the SDTs that revealed the source of the inequivalence.
      */
     public SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1,
-            Word<PSymbolInstance> prefix2,  SDT sdt2,  SymbolicSuffix suffix, ConstraintSolver solver) {
+            Word<PSymbolInstance> prefix2, SDT sdt2, SymbolicSuffix suffix, ConstraintSolver solver) {
         Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(consts);
         SymbolicSuffix extendedSuffix = distinguishingSuffixFromSDTs(prefix1, sdt1, prefix2, sdt2, valuation, suffix, solver);
         return extendedSuffix;
