@@ -54,7 +54,7 @@ for experiment in $(find ../experiments/"$series" | grep .xml | sed 's/.xml//' |
 do
 
   echo "== Running: $experiment"
-  ./run_experiment.sh -s "$series" -e "$experiment" -i "$iterations" -r "$learners"
+  ./run_experiment.sh -s "$series" -e "$experiment" -i "$iterations" -l "$learners"
 
   ./search_logs.sh "$series" "$experiment" "$learners"
 

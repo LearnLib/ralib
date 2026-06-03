@@ -53,7 +53,7 @@ config=configs/$learners
 model=experiments/$series/$experiment.xml
 results=results/$series/$experiment-$learners
 
-currdir = "$PWD"
+currdir="$PWD"
 
 cd ..
 
@@ -76,7 +76,7 @@ do
   for r in $(seq 1 3)
   do
 
-    java -Xmx7G -ea -jar ./ralib/target/ralib-0.1-SNAPSHOT-jar-with-dependencies.jar iosimulator -f "$config" target="$model" > learn.log 2>&1
+    java -Xmx7G -ea -jar ./ralib/target/ralib-0.2-SNAPSHOT-jar-with-dependencies.jar iosimulator -f "$config" target="$model" > learn.log 2>&1
     if [ "0" == `ls hs_err_pid* 2> /dev/null | wc -l` ]; then 
       break;
     fi
@@ -97,4 +97,4 @@ do
 
 done
 
-cd $currdir
+cd "$currdir"

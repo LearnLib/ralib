@@ -1,21 +1,14 @@
-experiment=$1
-inputs=$2
+series=$1
+experiment=$2
 
-all_series=$(ls results)
-
-headers=("Counterexamples" "CE max length" "CE avg length" "Optimization" "Analysis" "Processing" "Total excl tests")
+stats=("Locations" "Transitions" "Registers" "Constants" "Analysis" "Processing" "Total excl tests")
+headers=("Locations" "Transitions" "Registers" "Constants" "CE Analysis Resets" "Hyp Construction Resets" "Total Resets")
 learners=("slstar" "sllambda" "slleq")
 
 print_averages() {
-    for h in "${headers[@]}"; do
+    for h in "${stats[@]}"; do
         avg=($(echo "$1" | grep "$h" | sed "s/.*Avg: \([0-9]\+\).*/\1/"))
-        if [ $inputs -eq 0 ]; then
-            printf ";%s" $avg
-        else
-            if [ ${#avg[@]} -gt 0 ]; then
-                printf ";%s" ${avg[$((${#avg[@]}-1))]}
-            fi
-        fi
+        printf ";%s" $avg
     done
 }
 
@@ -47,45 +40,23 @@ print_successful() {
     fi
 }
 
-for i in ${learners[@]}; do
-    for h in "${headers[@]}"; do
-        printf ";%s" "$h"
-    done
-    printf ";"
+printf "${experiment^^}"
+
+for h in "${headers[@]}"; do
+    printf ";%s" "$h"
 done
 printf "\n"
 
-for series in ${all_series[@]}; do
+for learner in ${learners[@]}; do
     not_empty=0
     tables=()
-    for l in ${learners[@]}; do
-        tables[${#tables[@]}]=$(./search_logs.sh $series $experiment $l)
-        if [ -d "../results/$series/$experiment-$l" ]; then
-            not_empty=1
-        fi
-    done
+    table=$(./search_logs.sh $series $experiment $learner)
+    if [ -d "../results/$series/$experiment-$learner" ]; then
+        not_empty=1
+    fi
     if [ $not_empty -eq 1 ]; then
-        printf "%s" $series
-        for index in ${!learners[@]}; do
-            start=$((${#headers[@]}/2))
-            end=$((${#headers[@]}-$start-1))
-            print_separators $start
-            printf "%s;;" ${learners[$index]^^}
-            print_successful "${tables[$index]}"
-            print_separators $end
-        done
-
-        printf "\nAverage"
-        for table in "${tables[@]}"; do
-            print_averages "$table"
-            printf ';'
-        done
-        printf "\nStd dev"
-        for table in "${tables[@]}"; do
-            print_stddevs "$table"
-            printf ';'
-        done
-
-        printf "\n\n"
+        printf "${learner}"
+        print_averages "$table"
+        printf "\n"
     fi
 done
