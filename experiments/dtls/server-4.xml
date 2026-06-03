@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="FINISHED">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="PSK_CLIENT_KEY_EXCHANGE">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="APPLICATION">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="CHANGE_CIPHER_SPEC">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="PSK_CLIENT_HELLO">
+                <param type="epoch" name="p1"/>
+            </symbol>
+        </inputs>
+        <outputs>
+            <symbol name="SERVER_HELLO|SERVER_HELLO_DONE">
+                <param type="epoch" name="p1"/>
+                <param type="epoch" name="p2"/>
+            </symbol>
+            <symbol name="HELLO_VERIFY_REQUEST">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="TIMEOUT"/>
+        </outputs>
+    </alphabet>
+    <constants>
+        <constant type="epoch" name="c1">0</constant>
+        <constant type="epoch" name="c2">1</constant>
+    </constants>
+    <globals/>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+        <location name="l4"/>
+        <location name="l5"/>
+        <location name="l6"/>
+        <location name="l7"/>
+        <location name="l8"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l1" symbol="PSK_CLIENT_HELLO">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l4" symbol="PSK_CLIENT_HELLO">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l1" to="l0" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l4" to="l5" symbol="HELLO_VERIFY_REQUEST" params="c1">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l6" symbol="PSK_CLIENT_HELLO">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="PSK_CLIENT_HELLO">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l7" symbol="SERVER_HELLO|SERVER_HELLO_DONE" params="c1,c1">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l1" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l1" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l1" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l1" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l1" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l5" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+    </transitions>
+</register-automaton>

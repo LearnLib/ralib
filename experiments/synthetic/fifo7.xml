@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IGet"/>
+         <symbol name="IPut"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="OGet"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="ONOK"/>
+         <symbol name="OOK"/>
+      </outputs>
+   </alphabet>
+   <constants>
+   </constants>
+   <globals>
+      <variable type="int" name="r0">0</variable>
+      <variable type="int" name="r1">0</variable>
+      <variable type="int" name="r2">0</variable>
+      <variable type="int" name="r3">0</variable>
+      <variable type="int" name="r4">0</variable>
+      <variable type="int" name="r5">0</variable>
+      <variable type="int" name="r6">0</variable>
+      <variable type="int" name="out">0</variable>
+   </globals>
+   <locations>
+      <location name="ms"/>
+      <location name="s0" initial="true"/>
+      <location name="m0_1"/>
+      <location name="m1_0"/>
+      <location name="s1"/>
+      <location name="m1_2"/>
+      <location name="m2_1"/>
+      <location name="s2"/>
+      <location name="m2_3"/>
+      <location name="m3_2"/>
+      <location name="s3"/>
+      <location name="m3_4"/>
+      <location name="m4_3"/>
+      <location name="s4"/>
+      <location name="m4_5"/>
+      <location name="m5_4"/>
+      <location name="s5"/>
+      <location name="m5_6"/>
+      <location name="m6_5"/>
+      <location name="s6"/>
+      <location name="m6_7"/>
+      <location name="m7_6"/>
+      <location name="s7"/>
+      <location name="me"/>
+   </locations>
+   <transitions>
+      <transition from="s0" to="ms" symbol="IGet" />
+      <transition from="ms" to="s0" symbol="ONOK" />
+      <transition from="s0" to="m0_1" symbol="IPut" params="p">
+         <assignments>
+            <assign to="r0">p</assign>
+         </assignments>
+      </transition>
+      <transition from="m0_1" to="s1" symbol="OOK" />
+      <transition from="m1_0" to="s0" symbol="OGet" params="out">
+         <assignments>
+            <assign to="out">r0</assign>
+         </assignments>
+      </transition>
+      <transition from="s1" to="m1_0" symbol="IGet" />
+      <transition from="s1" to="m1_2" symbol="IPut" params="p">
+         <assignments>
+            <assign to="r1">p</assign>
+         </assignments>
+      </transition>
+      <transition from="m1_2" to="s2" symbol="OOK" />
+      <transition from="m2_1" to="s1" symbol="OGet" params="out">
+         <assignments>
+            <assign to="out">r0</assign>
+            <assign to="r0">r1</assign>
+         </assignments>
+      </transition>
+      <transition from="s2" to="m2_1" symbol="IGet" />
+      <transition from="s2" to="m2_3" symbol="IPut" params="p">
+         <assignments>
+            <assign to="r2">p</assign>
+         </assignments>
+      </transition>
+      <transition from="m2_3" to="s3" symbol="OOK" />
+      <transition from="m3_2" to="s2" symbol="OGet" params="out">
+         <assignments>
+            <assign to="out">r0</assign>
+            <assign to="r0">r1</assign>
+            <assign to="r1">r2</assign>
+         </assignments>
+      </transition>
+      <transition from="s3" to="m3_2" symbol="IGet" />
+      <transition from="s3" to="m3_4" symbol="IPut" params="p">
+         <assignments>
+            <assign to="r3">p</assign>
+         </assignments>
+      </transition>
+      <transition from="m3_4" to="s4" symbol="OOK" />
+      <transition from="m4_3" to="s3" symbol="OGet" params="out">
+         <assignments>
+            <assign to="out">r0</assign>
+            <assign to="r0">r1</assign>
+            <assign to="r1">r2</assign>
+            <assign to="r2">r3</assign>
+         </assignments>
+      </transition>
+      <transition from="s4" to="m4_3" symbol="IGet" />
+      <transition from="s4" to="m4_5" symbol="IPut" params="p">
+         <assignments>
+            <assign to="r4">p</assign>
+         </assignments>
+      </transition>
+      <transition from="m4_5" to="s5" symbol="OOK" />
+      <transition from="m5_4" to="s4" symbol="OGet" params="out">
+         <assignments>
+            <assign to="out">r0</assign>
+            <assign to="r0">r1</assign>
+            <assign to="r1">r2</assign>
+            <assign to="r2">r3</assign>
+            <assign to="r3">r4</assign>
+         </assignments>
+      </transition>
+      <transition from="s5" to="m5_4" symbol="IGet" />
+      <transition from="s5" to="m5_6" symbol="IPut" params="p">
+         <assignments>
+            <assign to="r5">p</assign>
+         </assignments>
+      </transition>
+      <transition from="m5_6" to="s6" symbol="OOK" />
+      <transition from="m6_5" to="s5" symbol="OGet" params="out">
+         <assignments>
+            <assign to="out">r0</assign>
+            <assign to="r0">r1</assign>
+            <assign to="r1">r2</assign>
+            <assign to="r2">r3</assign>
+            <assign to="r3">r4</assign>
+            <assign to="r4">r5</assign>
+         </assignments>
+      </transition>
+      <transition from="s6" to="m6_5" symbol="IGet" />
+      <transition from="s6" to="m6_7" symbol="IPut" params="p">
+         <assignments>
+            <assign to="r6">p</assign>
+         </assignments>
+      </transition>
+      <transition from="m6_7" to="s7" symbol="OOK" />
+      <transition from="m7_6" to="s6" symbol="OGet" params="out">
+         <assignments>
+            <assign to="out">r0</assign>
+            <assign to="r0">r1</assign>
+            <assign to="r1">r2</assign>
+            <assign to="r2">r3</assign>
+            <assign to="r3">r4</assign>
+            <assign to="r4">r5</assign>
+            <assign to="r5">r6</assign>
+         </assignments>
+      </transition>
+      <transition from="s7" to="m7_6" symbol="IGet" />
+      <transition from="s7" to="me" symbol="IPut" params="p"/>
+      <transition from="me" to="s7" symbol="ONOK" />
+   </transitions>
+</register-automaton>

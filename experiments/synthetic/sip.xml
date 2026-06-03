@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IACK"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="Inil"/>
+         <symbol name="IPRACK"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="IINVITE"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="Otimeout"/>
+         <symbol name="O486"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="O481"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="O200"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="O180"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="O183"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="O100"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+      </outputs>
+   </alphabet>
+   <constants>
+
+   </constants>
+   <globals>
+      <variable type="int" name="lastId">0</variable>
+      <variable type="int" name="firstId">0</variable>
+   </globals>
+   <locations>
+      <location name="id8"/> 
+      <location name="id9"/> 
+      <location name="id6"/> 
+      <location name="id7"/> 
+      <location name="id4"/> 
+      <location name="id5"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+      <location name="id10"/> 
+      <location name="id11"/> 
+      <location name="id12"/> 
+      <location name="id13"/> 
+      <location name="id14"/> 
+      <location name="id15"/> 
+      <location name="id16"/> 
+      <location name="id17"/> 
+      <location name="id18"/> 
+      <location name="id19"/> 
+      <location name="id29" initial="true"/> 
+      <location name="id28"/> 
+      <location name="id21"/> 
+      <location name="id20"/> 
+      <location name="id23"/> 
+      <location name="id22"/> 
+      <location name="id25"/> 
+      <location name="id24"/> 
+      <location name="id27"/> 
+      <location name="id26"/> 
+   </locations>
+   <transitions>
+      <transition from="id3" to="id4" symbol="Inil" />
+      <transition from="id0" to="id8" symbol="Otimeout" />
+      <transition from="id8" to="id0" symbol="Inil" />
+      <transition from="id1" to="id20" symbol="Otimeout" />
+      <transition from="id20" to="id1" symbol="Inil" />
+      <transition from="id2" to="id29" symbol="Otimeout" />
+      <transition from="id29" to="id2" symbol="Inil" />
+      <transition from="id8" to="id9" symbol="IACK" params="CallId"/>
+      <transition from="id8" to="id9" symbol="IPRACK" params="CallId"/>
+      <transition from="id3" to="id4" symbol="IINVITE" params="CallId"/>
+      <transition from="id3" to="id4" symbol="IPRACK" params="CallId"/>
+      <transition from="id3" to="id4" symbol="IACK" params="CallId"/>
+      <transition from="id4" to="id3" symbol="Otimeout" />
+      <transition from="id29" to="id4" symbol="IACK" params="CallId"/>
+      <transition from="id29" to="id4" symbol="IPRACK" params="CallId"/>
+      <transition from="id5" to="id8" symbol="O481" params="lastId"/>
+      <transition from="id10" to="id5" symbol="Inil" />
+      <transition from="id10" to="id9" symbol="IACK" params="CallId"/>
+      <transition from="id10" to="id9" symbol="IPRACK" params="CallId"/>
+      <transition from="id6" to="id8" symbol="O486" params="firstId"/>
+      <transition from="id12" to="id6" symbol="Inil" />
+      <transition from="id12" to="id9" symbol="IACK" params="CallId"/>
+      <transition from="id12" to="id9" symbol="IPRACK" params="CallId"/>
+      <transition from="id10" to="id13" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id12" to="id13" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id12" to="id11" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id10" to="id11" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id8" to="id13" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id8" to="id11" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id7" to="id8" symbol="O180" params="firstId"/>
+      <transition from="id25" to="id7" symbol="Inil" />
+      <transition from="id25" to="id9" symbol="IACK" params="CallId"/>
+      <transition from="id9" to="id8" symbol="Otimeout" />
+      <transition from="id25" to="id9" symbol="IPRACK" params="CallId"/>
+      <transition from="id11" to="id10" symbol="O100" params="lastId"/>
+      <transition from="id25" to="id11" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id13" to="id12" symbol="O100" params="firstId"/>
+      <transition from="id25" to="id13" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id20" to="id24" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id20" to="id17" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id20" to="id26" symbol="IPRACK" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id20" to="id21" symbol="IPRACK" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id20" to="id19" symbol="IACK" params="CallId"/>
+      <transition from="id16" to="id21" symbol="IPRACK" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id14" to="id20" symbol="O486" params="lastId"/>
+      <transition from="id16" to="id14" symbol="Inil" />
+      <transition from="id16" to="id19" symbol="IACK" params="CallId"/>
+      <transition from="id16" to="id26" symbol="IPRACK" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id16" to="id24" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id16" to="id17" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id23" to="id26" symbol="IPRACK" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id23" to="id17" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id23" to="id21" symbol="IPRACK" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id15" to="id20" symbol="O486" params="firstId"/>
+      <transition from="id23" to="id15" symbol="Inil" />
+      <transition from="id17" to="id16" symbol="O100" params="lastId"/>
+      <transition from="id27" to="id17" symbol="IINVITE" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id23" to="id19" symbol="IACK" params="CallId"/>
+      <transition from="id18" to="id20" symbol="O183" params="firstId"/>
+      <transition from="id27" to="id18" symbol="Inil" />
+      <transition from="id27" to="id19" symbol="IACK" params="CallId"/>
+      <transition from="id19" to="id20" symbol="Otimeout" />
+      <transition from="id21" to="id20" symbol="O481" params="lastId"/>
+      <transition from="id27" to="id21" symbol="IPRACK" params="CallId">
+         <guard>CallId!=firstId</guard>
+         <assignments>
+            <assign to="lastId">CallId</assign>
+         </assignments>
+      </transition>
+      <transition from="id22" to="id23" symbol="O100" params="firstId"/>
+      <transition from="id23" to="id22" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id24" to="id23" symbol="O100" params="firstId"/>
+      <transition from="id27" to="id24" symbol="IINVITE" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id26" to="id25" symbol="O200" params="firstId"/>
+      <transition from="id27" to="id26" symbol="IPRACK" params="CallId">
+         <guard>CallId==firstId</guard>
+      </transition>
+      <transition from="id28" to="id27" symbol="O100" params="firstId"/>
+      <transition from="id29" to="id28" symbol="IINVITE" params="CallId">
+         <assignments>
+            <assign to="firstId">CallId</assign>
+         </assignments>
+      </transition>
+   </transitions>
+</register-automaton>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="ISendFrame"/>
+         <symbol name="IAck"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="IIn"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="OFrame"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="ONOK"/>
+         <symbol name="OOK"/>
+      </outputs>
+   </alphabet>
+   <constants>
+      <constant type="int" name="zero">0</constant>
+      <constant type="int" name="one">1</constant>
+   </constants>
+   <globals>
+      <variable type="int" name="vd">0</variable>
+   </globals>
+   <locations>
+      <location name="id8"/> 
+      <location name="id9"/> 
+      <location name="id6"/> 
+      <location name="id7"/> 
+      <location name="id4"/> 
+      <location name="id5"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+      <location name="id10"/> 
+      <location name="id11"/> 
+      <location name="id12"/> 
+      <location name="id13"/> 
+      <location name="id14"/> 
+      <location name="id15"/> 
+      <location name="id16"/> 
+      <location name="id17"/> 
+      <location name="id18"/> 
+      <location name="id19"/> 
+      <location name="id29" initial="true"/> 
+      <location name="id28"/> 
+      <location name="id21"/> 
+      <location name="id20"/> 
+      <location name="id23"/> 
+      <location name="id22"/> 
+      <location name="id25"/> 
+      <location name="id24"/> 
+      <location name="id27"/> 
+      <location name="id26"/> 
+   </locations>
+   <transitions>
+      <transition from="id0" to="id2" symbol="ONOK" />
+      <transition from="id2" to="id0" symbol="IAck" params="b"/>
+      <transition from="id19" to="id9" symbol="IIn" params="d">
+         <assignments>
+            <assign to="vd">d</assign>
+         </assignments>
+      </transition>
+      <transition from="id2" to="id9" symbol="IIn" params="d">
+         <assignments>
+            <assign to="vd">d</assign>
+         </assignments>
+      </transition>
+      <transition from="id1" to="id2" symbol="ONOK" />
+      <transition from="id2" to="id1" symbol="ISendFrame" />
+      <transition from="id9" to="id2" symbol="ONOK" />
+      <transition from="id3" to="id19" symbol="OFrame" params="vd,one"/>
+      <transition from="id4" to="id21" symbol="OOK" />
+      <transition from="id21" to="id4" symbol="IAck" params="b">
+         <guard>b==zero</guard>
+      </transition>
+      <transition from="id7" to="id23" symbol="ONOK" />
+      <transition from="id6" to="id23" symbol="OOK" />
+      <transition from="id5" to="id23" symbol="ONOK" />
+      <transition from="id19" to="id3" symbol="ISendFrame" />
+      <transition from="id21" to="id9" symbol="IIn" params="d">
+         <assignments>
+            <assign to="vd">d</assign>
+         </assignments>
+      </transition>
+      <transition from="id23" to="id7" symbol="IAck" params="b">
+         <guard>b!=zero</guard>
+      </transition>
+      <transition from="id23" to="id6" symbol="IAck" params="b">
+         <guard>b==zero</guard>
+      </transition>
+      <transition from="id23" to="id5" symbol="ISendFrame" />
+      <transition from="id8" to="id25" symbol="OFrame" params="vd,zero"/>
+      <transition from="id25" to="id9" symbol="IIn" params="d">
+         <assignments>
+            <assign to="vd">d</assign>
+         </assignments>
+      </transition>
+      <transition from="id25" to="id8" symbol="ISendFrame" />
+      <transition from="id10" to="id27" symbol="ONOK" />
+      <transition from="id27" to="id9" symbol="IIn" params="d">
+         <assignments>
+            <assign to="vd">d</assign>
+         </assignments>
+      </transition>
+      <transition from="id27" to="id10" symbol="IAck" params="b">
+         <guard>b==zero</guard>
+      </transition>
+      <transition from="id11" to="id29" symbol="OOK" />
+      <transition from="id12" to="id29" symbol="ONOK" />
+      <transition from="id13" to="id29" symbol="ONOK" />
+      <transition from="id29" to="id11" symbol="IAck" params="b">
+         <guard>b!=zero</guard>
+      </transition>
+      <transition from="id29" to="id12" symbol="IAck" params="b">
+         <guard>b==zero</guard>
+      </transition>
+      <transition from="id29" to="id13" symbol="ISendFrame" />
+      <transition from="id14" to="id19" symbol="OOK" />
+      <transition from="id15" to="id21" symbol="ONOK" />
+      <transition from="id16" to="id25" symbol="OOK" />
+      <transition from="id17" to="id27" symbol="OOK" />
+      <transition from="id19" to="id14" symbol="IAck" params="b">
+         <guard>b==zero</guard>
+      </transition>
+      <transition from="id21" to="id15" symbol="IAck" params="b">
+         <guard>b!=zero</guard>
+      </transition>
+      <transition from="id25" to="id16" symbol="IAck" params="b">
+         <guard>b!=zero</guard>
+      </transition>
+      <transition from="id27" to="id17" symbol="IAck" params="b">
+         <guard>b!=zero</guard>
+      </transition>
+      <transition from="id18" to="id29" symbol="OOK" />
+      <transition from="id19" to="id18" symbol="IAck" params="b">
+         <guard>b!=zero</guard>
+      </transition>
+      <transition from="id20" to="id19" symbol="OFrame" params="vd,one"/>
+      <transition from="id21" to="id20" symbol="ISendFrame" />
+      <transition from="id22" to="id21" symbol="OOK" />
+      <transition from="id23" to="id22" symbol="IIn" params="d">
+         <assignments>
+            <assign to="vd">d</assign>
+         </assignments>
+      </transition>
+      <transition from="id24" to="id23" symbol="OOK" />
+      <transition from="id25" to="id24" symbol="IAck" params="b">
+         <guard>b==zero</guard>
+      </transition>
+      <transition from="id26" to="id25" symbol="OFrame" params="vd,zero"/>
+      <transition from="id27" to="id26" symbol="ISendFrame" />
+      <transition from="id28" to="id27" symbol="OOK" />
+      <transition from="id29" to="id28" symbol="IIn" params="d">
+         <assignments>
+            <assign to="vd">d</assign>
+         </assignments>
+      </transition>
+   </transitions>
+</register-automaton>
