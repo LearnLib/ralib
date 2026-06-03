@@ -1,0 +1,37 @@
+\documentclass{standalone}
+\usepackage{pgfplots}
+\usepgfplotslibrary{colorbrewer}
+\pgfplotsset{compat = 1.15, cycle list/Set1-8} 
+\usetikzlibrary{pgfplots.statistics, pgfplots.colorbrewer} 
+\usepackage{pgfplotstable}
+\usepackage{filecontents}
+
+\newcommand{\sllambdaTbl}{${SL}^{\lambda}$}
+\newcommand{\effTbl}{${SL}^{\lambda}_{|=}$}
+
+\begin{document}
+\begin{tikzpicture}
+	\pgfplotstableread[col sep=comma]{dtls-models-mc.csv}\csvdata
+	\begin{axis}[
+		enlarge y limits,
+		scaled ticks=false,
+		%ymajorgrids,
+		xtick = {0, 50, 100, 150, 200, 250},
+		xticklabel style = {align=center, font=\small, rotate=60},
+		%xticklabels = {0, 20, 40, 250},
+		%xtick style = {draw=none}, % Hide tick line
+		ylabel = {Counterexamples},
+		xlabel = {Transitions},
+		%ytick = {0,10000, 20000},
+		%yticklabels = {0, 10k, 20k},
+        legend style={at={(0.02,0.98)},anchor=north west,legend columns=1},		
+	]
+	
+	\addplot+[only marks, blue, mark=o]  table[x= sysTrans, y= sllambdaCEAvg] {\csvdata};
+	\addplot+[only marks, brown, mark=x] table[x= sysTrans, y= slleqCEAvg] {\csvdata};
+
+    \legend{\sllambdaTbl,\effTbl}	
+
+	\end{axis}
+\end{tikzpicture}
+\end{document}
