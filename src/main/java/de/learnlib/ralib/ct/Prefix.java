@@ -41,7 +41,7 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	public final Map<SymbolicSuffix, Bijection<DataValue>> pathBijections;  // tracks bijections to the RP at each ancestor node
 
 	public Prefix(Word<PSymbolInstance> u, Bijection<DataValue> rpRenaming, CTPath path) {
-		this.prefix = u instanceof Prefix ? ((Prefix) u).getPrefix() : u;
+		this.prefix = u instanceof Prefix prefix ? prefix.getPrefix() : u;
 		this.rpBijection = rpRenaming;
 		this.path = path;
 		pathBijections = new LinkedHashMap<>();
