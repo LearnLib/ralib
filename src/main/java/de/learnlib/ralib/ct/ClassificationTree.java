@@ -500,7 +500,6 @@ public class ClassificationTree {
 				SymbolicSuffix av = extendSuffixTransition(uIf, uElse, v);
 				Word<PSymbolInstance> u = uIf.prefix(uIf.length() - 1);
 				ShortPrefix uSp = (ShortPrefix) uLeaf.getPrefix(u);
-//				if (suffixRevealsNewGuard(av, getLeaf(uIf.prefix(uIf.length() - 1)))) {
 				if (suffixRevealsNewGuard(av, uSp)) {
 					return Optional.of(av);
 				}
@@ -655,10 +654,7 @@ public class ClassificationTree {
 	 * @param leaf
 	 * @return {@code true} if {@code av} reveals additional guards
 	 */
-//	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
 	private boolean suffixRevealsNewGuard(SymbolicSuffix av, ShortPrefix u) {
-//		assert !leaf.getShortPrefixes().isEmpty() : "No short prefix in leaf " + leaf;
-//		ShortPrefix u = leaf.getShortPrefixes().iterator().next();
 		if (restrBuilder instanceof SLLambdaEqRestrictionBuilder rBuilder && rBuilder.hasUnmappedRestrictionValue(av, u.getRegisters())) {
 			return false;
 		}
@@ -673,31 +669,6 @@ public class ClassificationTree {
 		}
 		return false;
 	}
-
-//	private boolean equalUnderActionRemapping(SDT sdtIf, SDT sdtElse, Prefix uIf, Prefix uElse) {
-//		Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
-//		List<DataValue> valsIf = Arrays.asList(DataWords.valsOf(u));
-//		ArrayList<DataValue> actionValsIf = new ArrayList<>(Arrays.asList(uIf.lastSymbol().getParameterValues()));
-//		Set<SDTGuardElement> varsIf = sdtIf.getVariables();
-//		Mapping<Register, Register> renaming = new Mapping<>();
-//		for (SDTGuardElement e : varsIf) {
-//			if (SDTGuardElement.isRegister(e)) {
-//				Register r = (Register) e;
-//				int rid = r.getId();
-//				if (rid > valsIf.size()) {
-//					continue;
-//				}
-//				DataValue d = valsIf.get(rid - 1);
-//				int index = actionValsIf.indexOf(d);
-//				if (index >= 0) {
-//					Register nr = new Register(r.getDataType(), index + valsIf.size() + 1);
-//					renaming.put(r, nr);
-//				}
-//			}
-//		}
-//		return sdtElse.isEquivalent(sdtIf, SDTRelabeling.fromMapping(renaming));
-////		return SDT.equivalentUnderBijection(sdtIf.relabel(SDTRelabeling.fromMapping(renaming)), sdtElse) != null;
-//	}
 
 	/**
 	 * Form a {@code SymbolicSuffix} by prepending {@code v} by the last symbol of {@code u1} and {@code u2}.
@@ -725,9 +696,6 @@ public class ClassificationTree {
 		}
 
 		return suffixBuilder.extendDistinguishingSuffix(u1Ext, sdt1, u2Ext, sdt2, v);
-//		Word<ParameterizedSymbol> actions = v.getActions();
-//		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(u1Ext.lastSymbol().getBaseSymbol()), actions);
-//		return new SymbolicSuffix(extended);
 	}
 
 	/**
@@ -756,9 +724,6 @@ public class ClassificationTree {
 		}
 
 		return suffixBuilder.extendDistinguishingSuffix(uIf, sdtIf, uElse, sdtElse, v);
-//		Word<ParameterizedSymbol> actions = v.getActions();
-//		Word<ParameterizedSymbol> extended = DataWords.concatenate(Word.fromSymbols(uIf.lastSymbol().getBaseSymbol()), actions);
-//		return new SymbolicSuffix(extended);
 	}
 
 	/**

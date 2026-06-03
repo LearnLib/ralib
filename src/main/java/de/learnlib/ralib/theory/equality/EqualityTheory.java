@@ -752,7 +752,6 @@ public abstract class EqualityTheory implements Theory {
     	for (Map.Entry<List<SDTGuard>, Boolean> e1 : paths1.entrySet()) {
     		for (Map.Entry<List<SDTGuard>, Boolean> e2 : paths2.entrySet()) {
     			if (!e1.getValue().equals(e2.getValue())) {
-//    			if (e1.getValue() != e2.getValue()) {
     				// paths have different outcomes
     				List<SDTGuard> path1 = e1.getKey();
     				List<SDTGuard> path2 = e2.getKey();

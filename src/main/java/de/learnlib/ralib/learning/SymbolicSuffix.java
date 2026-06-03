@@ -135,7 +135,6 @@ public class SymbolicSuffix {
         for (ParameterizedSymbol ps : actions) {
             for (DataType t : ps.getPtypes()) {
                 SuffixValue sv = valgen.next(t);
-//                restrictions.put(sv, new UnrestrictedSuffixValue(sv));
                 restrictions.put(sv, new TrueRestriction(sv));
             }
         }

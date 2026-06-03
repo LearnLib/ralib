@@ -52,7 +52,6 @@ public class GreaterSuffixValue extends AbstractSuffixValueRestriction {
 	@Override
 	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
 		if (mapping.isEmpty()) {
-//			return new FreshSuffixValue(parameter);
 			return this;
 		}
 		DataValue d = Collections.max(mapping.values());

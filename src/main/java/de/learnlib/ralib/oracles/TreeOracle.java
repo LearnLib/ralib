@@ -68,9 +68,6 @@ public interface TreeOracle {
     Branching updateBranching(Word<PSymbolInstance> prefix,
                               ParameterizedSymbol ps, Branching current, SDT... sdts);
 
-//    Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-//                                                    SymbolicSuffix suffix, SDT sdt);
-
     SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
 
 }

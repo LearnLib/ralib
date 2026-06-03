@@ -139,7 +139,6 @@ public class PalindromeGenerator {
 	private static boolean isPalindrome(List<Integer> word) {
 		for (int i=0; i<word.size()/2; i++) {
 			if (!word.get(i).equals(word.get(word.size() - (i + 1)))) {
-//			if (word.get(i) != word.get(word.size() - (i + 1))) {
 				return false;
 			}
 		}

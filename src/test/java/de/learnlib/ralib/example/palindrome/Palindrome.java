@@ -36,7 +36,6 @@ public class Palindrome {
 		int right = vals.size() - 1;
 		while (left < right) {
 			if (!vals.get(left).equals(vals.get(right))) {
-//			if (vals.get(left) != vals.get(right)) {
 				return false;
 			}
 			left++;

@@ -41,7 +41,6 @@ public class ConcretizingTreeOracle implements TreeOracle {
 		mapping.putAll(consts);
 		SymbolicSuffix concreteSuffix = SLLambdaEqRestrictionBuilder.concretize(suffix, mapping);
 		return oracle.treeQuery(prefix, concreteSuffix);
-//		return treeQuery(prefix, suffix);
 	}
 
 	@Override
