@@ -183,12 +183,12 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 	}
 
 	/**
-	 * Concretize the restrictions of {@code suffix} according to {@code valuations}. A concretized
+	 * Concretize the restrictions of {@code suffix} according to {@code mapping}. A concretized
 	 * restriction is constructed for a specific prefix, and will usually be expressed as
 	 * guard relations between suffix values and data values.
 	 *
 	 * @param suffix restricted symbolic suffix
-	 * @param valuations valuations of registers and prefix parameters
+	 * @param mapping mapping of registers and prefix parameters
 	 * @return {@code suffix} with conretized restrictions
 	 */
 	public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> mapping) {

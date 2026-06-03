@@ -178,7 +178,7 @@ public abstract class AbstractSuffixValueRestriction {
 	/**
 	 * Shift suffix values in {@code restrictions} by {@code shift} steps. Applies to both the
 	 * suffix value of the restrictions themselves, and to any suffix value elements of the
-	 * restrictions. For example, an {@link EqualityRestriction} {@code (s2 == s1)} that is
+	 * restrictions. For example, an equality restriction {@code (s2 == s1)} that is
 	 * shifted by 2 will become {@code (s4 == s3)}.
 	 *
 	 * @param restrictions
