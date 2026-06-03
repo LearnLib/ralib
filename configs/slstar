@@ -1,0 +1,11 @@
+logging.level=WARNING
+export.model=true
+# max.time.millis=600000
+solver=z3
+teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory
+use.eqtest=true
+use.ceopt=false
+use.suffixopt=false
+use.fresh=false
+use.rwalk=false
+learner=slstar
