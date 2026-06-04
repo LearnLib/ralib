@@ -124,6 +124,9 @@ print_header() {
     printf "\n"
 }
 
+currdir="$PWD"
+cd ..
+
 if [ "$1" == "-h" ]; then
   print_header
   exit
@@ -132,7 +135,7 @@ fi
 printf "%15s, %15s, " $series $experiment
 
 for learner in ${learners[@]}; do
-    if [ -d "../results/$series/$experiment-$learner" ]; then
+    if [ -d "results/$series/$experiment-$learner" ]; then
         files=($(ls results/$series/$experiment-$learner | grep 'log' | sed "s/\(.*\)/results\/$series\/$experiment-$learner\/\1/"))
         print_val "Sys. Locations" "Sys. Locations" $files
         print_val "Sys. Transitions" "Sys. Transitions" $files
@@ -144,7 +147,7 @@ done
 
 for phase in ${phases[@]}; do
     for learner in ${learners[@]}; do
-        if [ -d "../results/$series/$experiment-$learner" ]; then
+        if [ -d "results/$series/$experiment-$learner" ]; then
             files=($(ls results/$series/$experiment-$learner | grep 'log' | sed "s/\(.*\)/results\/$series\/$experiment-$learner\/\1/"))
             print_stat "$phase" $stat $files
         else
@@ -153,7 +156,7 @@ for phase in ${phases[@]}; do
     done
 done  
 for learner in ${learners[@]}; do
-    if [ -d "../results/$series/$experiment-$learner" ]; then
+    if [ -d "results/$series/$experiment-$learner" ]; then
         files=($(ls results/$series/$experiment-$learner | grep 'log' | sed "s/\(.*\)/results\/$series\/$experiment-$learner\/\1/"))
         print_stat "Counterexamples" "Counterexamples" $files
     else
@@ -161,7 +164,7 @@ for learner in ${learners[@]}; do
     fi 
 done
 for learner in ${learners[@]}; do
-    if [ -d "../results/$series/$experiment-$learner" ]; then
+    if [ -d "results/$series/$experiment-$learner" ]; then
         files=($(ls results/$series/$experiment-$learner | grep 'log' | sed "s/\(.*\)/results\/$series\/$experiment-$learner\/\1/"))
         print_stat "Hyp. Locations" "Hyp. Locations" $files
         print_stat "Hyp. Transitions" "Hyp. Transitions" $files
@@ -171,7 +174,7 @@ for learner in ${learners[@]}; do
     fi
 done
 for learner in ${learners[@]}; do
-    if [ -d "../results/$series/$experiment-$learner" ]; then
+    if [ -d "results/$series/$experiment-$learner" ]; then
         files=($(ls results/$series/$experiment-$learner | grep 'log' | sed "s/\(.*\)/results\/$series\/$experiment-$learner\/\1/"))
         print_stat "learning \[ms\]" "learning \[ms\]" $files
         print_stat "ce searching \[ms\]" "ce searching \[ms\]" $files
@@ -181,7 +184,7 @@ for learner in ${learners[@]}; do
 done
 
 for learner in ${learners[@]}; do
-    if [ -d "../results/$series/$experiment-$learner" ]; then
+    if [ -d "results/$series/$experiment-$learner" ]; then
         files=($(ls results/$series/$experiment-$learner | grep 'log' | sed "s/\(.*\)/results\/$series\/$experiment-$learner\/\1/"))
         print_count $files
     else
@@ -190,5 +193,5 @@ for learner in ${learners[@]}; do
 done
 printf "\n"
 
-
+cd "$currdir"
 
