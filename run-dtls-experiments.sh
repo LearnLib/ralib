@@ -4,9 +4,9 @@ learners=("slstar" "sllambda" "slleq")
 
 cd scripts
 
-#for learner in "${learners[@]}"; do
-#  ./run_series.sh -s dtls -i 1 -l "$learner"
-#done
+for learner in "${learners[@]}"; do
+  ./run_series.sh -s dtls -i 1 -l "$learner"
+done
 
 ./generate-summary-dtls.sh > plots/dtls-summary-generated.csv
 
