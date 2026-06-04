@@ -1,29 +1,31 @@
-# RaLib Benchmarking Setup
+# SLLambdaEq Artefact
 
-This project contains benchmark examples and scripts to 
-run RaLib on these benchmarks. The project is organized
-as follows:
+This project contains the scripts for running the experiments
+presented in the paper "Efficient Active Learning of Register
+Automata with Equalities". The experiments themselves are run
+in [RaLib](https://github.com/LearnLib/ralib). The project is
+organized as follows:
 
-1. **benchmark problems** are located in ```benchmarks/```.
-    Problems are collected from papers on RaLib, from the
-    [automata wiki](https://automata.cs.ru.nl), and some
-    are generated or manually created for this project. 
+1. **benchmarks** are located in ```experiments/```. These
+    consist of benchmark problems collected from papers on
+    RaLib, from the [automata wiki](https://automata.cs.ru.nl),
+    located in ```experiments/synthetic```, and hypotheses
+    of increasing complexity of the DTLS server of Mbed TLS
+    2.26.0, located in ```experiments/dtls```. **TODO: palindrome**
 2. **configurations** of RaLib are located in ```configs/```.
     The different configurations are used in different 
     series of experiments and specify aspects of the 
     learning experiments (how counterexamples are found,
     how counterexamples are preprocessed, max. runtimes, 
-    teachers/theories for types, etc.) 
-3. **configurations** are organized in series in ```experiments/```.
-    Series combine benchmark problems with a configuration.
-    The different series in this project originate from 
-    multiple papers on RaLib / register automata learning.
+    teachers/theories for types, etc.).
+3. **scripts** for running experiments and generating plots
+    and tables are located in ```scripts/```.
 4. **results** from running experiments will be stored in 
     ```results/```. Results include logs and models from 
     individual learning experiments. Some scripts will 
     use the results to compute plots and tables. 
     Templates and generated documents ce be found 
-    in ```plots```.
+    in ```scripts/plots```.
 5. **RaLib** is a git sub module in ```ralib/```.
 
 
@@ -41,105 +43,62 @@ git submodule update
 
 ## Running experiments 
 
-Generally, experiments are organized in series and 
-configurations do not specify which learner should 
-be used or how many times experiments should be run.
-Shell scripts exist for running individual experiments,
-series, and complete evaluations.
+Generally, experiments are organized in series.
+Shell scripts exist for running individual experiments and series,
+and for generating plots and tables.
 
-### Experiments for the evaluation of CT-based learners (TACAS'24)
+### Experiments for the evaluation of *SLLambdaEq* (ATVA'26)
 
 This section describes how one can run the experiments 
-that are reported in the TACAS 2024 submission.
-Concrete results may vary a little bit for every 
-execution due to randomization but trends should be
-stable.
+that are reported in the ATVA 2026 submission.
 
-1. Running experiments from TACAS 2024 submission
+1. Run the synthetic models experiments with
 
     ```
-    ./run-experiments-model-checker-tacas2024.sh
-    ./run-experiments-with-ce-search-tacas2024.sh
+    ./run-synthetic-models-experiments.sh
     ```
 
-    results (logs and models) can be found in ```results/```.
+    A table containing the results will be found in ```synthetic-models.csv```
+    in the project root directory. Results (logs and models) can be found in
+    ```results/```.
 
-
-2. Generating table in TACAS 2024 submission
-
-    this step requires latexmk and a latex distribution
-    to be installed
+2. Run the DTLS experiments with
 
     ```
-    ./generate-table-tacas2024.sh
+    ./run-dtls-experiments.sh
     ```
+    
+    After the experiments have run, plots will be output to the project
+    root directory. Results (logs and models) can be found in ```results/```.
 
-    The generated pdf is ```plots/tacas2024-table-results.pdf```
+3. Run palindrome experiments
 
-    *Note:* The generated pdf has more rows and columns 
-    than the table in the paper.
+    **TODO**
 
-2. Generating plots
-
-    this step requires latexmk and a latex distribution
-    with pgfplots to be installed
-
-    ```
-    ./generate-plots-tacas2024.sh
-    ```
-
-    The plots in Fig. 4. are:
-
-    ```
-    plots/plot-dtls-resets.pdf
-    plots/plot-dtls-resets-noopt.pdf
-    plots/plot-dtls-counterexamples.pdf
-    plots/plot-dtls-wct.pdf
-    ```
-
-    The plots in Fig. 5 are
-
-    ```
-    plots/plot-gen-transitions.pdf
-    plots/plot-gen-registers.pdf
-    plots/plot-gen-registers-noopt.pdf
-    ```
-
-    *Note:* Some additional plots that are generated
-    were not included in the paper.
 
 ### Running individual experiments
 
 ```
-run_experiment.sh [-h] -s series -e experiment -i iterations -l learner
+scripts/run_experiment.sh [-h] -s series -e experiment -i iterations -l learner
 ```
 
 Learn model of `experiments/[series]/[experiment].xml` with config
-`experiments/[series]/config` and specified learner.
+`configs/[series]/[learner]'.
 
 ### Running a series
 
 ```
-run_series.sh [-h] -s series -i iterations -l learner
+scripts/run_series.sh [-h] -s series -i iterations -l learner
 ```
 
 Run the series of experiments specified in folder
 `experiments/[series]` with specified learner.
 
-### Running the complete evaluation (2015 RaLib Paper)
-
-```
-run_evaluation.sh
-```
-
-This script contains explicit calls to `run_series.sh` for
-all experiments that are to be run as part of the evaluation.
-
 
 ### Searching in logs
 
 ```
-search_logs.sh series experiment learner search_term
+scripts/search_logs.sh series experiment learner search_term
 ```
 
 Searches for `search_term` in the logs from all iterations.
