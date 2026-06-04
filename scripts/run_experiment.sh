@@ -49,7 +49,7 @@ fi
 
 # BUILD CONFIG
 
-config=configs/$learners
+config=configs/$series/$learners
 model=experiments/$series/$experiment.xml
 results=results/$series/$experiment-$learners
 
