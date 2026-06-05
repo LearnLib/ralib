@@ -34,22 +34,16 @@ import net.automatalib.word.Word;
 
 public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuilder {
 
-	public final static SymbolicSuffixRestrictionBuilder.Version VERSION = SymbolicSuffixRestrictionBuilder.Version.V3;
-
 	private boolean useImprovedRegClosedOpt = false;
 
 	protected final ConstraintSolver solver;
 
 	public SLLambdaEqRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
-		this(restrBuilder.consts, restrBuilder.teachers, solver, VERSION);
+		this(restrBuilder.consts, restrBuilder.teachers, solver);
 	}
 
 	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
-		this(consts, teachers, solver, VERSION);
-	}
-
-	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, Version version) {
-		super(consts, teachers, version);
+		super(consts, teachers);//, version);
 		if (teachers == null) {
 			throw new IllegalArgumentException("Non-null argument expected");
 		}
@@ -77,9 +71,6 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 			Word<PSymbolInstance> u,
 			RegisterValuation prefixValuation,
 			RegisterValuation uValuation) {
-		if (getVersion() != VERSION) {
-			return super.restrictSuffix(prefix, suffix);
-		}
 		Map<SuffixValue, AbstractSuffixValueRestriction> restrs = new LinkedHashMap<>();
 		DataValue[] suffixVals = DataWords.valsOf(suffix);
 		for (int i = 0; i < suffixVals.length; i++) {
@@ -112,9 +103,6 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 			Word<PSymbolInstance> u,
 			RegisterValuation prefixValuation,
 			RegisterValuation uValuation) {
-		if (getVersion() != VERSION) {
-			return new SymbolicSuffix(prefix, suffix, this);
-		}
 		return new SymbolicSuffix(DataWords.actsOf(suffix),
 				restrictSuffix(prefix, suffix, u, prefixValuation, uValuation));
 	}
@@ -144,9 +132,6 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 			RegisterValuation prefixValuation,
 			RegisterValuation u1Valuation,
 			RegisterValuation u2Valuation) {
-		if (getVersion() != VERSION) {
-			return new SymbolicSuffix(prefix, suffix, this);
-		}
 		Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = restrictSuffix(prefix, suffix, u1, prefixValuation, u1Valuation);
 		Map<SuffixValue, AbstractSuffixValueRestriction> restr2 = restrictSuffix(prefix, suffix, u2, prefixValuation, u2Valuation);
 		Map<SuffixValue, AbstractSuffixValueRestriction> restr = new LinkedHashMap<>();

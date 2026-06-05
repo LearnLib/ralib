@@ -21,53 +21,25 @@ import net.automatalib.word.Word;
 
 public class SymbolicSuffixRestrictionBuilder {
 
-	public enum Version {
-		V1,
-		V2,
-		V3;
-
-		public static Version fromInt(int v) {
-			switch(v) {
-			case 1:
-				return V1;
-			case 2:
-				return V2;
-			case 3:
-				return V3;
-			default:
-				throw new IllegalArgumentException("Invalid version number: " + v);
-			}
-		}
-	};
-
-	public final static Version DEFAULT_VERSION = Version.V2;
-
     protected final Map<DataType, Theory> teachers;
 
     protected final Constants consts;
 
-    private final Version version;
-
-    public SymbolicSuffixRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, Version version) {
+    public SymbolicSuffixRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers) {
     	this.consts = consts;
     	this.teachers = teachers;
-    	this.version = version;
     }
 
     public SymbolicSuffixRestrictionBuilder(Constants consts) {
-    	this(consts, null, DEFAULT_VERSION);
-    }
-
-    public SymbolicSuffixRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers) {
-    	this(consts, teachers, DEFAULT_VERSION);
+    	this(consts, null);
     }
 
     public SymbolicSuffixRestrictionBuilder(Map<DataType, Theory> teachers) {
-        this(new Constants(), teachers, DEFAULT_VERSION);
+        this(new Constants(), teachers);
     }
 
     public SymbolicSuffixRestrictionBuilder() {
-        this(new Constants(), null, DEFAULT_VERSION);
+        this(new Constants(), null);
     }
 
     public Map<SuffixValue, AbstractSuffixValueRestriction> restrictSuffix(Word<PSymbolInstance> prefix,
@@ -105,7 +77,7 @@ public class SymbolicSuffixRestrictionBuilder {
             } else {
                 // theory-specific restrictions
                 Theory theory = teachers.get(t);
-                restr = theory.restrictSuffixValue(sv, prefix, suffix, consts, version);
+                restr = theory.restrictSuffixValue(sv, prefix, suffix, consts);
             }
             restrictions.put(sv, restr);
         }
@@ -116,7 +88,7 @@ public class SymbolicSuffixRestrictionBuilder {
         if (teachers == null)
             return AbstractSuffixValueRestriction.genericRestriction(guard, prior);
         Theory theory = teachers.get(guard.getParameter().getDataType());
-        return theory.restrictSuffixValue(guard, prior, version);
+        return theory.restrictSuffixValue(guard, prior);
     }
 
     public boolean sdtPathRevealsRegister(List<SDTGuard> path, SymbolicDataValue[] registers) {
@@ -132,9 +104,5 @@ public class SymbolicSuffixRestrictionBuilder {
             }
         }
         return revealedRegisters.size() == registers.length;
-    }
-
-    public Version getVersion() {
-    	return version;
     }
 }

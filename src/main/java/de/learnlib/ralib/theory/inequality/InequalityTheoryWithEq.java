@@ -34,7 +34,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
@@ -652,11 +651,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     }
 
     @Override
-    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts, SymbolicSuffixRestrictionBuilder.Version version) {
-    	if (version == SymbolicSuffixRestrictionBuilder.Version.V1) {
-    		return new UnrestrictedSuffixValue(suffixValue);
-    	}
-
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
     	int firstActionArity = suffix.size() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
     	if (suffixValue.getId() <= firstActionArity) {
     	    return new UnrestrictedSuffixValue(suffixValue);
@@ -720,16 +715,12 @@ public abstract class InequalityTheoryWithEq implements Theory {
     		RegisterValuation prefixValuation,
     		RegisterValuation uValuation,
     		Constants consts) {
-    	return this.restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
+    	return this.restrictSuffixValue(suffixValue, prefix, suffix, consts);
     }
 
     @Override
-    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
     	SuffixValue sv = guard.getParameter();
-
-    	if (version == SymbolicSuffixRestrictionBuilder.Version.V1) {
-    		return new UnrestrictedSuffixValue(sv);
-    	}
 
         if (guard instanceof SDTGuard.IntervalGuard ig) {
     		if (ig.isBiggerGuard()) {

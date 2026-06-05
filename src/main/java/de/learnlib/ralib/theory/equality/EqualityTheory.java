@@ -51,8 +51,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
-import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder.Version;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.words.DataWords;
@@ -354,10 +352,7 @@ public abstract class EqualityTheory implements Theory {
     }
 
     @Override
-    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts, Version version) {
-    	if (version == SymbolicSuffixRestrictionBuilder.Version.V1) {
-    		return new UnrestrictedSuffixValue(suffixValue);
-    	}
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
     	// for now, use generic restrictions with equality theory
     	return AbstractSuffixValueRestriction.genericRestriction(suffixValue, prefix, suffix, consts);
     }
@@ -537,7 +532,7 @@ public abstract class EqualityTheory implements Theory {
     }
 
     @Override
-    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
     	// for now, use generic restrictions with equality theory
     	return AbstractSuffixValueRestriction.genericRestriction(guard, prior);
     }

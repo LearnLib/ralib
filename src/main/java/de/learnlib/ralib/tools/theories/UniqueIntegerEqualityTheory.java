@@ -14,7 +14,6 @@ import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -77,13 +76,12 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
 	}
 
     @Override
-    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
-			Word<PSymbolInstance> suffix, Constants consts, SymbolicSuffixRestrictionBuilder.Version version) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
         return new UnrestrictedSuffixValue(suffixValue);
     }
 
     @Override
-    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
         return new UnrestrictedSuffixValue(guard.getParameter());
     }
 
@@ -97,7 +95,7 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
 	public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
 			Word<PSymbolInstance> suffix, Word<PSymbolInstance> u, RegisterValuation prefixValuation,
 			RegisterValuation uValuation, Constants consts) {
-		return this.restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
+		return this.restrictSuffixValue(suffixValue, prefix, suffix, consts);
 	}
 
 	@Override

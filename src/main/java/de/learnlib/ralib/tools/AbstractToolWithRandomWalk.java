@@ -89,10 +89,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.BooleanOption("use.suffixopt",
                     "Do only use fresh values for non-free suffix values", Boolean.FALSE, true);
 
-    protected static final ConfigurationOption.IntegerOption OPTION_SUFFIXOPT_VERSION
-            = new ConfigurationOption.IntegerOption("suffixopt.version",
-            		"Version of suffix optimization to use", 3, true);
-
     protected static final ConfigurationOption.BooleanOption OPTION_OPTIMIZE_REGCLOSED
             = new ConfigurationOption.BooleanOption("suffixopt.reg.closed",
             		"Use improved optimizations for register closedness (" + LEARNER_SLLAMBDAEQ + " only)", Boolean.FALSE, true);
