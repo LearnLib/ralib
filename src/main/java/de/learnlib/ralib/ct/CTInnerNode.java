@@ -44,7 +44,7 @@ public class CTInnerNode extends CTNode {
 
 	protected CTBranch getBranch(CTNode child) {
 		for (CTBranch b : getBranches()) {
-			if (b.getChild() == child) {
+			if (b.getChild().equals(child)) {
 				return b;
 			}
 		}

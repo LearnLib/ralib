@@ -102,7 +102,7 @@ public class CTAutomatonBuilder {
 
 		// compute non-initial locations
 		for (CTLeaf leaf : ct.getLeaves()) {
-			if (leaf != initial) {
+			if (! leaf.equals(initial)) {
 				RALocation l = hyp.addState(leaf.isAccepting());
 				hyp.setAccessSequence(l, leaf.getRepresentativePrefix());
 				for (Word<PSymbolInstance> sp : leaf.getShortPrefixes()) {

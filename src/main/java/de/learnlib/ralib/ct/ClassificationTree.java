@@ -401,7 +401,7 @@ public class ClassificationTree {
 
 						CTLeaf uExtLeaf = getLeaf(uExtension);
 						CTLeaf uOtherExtLeaf = getLeaf(uOtherExtension.get());
-						if (uExtLeaf != uOtherExtLeaf) {
+						if (! uExtLeaf.equals(uOtherExtLeaf)) {
 							// inconsistent, refine leaf with extended suffix
 							SymbolicSuffix v = lca(uExtLeaf, uOtherExtLeaf).getSuffix();
 							SymbolicSuffix av = extendSuffix(uExtension, uOtherExtension.get(), v);
@@ -468,7 +468,7 @@ public class ClassificationTree {
 		Word<PSymbolInstance> u = uA.prefix(uA.length() - 1);
 		CTLeaf uALeaf = getLeaf(uA);
 		CTLeaf uBLeaf = getLeaf(uB);
-		if (uALeaf != uBLeaf) {
+		if (! uALeaf.equals(uBLeaf)) {
 			CTLeaf uLeaf = getLeaf(u);
 			assert uLeaf != null : "Prefix is not short: " + u;
 			SymbolicSuffix v = lca(uALeaf, uBLeaf).getSuffix();
@@ -561,7 +561,7 @@ public class ClassificationTree {
 	 * @return lowest common ancestor of {@code n1} and {@code n2}
 	 */
 	private CTInnerNode lca(CTNode n1, CTNode n2) {
-		if (n1 == n2) {
+		if (n1.equals(n2)) {
 			if (n1.isLeaf()) {
 				return (CTInnerNode) n1.getParent();
 			}
@@ -574,7 +574,7 @@ public class ClassificationTree {
 	}
 
 	private CTInnerNode lca(CTNode n1, int h1, CTNode n2, int h2) {
-		if (n1 == n2) {
+		if (n1.equals(n2)) {
 			assert n1 instanceof CTInnerNode;
 			return (CTInnerNode) n1;
 		}

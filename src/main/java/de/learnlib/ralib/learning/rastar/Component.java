@@ -247,7 +247,7 @@ public class Component implements LocationComponent {
     @Override
     public Bijection<DataValue> getRemapping(PrefixContainer r) {
         Row row = (Row) r;
-        if (r == primeRow) {
+        if (r.equals(primeRow)) {
             return Bijection.identity(row.memorableValues());
         }
         return this.otherRows.get( row );

@@ -255,7 +255,7 @@ public class OptimizedSymbolicSuffixBuilder {
         }
         // exists other guard which can reject?
         for (SDTGuard g : guards) {
-            if (g == guardA) {
+            if (g.equals(guardA)) {
                 continue;
             }
             SDT s = children.get(g);
