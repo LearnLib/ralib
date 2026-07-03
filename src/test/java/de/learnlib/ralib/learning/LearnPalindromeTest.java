@@ -35,7 +35,11 @@ import de.learnlib.ralib.words.PSymbolInstance;
 public class LearnPalindromeTest extends RaLibTestSuite {
 
 	// TODO Create a system for managing configuration of tests.
+
+	// The size of the palindrome
 	private static final int PALINDROME_SIZE = Integer.parseInt(System.getProperty("palindrome.size", "6"));
+	// Whether the test is run in a benchmark setting
+	private static final boolean PALINDROME_BENCHMARK = Boolean.parseBoolean(System.getProperty("palindrome.benchmark", "false"));
 
 	private void printHeader() {
 		System.out.println("=======================");
@@ -62,7 +66,9 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		RegisterAutomaton model = PalindromeGenerator.generate(size);
 
 		RaLearningAlgorithm algorithm = makeLearner(name);
-//		printHeader();
+		if (PALINDROME_BENCHMARK) {
+			printHeader();
+		}
 
 		Map<DataType, Theory> teachers = new LinkedHashMap<>();
 		teachers.put(TYPE, new IntegerEqualityTheory(TYPE));
@@ -107,21 +113,21 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		learner.learn();
 		DefaultQuery<PSymbolInstance, Boolean> ce = checker.findCounterExample(learner.getHypothesis(), null);
 		while (ce != null) {
-//			System.out.println(ce);
 			learner.addCounterexample(ce);
 			learner.learn();
 			ce = checker.findCounterExample(learner.getHypothesis(), null);
 		}
 
-//		System.out.println(learner.getQueryStatistics());
-//		Hypothesis hyp = learner.getHypothesis();
-//		System.out.println("Hyp. Locations: " + hyp.getStates().size());
-//		System.out.println("Hyp. Transitions: " + hyp.getTransitions().size());
+		if (PALINDROME_BENCHMARK) {
+			System.out.println(learner.getQueryStatistics());
+			Hypothesis hyp = learner.getHypothesis();
+			System.out.println("Hyp. Locations: " + hyp.getStates().size());
+			System.out.println("Hyp. Transitions: " + hyp.getTransitions().size());
 
-		// input locations + transitions
-//		System.out.println("Hyp. Input Locations: " + hyp.getInputStates().size());
-//		System.out.println("Hyp. Input Transitions: " + hyp.getInputTransitions().size());
-
-//		System.out.println("Hyp. Registers: " + hyp.getRegisters().size());
+			// input locations + transitions
+			System.out.println("Hyp. Input Locations: " + hyp.getInputStates().size());
+			System.out.println("Hyp. Input Transitions: " + hyp.getInputTransitions().size());
+			System.out.println("Hyp. Registers: " + hyp.getRegisters().size());
+		}
 	}
 }
