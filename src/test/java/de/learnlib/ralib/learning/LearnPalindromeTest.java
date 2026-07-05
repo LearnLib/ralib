@@ -119,8 +119,9 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		}
 
 		if (PALINDROME_BENCHMARK) {
-			System.out.println(learner.getQueryStatistics());
 			Hypothesis hyp = learner.getHypothesis();
+			System.out.println(hyp);
+			System.out.println(learner.getQueryStatistics());
 			System.out.println("Hyp. Locations: " + hyp.getStates().size());
 			System.out.println("Hyp. Transitions: " + hyp.getTransitions().size());
 
