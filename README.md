@@ -78,7 +78,7 @@ that are reported in the ATVA 2026 submission.
     ./run-palindrome-experiments.sh --max-n max_n
     ```
     A table containing the results will be found in ```palindrome.csv```
-    in the project root directory. Results (logs and models) can be found in
+    in the project root directory. Results (logs) can be found in
     ```results/```.
 
 ### Running individual experiments
@@ -115,7 +115,7 @@ Searches for `search_term` in the logs from all iterations.
 
 Runs experiments for palindrome languages of size n, using the provided algorithm.
 Larger sizes (11 or more) may require allocating more heap space to ensure learning does not run out of memory.
-This can be done using the `-m` option, e.g., the command below allocates 10 GB of heap space to learn  using SLLambdaEq a language of size 10.
+This can be done using the `-m` option, e.g., the command below allocates 10 GB of heap space to learn using SLLambdaEq, a palindrome language of size 10.
 
 ```
 ./run-palindrome-experiments.sh -n 10 -a sllambda -m 10g
