@@ -588,28 +588,6 @@ public abstract class EqualityTheory implements Theory {
     	return DisjunctionRestriction.create(suffixValue, eq, eqPrior);
     }
 
-    /**
-     * Compute restriction on {@code suffixValue} by examining the relationship between its
-     * corresponding data value in {@code action} and data values in {@code u}. Any equality
-     * with a missing register will result in a {@link TrueRestriction}.
-     *
-     * @param suffixValue
-     * @param u
-     * @param action
-     * @param memorable
-     * @param missingRegs
-     * @param consts
-     * @return
-     */
-    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> u, PSymbolInstance action, Set<DataValue> memorable, Set<DataValue> missingRegs, Constants consts) {
-    	int id = suffixValue.getId() - 1;
-    	DataValue[] actionValues = action.getParameterValues();
-    	if (missingRegs.contains(actionValues[id])) {
-    		return new TrueRestriction(suffixValue);
-    	}
-    	return restrictSuffixValue(suffixValue, u, action, memorable, consts);
-    }
-
     @Override
     public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
         if (guard instanceof SDTGuard.EqualityGuard equalityGuard && equalityGuard.register().equals(register)) {

@@ -11,7 +11,6 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.theory.equality.UnmappedEqualityRestriction;
 import de.learnlib.ralib.words.DataWords;
@@ -41,14 +40,6 @@ public abstract class AbstractSuffixValueRestriction {
 	public abstract AbstractSuffixValueRestriction shift(int shiftStep);
 
 	public abstract AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping);
-
-	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> ... mappings) {
-		Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
-		for (Mapping<? extends SymbolicDataValue, DataValue> m : mappings) {
-			mapping.putAll(m);
-		}
-		return concretize(mapping);
-	}
 
 	public abstract Expression<Boolean> toGuardExpression(Set<SymbolicDataValue> vals);
 
@@ -114,16 +105,6 @@ public abstract class AbstractSuffixValueRestriction {
 		else {
 			return new UnrestrictedSuffixValue(sv);
 		}
-	}
-
-	public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> mapping) {
-		Set<SuffixValue> suffixVals = suffix.getValues();
-		Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
-		for (SuffixValue s : suffixVals) {
-			AbstractSuffixValueRestriction restr = suffix.getRestriction(s);
-			restrictions.put(s, restr.concretize(mapping));
-		}
-		return new SymbolicSuffix(suffix.getActions(), restrictions);
 	}
 
 	public abstract boolean isTrue();
