@@ -473,15 +473,15 @@ public class ClassificationTree {
 		return true;
 	}
 
-	private Optional<SymbolicSuffix> transitionConsistentA(Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse) {
-		Word<PSymbolInstance> u = uIf.prefix(uIf.length() - 1);
-		CTLeaf uALeaf = getLeaf(uIf);
-		CTLeaf uBLeaf = getLeaf(uElse);
-		if (uALeaf != uBLeaf) {
+	private Optional<SymbolicSuffix> transitionConsistentA(Word<PSymbolInstance> uA, Word<PSymbolInstance> uB) {
+		Word<PSymbolInstance> u = uA.prefix(uA.length() - 1);
+		CTLeaf uALeaf = getLeaf(uA);
+		CTLeaf uBLeaf = getLeaf(uB);
+		if (! uALeaf.equals(uBLeaf)) {
 			CTLeaf uLeaf = getLeaf(u);
 			assert uLeaf != null : "Prefix is not short: " + u;
 			SymbolicSuffix v = lca(uALeaf, uBLeaf).getSuffix();
-			SymbolicSuffix av = extendSuffixTransition(uIf, uElse, v);
+			SymbolicSuffix av = extendSuffixTransition(uA, uB, v);
 			return Optional.of(av);
 		}
 		return Optional.empty();
