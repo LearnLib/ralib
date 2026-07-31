@@ -374,7 +374,6 @@ public class PrefixFinder {
 		return Optional.of(res);
 	}
 
-
 	/**
 	 * Check for a location discrepancy. This is done by checking whether there is some
 	 * {@code action}-extension of {@code u} in the leaf of {@code locNext} such that there

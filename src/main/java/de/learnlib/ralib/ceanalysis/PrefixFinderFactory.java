@@ -22,7 +22,6 @@ public class PrefixFinderFactory {
 
 	private final TreeOracle sulOracle;
 	private final Map<DataType, Theory> teachers;
-//	private final SymbolicSuffixRestrictionBuilder restrBuilder;
 	private final SymbolicSuffixRestrictionBuilder restrBuilder;
 	private final ConstraintSolver solver;
 	private final Constants consts;
