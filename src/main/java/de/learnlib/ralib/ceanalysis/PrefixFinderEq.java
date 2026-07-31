@@ -69,6 +69,21 @@ public class PrefixFinderEq extends PrefixFinder {
 		return (SLLambdaEqRestrictionBuilder) restrBuilder;
 	}
 
+	/**
+	 * Check for a transition discrepancy. This is done by checking whether there exists no
+	 * {@code action}-extension of {@code u} in the leaf of the location of {@code run} at
+	 * index {@code id} that is equivalent to the {@code (hypGuard && sulGuard)} extension
+	 * of {@code u} after the symbolic suffix derived from the remaining transitions of
+	 * {@code v}.
+	 *
+	 * @param run counterexample run on the hypothesis
+	 * @param id index of {@code run} being searched
+	 * @param u short prefix from leaf of {@code loc}
+	 * @param action the symbol of the next transition
+	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
+	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
+	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
+	 */
 	private Optional<Result> checkTransition(ShortPrefix u, RARun run, int i) {
 		int arity = run.getTransitionSymbol(i).getBaseSymbol().getArity();
 		if (arity == 0) {
@@ -77,6 +92,19 @@ public class PrefixFinderEq extends PrefixFinder {
 		return checkTransition(new DataValue[arity], 0, u, run, i);
 	}
 
+	/**
+	 * For each possible set of data values the action may take according to the concrete suffix,
+	 * check whether the resulting (prefix+action) word is inequivalent to an existing prefix
+	 * extension. The prefix and suffix are taken from {@code run} at index {@code i-1} (for prefix)
+	 * and {@code i} (for suffix).
+	 *
+	 * @param dvals already generated values
+	 * @param did index of next value not yet generated
+	 * @param u short prefix matching {@code run.getPrefix(i-1)}
+	 * @param run run of hypothesis over counterexample
+	 * @param i index of run to check
+	 * @return {@code Optional} enclosing new transition, if one is found, otherwise {@code Optional.empty()}
+	 */
 	private Optional<Result> checkTransition(DataValue[] dvals, int did, ShortPrefix u, RARun run, int i) {
 		Word<PSymbolInstance> prefix = run.getPrefix(i - 1);
 		Word<PSymbolInstance> prefixNext = run.getPrefix(i);
@@ -87,12 +115,14 @@ public class PrefixFinderEq extends PrefixFinder {
 		PSymbolInstance action = run.getTransitionSymbol(i);
 		DataValue d = action.getParameterValues()[did];
 
+		// find the indices of data values in u that parameter with index did may be equal to
 		EqualityTheory et = (EqualityTheory) teachers.get(d.getDataType());
 		RegisterValuation uValuation = hyp.getRun(u).getValuation(u.length());
 		Map<Integer, DataValue> potmap = et.potmap(u, uValuation, prefix, prefixValuation, d.getDataType());
 		Set<Integer> potmatch = et.potmatch(prefix, d, u, uValuation, potmap);
 
 		if (potmatch.isEmpty()) {
+			// not equal to a data value in the prefix, could equal a constant or a prior data value in the action
 			Word<PSymbolInstance> suffix = run.getSuffix(i - 1);
 			SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefix, suffix, u, prefixValuation, uValuation);
 			SymbolicSuffix vHyp = SLLambdaEqRestrictionBuilder.concretize(v, uValuation, ParameterValuation.fromPSymbolWord(u), consts);
@@ -101,6 +131,7 @@ public class PrefixFinderEq extends PrefixFinder {
 			Set<Expression<Boolean>> guards = branching.guardSet();
 			Set<Word<PSymbolInstance>> sulExtensions = instantiateGuards(guards, vHyp, u, hyp.getRun(u).getValuation(u.length()).keySet(), action.getBaseSymbol());
 			Set<Word<PSymbolInstance>> hypExtensions = ct.getExtensions(u, action.getBaseSymbol());
+			// check for any extension on the sul not already covered by the hyp
 			for (Word<PSymbolInstance> uExt : sulExtensions) {
 				if (!hypExtensions.contains(uExt)) {
 					return Optional.of(new Result(uExt, ResultType.TRANSITION));
@@ -109,16 +140,19 @@ public class PrefixFinderEq extends PrefixFinder {
 
 		}
 
+		// for each data value in action allowed by the potmatch, check if (prefix+action) is equivalent to an existing extension
 		DataValue[] uVals = DataWords.valsOf(u);
 		POTMATCH: for (int l : potmatch) {
 			DataValue dPot = uVals[l - 1];
 			dvals[did] = dPot;
 			if (did + 1 < action.getBaseSymbol().getArity()) {
+				// not final index, check each potmatch for next index
 				Optional<Result> res = checkTransition(dvals, did + 1, u, run, i);
 				if (res.isPresent()) {
 					return res;
 				}
 			} else {
+				// final index, construct (prefix+action) symbol and check equivalence with prefixNext
 				PSymbolInstance psi = new PSymbolInstance(action.getBaseSymbol(), dvals);
 				Word<PSymbolInstance> uExtSul = u.append(psi);
 				Set<Word<PSymbolInstance>> extensions = ct.getExtensions(u, action.getBaseSymbol());
@@ -144,6 +178,15 @@ public class PrefixFinderEq extends PrefixFinder {
 		return Optional.empty();
 	}
 
+	/**
+	 * Check whether any extension of {@code u} is inequivalent to a short prefix in location
+	 * {@code run.getLocation(i)}.
+	 *
+	 * @param u
+	 * @param run
+	 * @param i
+	 * @return {@code Optional} enclosing an inequivalent transition, if one exists, otherwise {@code Optional.empty()}
+	 */
 	private Optional<Result> checkLocation(ShortPrefix u, RARun run, int i) {
 		Word<PSymbolInstance> prefix = run.getPrefix(i);
 		Word<PSymbolInstance> suffix = run.getSuffix(i);
@@ -180,6 +223,18 @@ public class PrefixFinderEq extends PrefixFinder {
 		return Optional.empty();
 	}
 
+	/**
+	 * For each guard in {@code guards}, instantiate an action whose values satisfy the guard
+	 * and the restrictions of {@code suffix}, and return a set of words formed by appending
+	 * the actions to {@code u}.
+	 *
+	 * @param guards
+	 * @param suffix
+	 * @param u
+	 * @param regs
+	 * @param action
+	 * @return
+	 */
 	private Set<Word<PSymbolInstance>> instantiateGuards(Set<Expression<Boolean>> guards, SymbolicSuffix suffix, Word<PSymbolInstance> u, Set<Register> regs, ParameterizedSymbol action) {
 		Set<Word<PSymbolInstance>> extensions = new LinkedHashSet<>();
 		for (Expression<Boolean> guard : guards) {
@@ -202,6 +257,10 @@ public class PrefixFinderEq extends PrefixFinder {
 		return extensions;
 	}
 
+	/**
+	 * @param teachers
+	 * @return {@code true} if and only if all data types of {@code teachers} are associated with {@code EqualityTheory}
+	 */
 	private static boolean isEqTheory(Map<DataType, Theory> teachers) {
 		for (Map.Entry<DataType, Theory> t : teachers.entrySet()) {
 			if (t.getKey() == null || !(t.getValue() instanceof EqualityTheory)) {

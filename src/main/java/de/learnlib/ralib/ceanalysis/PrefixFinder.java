@@ -141,6 +141,16 @@ public class PrefixFinder {
 		throw new IllegalStateException("Found no counterexample in " + ce);
 	}
 
+	/**
+	 * Compute conjunction of {@code guard} and the restrictions of {@code suffix}.
+	 *
+	 * @param guard
+	 * @param suffix
+	 * @param u
+	 * @param regs
+	 * @param consts
+	 * @return
+	 */
 	protected Expression<Boolean> conjunctionWithRestriction(Expression<Boolean> guard, SymbolicSuffix suffix, Word<PSymbolInstance> u, Set<Register> regs, Constants consts) {
 		DataType[] types = null;
 		for (ParameterizedSymbol ps : suffix.getActions()) {
@@ -305,16 +315,14 @@ public class PrefixFinder {
 
 	/**
 	 * Check for a transition discrepancy. This is done by checking whether there exists no
-	 * {@code action}-extension of {@code u} in the leaf of the location of {@code run} at
-	 * index {@code id} that is equivalent to the {@code (hypGuard && sulGuard)} extension
-	 * of {@code u} after the symbolic suffix derived from the remaining transitions of
-	 * {@code v}.
+	 * {@code action}-extension of {@code u} in the leaf of {@code loc} that is equivalent
+	 * to the {@code (hypGuard && sulGuard)} extension of {@code u} after {@code v}.
 	 *
-	 * @param run counterexample run on the hypothesis
-	 * @param id index of {@code run} being searched
+	 * @param loc the source location
 	 * @param u short prefix from leaf of {@code loc}
 	 * @param action the symbol of the next transition
 	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
+	 * @param v the suffix after {@code u} and {@code action}
 	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
 	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
 	 */
@@ -369,16 +377,14 @@ public class PrefixFinder {
 
 	/**
 	 * Check for a location discrepancy. This is done by checking whether there is some
-	 * {@code action}-extension of {@code u} in the leaf of the location at index {@code id}
-	 * of {@code run} such that there there does not exist some short prefix in the leaf of
-	 * the one-symbol extension of {@code u} corresponding to the {@code id}:th transition of
-	 * {@code run} that is equivalent to the {@code action}-extension of {@code u} after
-	 * {@code id}.
+	 * {@code action}-extension of {@code u} in the leaf of {@code locNext} such that there
+	 * does not exist some short prefix in the leaf of {@code locNext} that is equivalent
+	 * to the {@code action}-extension of {@code u} after {@code v}.
 	 *
-	 * @param run counterexample run
-	 * @param id index of {@code run} being searched
-	 * @param u short prefix in leaf prior to {@code id} in the run
+	 * @param locNext the destination location
+	 * @param u short prefix in leaf prior to {@code locNext} in the run
 	 * @param action the symbol of the next transition
+	 * @param v the suffix after {@code u} and {@code action}
 	 * @return an {@code Optional} containing the result if there is a location discrepancy, or an empty {@code Optional} otherwise
 	 */
 	private Optional<Result> checkLocation(RALocation locNext,
@@ -440,6 +446,15 @@ public class PrefixFinder {
 		return solver.isSatisfiable(guardRenamed, mapping);
 	}
 
+	/**
+	 * Get the guard in the hypothesis which the last symbol of {@code u} transitions through
+	 * in {@code run}.
+	 *
+	 * @param run
+	 * @param i
+	 * @param u
+	 * @return
+	 */
 	private Expression<Boolean> getHypGuard(RARun run, int i, Word<PSymbolInstance> u) {
 		RegisterValuation runVal = run.getValuation(i - 1);
 		RegisterValuation uVal = hyp.getRun(u).getValuation(u.size());
