@@ -66,6 +66,11 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 		this.solver = solver;
 	}
 
+	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, boolean useImprovedRegClosedOpt) {
+		this(consts, teachers, solver);
+		this.useImprovedRegClosedOpt = useImprovedRegClosedOpt;
+	}
+
 	/**
 	 * Restrict suffix value by examining relation between corresponding data values in {@code suffix}
      * and values in {@code prefix} and {@code u} during counterexample analysis.
