@@ -59,7 +59,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 	}
 
 	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
-		super(consts, teachers);//, version);
+		super(consts, teachers);
 		if (teachers == null) {
 			throw new IllegalArgumentException("Non-null argument expected");
 		}
@@ -200,9 +200,15 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 		return new SymbolicSuffix(suffix.getActions(), newRestrs);
 	}
 
+	/**
+	 * Checks whether {@code av} has a restriction on an unmapped data value
+	 *
+	 * @param av
+	 * @param mem
+	 * @return {@code true} if and only if the restrictions of {@code av} contain any data values not in {@code mem}
+	 */
 	public boolean hasUnmappedRestrictionValue(SymbolicSuffix av, Set<DataValue> mem) {
-		Set<DataValue> restrVals = new LinkedHashSet<>();
-		AbstractSuffixValueRestriction.getElements(av.getRestrictions()).stream().filter(e -> e instanceof DataValue).forEach(e -> restrVals.add((DataValue) e));
+		Set<DataValue> restrVals = getDataValueElements(av.getRestrictions());
 		for (DataValue d : restrVals) {
 			if (teachers != null && teachers.get(d.getDataType()) instanceof EqualityTheory && !mem.contains(d)) {
 				return true;
@@ -529,6 +535,18 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return DisjunctionRestriction.create(suffixValue, eq, eqPrior);
     }
 
+    /**
+     * Compute restrictions separating {@code sdt1} and {@code sdt2} from a common separating path.
+     *
+     * @param sdt1 SDT for prefix 1
+     * @param sdt2 SDT for prefix 2
+     * @param oldRestrictions
+     * @param mappedInPrefix  memorable data values in the common prefix of prefix 1 and 2
+     * @param action1Vals data values in the last symbol of prefix 1
+     * @param action2Vals data values in the last symbol of prefix 2
+     * @param solver
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionsFromPruning(SDT sdt1, SDT sdt2, Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrictions, Set<DataValue> mappedInPrefix, List<DataValue> action1Vals, List<DataValue> action2Vals, ConstraintSolver solver) {
     	Optional<List<Map.Entry<SDTGuard, SDTGuard>>> pathsOpt = prune(sdt1, sdt2, solver);
     	assert pathsOpt.isPresent();
@@ -537,18 +555,39 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return pathToRestrictions(path, oldRestrictions, mappedInPrefix, action1Vals, action2Vals, false);
     }
 
+    /**
+     * Compute restrictions that reveal the unmapped data values of {@code sdt}.
+     *
+     * @param sdt SDT for a prefix
+     * @param missingRegs unmapped data values of {@code sdt}
+     * @param oldRestrictions
+     * @param mappedInPrefix memorable data values in last symbol of prefix
+     * @param actionVals all data values of last symbol of prefix
+     * @param solver
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionsFromPruning(SDT sdt, Set<DataValue> missingRegs, Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrictions, Set<DataValue> mappedInPrefix, List<DataValue> actionVals, ConstraintSolver solver) {
     	List<Map.Entry<SDTGuard, SDTGuard>> paths = pruneRegClosed(sdt, missingRegs, solver);
     	List<SDTGuard> path = pathConjunction(paths);
     	return pathToRestrictions(path, oldRestrictions, mappedInPrefix, actionVals, Arrays.asList(), true);
     }
 
+    /**
+     * Forms the conjunction of each pair in {@code paths}.
+     * This method assumes that valid conjunctions can be formed, i.e., that the conjunction
+     * of the guard expressions of each pair is satisfiable.
+     * If a pair consists of two equality guards, this method assumes that the guards are on
+     * the same register.
+     *
+     * @param paths
+     * @return a list containing the conjunctions of each pair of {@code paths}
+     */
     private static List<SDTGuard> pathConjunction(List<Map.Entry<SDTGuard, SDTGuard>> paths) {
     	List<SDTGuard> path = new ArrayList<>();
     	for (Map.Entry<SDTGuard, SDTGuard> pair : paths) {
     		SDTGuard left = pair.getKey();
     		SDTGuard right = pair.getValue();
-    		assert left.getParameter().equals(right.getParameter()) : "Guard pair do not match";
+    		assert left.getParameter().equals(right.getParameter()) : "Non-matching guards";
     		SDTGuard.EqualityGuard eg = left instanceof SDTGuard.EqualityGuard ?
     				(SDTGuard.EqualityGuard) left : (
     						right instanceof SDTGuard.EqualityGuard ?
@@ -563,6 +602,17 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return path;
     }
 
+    /**
+     * Convert a path of SDT guards into a set of restrictions, with calls to {@link guardToRestriction}.
+     *
+     * @param path
+     * @param oldRestrictions
+     * @param mappedInPrefix
+     * @param action1Vals
+     * @param action2Vals
+     * @param isRegClosed
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> pathToRestrictions(List<SDTGuard> path, Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrictions, Set<DataValue> mappedInPrefix, List<DataValue> action1Vals, List<DataValue> action2Vals, boolean isRegClosed) {
     	int arity = action1Vals.size();
     	Map<SuffixValue, AbstractSuffixValueRestriction> restr = new LinkedHashMap<>();
@@ -575,22 +625,47 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return restr;
     }
 
+    /**
+     * Convert {@code guard} into a restriction. This method assumes the existence of a prefix
+     * and action (and a potential action for an potential additional prefix).
+     * If encountering an equality with a data value, translates it to an equality restriction.
+     * This equality will be on the same data value, if it is memorable in the prefix (i.e.,
+     * present in {@code mappedInPrefix}. Otherwise it will be an equality with any suffix value
+     * corresponding to the action which is of the same data type.
+     * If the guard is not an equality guard, return but the old restriction is an equality
+     * restriction, return that restriction (with data values not in {@code mappedInPrefix}
+     * replaced with action suffix values of matching type, similarly to above).
+     * Otherwise, return fresh restriction.
+     *
+     * @param guard
+     * @param oldRestriction previous restriction for the parameter of {@code guard}
+     * @param mappedInPrefix memorable data values in prefix
+     * @param action1Vals values in the action of prefix 1
+     * @param action2Vals values in the action of prefix 2
+     * @param isRegClosed {@code true} if constructing restrictions for Register Closedness special case
+     * @return
+     */
     private static AbstractSuffixValueRestriction guardToRestriction(SDTGuard guard, AbstractSuffixValueRestriction oldRestriction, Set<DataValue> mappedInPrefix, List<DataValue> action1Vals, List<DataValue> action2Vals, boolean isRegClosed) {
     	SuffixValue suffixValue = guard.getParameter();
     	if (guard instanceof SDTGuard.EqualityGuard eg) {
     		SDTGuardElement element = eg.register();
     		if (element instanceof DataValue d) {
 				if (mappedInPrefix.contains(d)) {
+					// mapped data value in prefix, so can be used in restriction
 					return new EqualityRestriction(suffixValue, Set.of(d));
 				}
+				// not a mapped data value, so is instead an equality with a parameter in the action
+				// (or an unmapped data value, if restriction is for Register Closedness special case)
 				Set<SDTGuardElement> potentiallyEqualSuffixValues = potentiallyEqualSuffixValues(d, action1Vals);
 				if (isRegClosed) {
 					if (action1Vals.contains(d) || action2Vals.contains(d)) {
+						// can be an unmapped data value, a fresh data value or any action suffix value of matching type
 						return DisjunctionRestriction.create(suffixValue,
 								new UnmappedEqualityRestriction(suffixValue),
 								new EqualityRestriction(suffixValue, potentiallyEqualSuffixValues),
 								new FreshSuffixValue(suffixValue));
 					}
+					// not present in action so must be unmapped or fresh
 					return DisjunctionRestriction.create(suffixValue,
 							new UnmappedEqualityRestriction(suffixValue),
 							new FreshSuffixValue(suffixValue));
@@ -605,13 +680,16 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     		}
     	}
 
+    	// not equality guard, check old restriction
     	if (oldRestriction instanceof EqualityRestriction er) {
     		Set<SDTGuardElement> suffixVals = new LinkedHashSet<>();
     		for (SDTGuardElement elem : er.getGuardElements()) {
     			if (elem instanceof DataValue d) {
     				if (mappedInPrefix.contains(d)) {
+    					// mapped data value, can use in restriction
     					return new EqualityRestriction(suffixValue, Set.of(d));
     				}
+    				// not mapped, so must be referring to action parameter
     				Set<SDTGuardElement> potentiallyEqualSuffixValues = potentiallyEqualSuffixValues(d, action1Vals);
     				return new EqualityRestriction(suffixValue, potentiallyEqualSuffixValues);
     			} else if (elem instanceof Constant c) {
@@ -624,6 +702,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     		return new EqualityRestriction(suffixValue, suffixVals);
     	}
 
+    	// if not equality restriction, must be fresh
     	assert oldRestriction.containsFresh() : "Restriction invalid at this point: " + oldRestriction;
     	return new FreshSuffixValue(suffixValue);
     }
@@ -686,6 +765,15 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return pruneRegClosed(new ArrayList<>(), sdt, missingRegs, solver);
     }
 
+    /**
+     * Find a pair of paths in {@code sdt} which reveal a missing register.
+     *
+     * @param path
+     * @param sdt
+     * @param missingRegs
+     * @param solver
+     * @return
+     */
     private static List<Map.Entry<SDTGuard, SDTGuard>> pruneRegClosed(List<Map.Entry<SDTGuard, SDTGuard>> path, SDT sdt, Set<DataValue> missingRegs, ConstraintSolver solver) {
     	if (sdt.getChildren() == null) {
     		return new ArrayList<>();
@@ -775,32 +863,41 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	}
     	int arity = symb1.getBaseSymbol().getArity();
 
+    	// shift parameters
     	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestr = suffix.getRestrictions();
     	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrShifted = AbstractSuffixValueRestriction.shift(oldRestr, arity);
     	SDT sdt1Shifted = sdt1.shift(arity);
     	SDT sdt2Shifted = sdt2.shift(arity);
 
-    	Bijection<DataValue> uExt1AncestorRenaming = uExt1.getBijection(uExt1.getPath().getPrior(suffix)).inverse();
-    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrShiftedRenamed = AbstractSuffixValueRestriction.relabel(oldRestrShifted, uExt1AncestorRenaming.toVarMapping());
+    	// remap old restrictions from the RP of the immediate ancestor node of u1 to match u1
+    	// u1 will be used as the base prefix, so all data values must be mapped to u1
+    	Bijection<DataValue> uExt1FromAncestorRenaming = uExt1.getBijection(uExt1.getPath().getPrior(suffix)).inverse();
+    	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrShiftedRenamed = AbstractSuffixValueRestriction.relabel(oldRestrShifted, uExt1FromAncestorRenaming.toVarMapping());
 
+    	// data values in the action will become suffix values, so map values in the action to their corresponding suffix values
     	Mapping<DataValue, SuffixValue> actionRenaming1 = actionValueToSuffixValue(uExt1);
     	Mapping<DataValue, SuffixValue> actionRenaming2 = actionValueToSuffixValue(uExt2);
     	SDT sdt1ActionRenamed = sdt1Shifted.relabel(SDTRelabeling.fromMapping(actionRenaming1));
     	SDT sdt2ActionRenamed = sdt2Shifted.relabel(SDTRelabeling.fromMapping(actionRenaming2));
     	Map<SuffixValue, AbstractSuffixValueRestriction> oldRestrActionRenamed = AbstractSuffixValueRestriction.relabel(oldRestrShiftedRenamed, actionRenaming1);
 
+    	// remap data values of uExt2 to uExt1 in such a way that there are no collisions for data values in uExt2 that have no correlation to uExt1
     	Bijection<DataValue> uExt2Renaming = collisionFreeRenaming(uExt1, uExt2, u1RpBijection, u2RpBijection, suffix, sameLeaf);
     	SDT sdt2Renamed = sdt2ActionRenamed.relabel(SDTRelabeling.fromBijection(uExt2Renaming));
 
+    	// get memorable data values of u1 and data values in the actions of uExt1 and uExt2
     	Set<DataValue> mappedInPrefix = u1RpBijection.keySet();
     	List<DataValue> action1Vals = Arrays.asList(symb1.getParameterValues());
     	List<DataValue> action2Vals = new ArrayList<>();
+    	// map uExt2 action data values to uExt1
     	renameCollection(action2Vals, Arrays.asList(symb2.getParameterValues()), uExt2Renaming);
 
+    	// derive restrictions
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrPruned = restrictionsFromPruning(sdt1ActionRenamed, sdt2Renamed, oldRestrActionRenamed, mappedInPrefix, action1Vals, action2Vals, solver);
 
+    	// replace restrictions on data values in the actions of uExt2 with their corresponding suffix values
     	Bijection<DataValue> uExt2FromAncestorRenaming = uExt2.getBijection(uExt2.getPath().getPrior(suffix)).inverse();
-    	Map<SuffixValue, AbstractSuffixValueRestriction> restrElseParams = addActionParameter(restrPruned, actionRenaming2, uExt1AncestorRenaming.inverse(), uExt2FromAncestorRenaming);
+    	Map<SuffixValue, AbstractSuffixValueRestriction> restrElseParams = addActionParameter(restrPruned, actionRenaming2, uExt1FromAncestorRenaming.inverse(), uExt2FromAncestorRenaming);
 
     	return restrElseParams;
     }
@@ -854,6 +951,21 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return restrictionsFromPruning(sdtShifted, missingRegs, oldRestrRenamedShifted, mappedInPrefix, actionVals, solver);
     }
 
+    /**
+     * Shift restrictions one action-arity to the right.
+     * If there are any equality restrictions on a data value that is not memorable in {@code u},
+     * replace that with an equality restriction on any suffix value in the action that is
+     * of a matching type to that data value.
+     *
+     * @param sdt
+     * @param u
+     * @param uExt
+     * @param rp
+     * @param consts
+     * @param suffix
+     * @param solver
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> transferRestriction(SDT sdt, Prefix u, Prefix uExt, Bijection<DataValue> rp, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb = uExt.lastSymbol();
     	ArrayList<DataValue> symbVals = new ArrayList<>(Arrays.asList(symb.getParameterValues()));
@@ -882,6 +994,16 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return AbstractSuffixValueRestriction.relabel(ret, ancestorRenaming.inverse().toVarMapping());
     }
 
+    /**
+     * Check old unmapped restrictions have discovered a new mapped value, or discovered that
+     * a prior unmapped value is a value in the action and therefore now a suffix value.
+     *
+     * @param restr
+     * @param u
+     * @param uExt
+     * @param sdt
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> replaceUnmappedRestriction(Map<SuffixValue, AbstractSuffixValueRestriction> restr, Prefix u, Prefix uExt, SDT sdt) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
     	List<DataValue> symbVals = Arrays.asList(uExt.lastSymbol().getParameterValues());
@@ -923,6 +1045,21 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return ret;
     }
 
+    /**
+     * Find a mapping for the data values from {@code uExt2} to {@code uExt1}. This mapping
+     * ensures that the mappings of data values from {@code uExt1} and {@code uExt2} to their
+     * ancestor node is adhered to. Data values of {@code uExt2} that have no mapping to the
+     * ancestor node are renamed to ensure there is no collision with data values in
+     * {@code uExt1} that are also not mapped to the ancestor node.
+     *
+     * @param uExt1
+     * @param uExt2
+     * @param u1RpBijection
+     * @param u2RpBijection
+     * @param suffix
+     * @param sameLeaf
+     * @return
+     */
     private static Bijection<DataValue> collisionFreeRenaming(Prefix uExt1, Prefix uExt2, Bijection<DataValue> u1RpBijection, Bijection<DataValue> u2RpBijection, SymbolicSuffix suffix, boolean sameLeaf) {
     	Set<DataValue> usedVals = DataWords.valSet(uExt1);
     	Bijection<DataValue> freshRenaming = new Bijection<>();
@@ -952,6 +1089,11 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return renaming;
     }
 
+    /**
+     * @param renaming
+     * @param b
+     * @return {@code b} added to {@code renaming}
+     */
     private static Bijection<DataValue> updateRenaming(Bijection<DataValue> renaming, Bijection<DataValue> b) {
     	Bijection<DataValue> ret = new Bijection<>(renaming);
     	for (Map.Entry<DataValue, DataValue> e : b.entrySet()) {
@@ -960,6 +1102,13 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return ret;
     }
 
+    /**
+     * Map data values in the last symbol of {@code uExt} (the action) to their corresponding
+     * suffix values when the action is made symbolic.
+     *
+     * @param uExt
+     * @return
+     */
     private static Mapping<DataValue, SuffixValue> actionValueToSuffixValue(Word<PSymbolInstance> uExt) {
     	List<DataValue> uVals = Arrays.asList(DataWords.valsOf(uExt.prefix(uExt.length() - 1)));
     	DataValue[] actionVals = uExt.lastSymbol().getParameterValues();
@@ -994,6 +1143,10 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	return ret;
     }
 
+    /**
+     * @param restr
+     * @return the set of {@code DataValue} elements of {@code restr}
+     */
     private static Set<DataValue> getDataValueElements(Map<SuffixValue, AbstractSuffixValueRestriction> restr) {
     	return AbstractSuffixValueRestriction.getElements(restr)
     			.stream()
@@ -1002,6 +1155,18 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     			.collect(Collectors.toSet());
     }
 
+    /**
+     * Given a prefix {@code ua}, where {@code a} (the action) is a one-symbol extension,
+     * checks for any equality restriction with a data value in {@code a}. If such an equality
+     * restriction is found, add to it an equality restriction with the value's corresponding
+     * suffix value, as given by {@code actionRenaming}.
+     *
+     * @param restr
+     * @param actionRenaming mapping from values in action to corresponding suffix value
+     * @param toAncestorRenaming mapping of data values from {@code restr} to ancestor node
+     * @param fromAncestorToExtRenaming mapping of data values from ancestor node to prefix
+     * @return
+     */
     private static Map<SuffixValue, AbstractSuffixValueRestriction> addActionParameter(Map<SuffixValue, AbstractSuffixValueRestriction> restr, Mapping<DataValue, SuffixValue> actionRenaming, Bijection<DataValue> toAncestorRenaming, Bijection<DataValue> fromAncestorToExtRenaming) {
     	Map<SuffixValue, AbstractSuffixValueRestriction> ret = restr;
     	Set<DataValue> restrVals = getDataValueElements(restr);
