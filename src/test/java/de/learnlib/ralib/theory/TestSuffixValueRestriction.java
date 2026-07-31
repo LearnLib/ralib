@@ -58,7 +58,6 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	Constants consts1 = new Constants();
     	SLLambdaEqRestrictionBuilder builder1 = new SLLambdaEqRestrictionBuilder(consts1, teachers, solver);
     	AbstractSuffixValueRestriction restr1 = builder1.constructRestrictedSuffix(prefix1, suffix1, u1, val1, uval1).getRestriction(s1);
-//    	AbstractSuffixValueRestriction restr1 = theory.restrictSuffixValue(s1, prefix1, suffix1, val1, consts1);
     	Assert.assertEquals(restr1.toString(), "Fresh(s1)");
 
     	// equal register, constant
@@ -77,8 +76,6 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	SLLambdaEqRestrictionBuilder builder2 = new SLLambdaEqRestrictionBuilder(consts2, teachers, solver);
     	AbstractSuffixValueRestriction restr2Reg = builder2.constructRestrictedSuffix(prefix2, suffix2, u2, val2, uval2).getRestriction(s1);
     	AbstractSuffixValueRestriction restr2Con = builder2.constructRestrictedSuffix(prefix2, suffix2, u2, val2, uval2).getRestriction(s2);
-//    	AbstractSuffixValueRestriction restr2Reg = theory.restrictSuffixValue(s1, prefix2, suffix2, val2, consts2);
-//    	AbstractSuffixValueRestriction restr2Con = theory.restrictSuffixValue(s2, prefix2, suffix2, val2, consts2);
     	Assert.assertEquals(restr2Reg.toString(), "(s1 == r1)");
     	Assert.assertEquals(restr2Con.toString(), "(s2 == c1)");
 
@@ -94,7 +91,6 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	Constants consts3 = new Constants();
     	SLLambdaEqRestrictionBuilder builder3 = new SLLambdaEqRestrictionBuilder(consts3, teachers, solver);
     	AbstractSuffixValueRestriction restr3 = builder3.constructRestrictedSuffix(prefix3, suffix3, u3, val3, uval3).getRestriction(s2);
-//    	AbstractSuffixValueRestriction restr3 = theory.restrictSuffixValue(s2, prefix3, suffix3, val3, consts3);
     	Assert.assertEquals(restr3.toString(), "(s2 == s1)");
 
     	// equal mapped
@@ -113,8 +109,6 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	SLLambdaEqRestrictionBuilder builder4 = new SLLambdaEqRestrictionBuilder(consts4, teachers, solver);
     	AbstractSuffixValueRestriction restr4_1 = builder4.constructRestrictedSuffix(prefix4, suffix4, u4, val4, uval4).getRestriction(s1);
     	AbstractSuffixValueRestriction restr4_2 = builder4.constructRestrictedSuffix(prefix4, suffix4, u4, val4, uval4).getRestriction(s2);
-//    	AbstractSuffixValueRestriction restr4_1 = theory.restrictSuffixValue(s1, prefix4, suffix4, val4, consts4);
-//    	AbstractSuffixValueRestriction restr4_2 = theory.restrictSuffixValue(s2, prefix4, suffix4, val4, consts4);
     	Assert.assertEquals(restr4_1.toString(), "(Fresh(s1) OR (s1 == r1) OR (s1 == c1))");
     	Assert.assertEquals(restr4_2.toString(), "(Fresh(s2) OR (s2 == s1) OR (s2 == r1) OR (s2 == c1))");
 
@@ -132,7 +126,6 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	Constants consts5 = new Constants();
     	SLLambdaEqRestrictionBuilder builder5 = new SLLambdaEqRestrictionBuilder(consts5, teachers, solver);
     	AbstractSuffixValueRestriction restr5 = builder5.constructRestrictedSuffix(prefix5, suffix5, u5, val5, uval5).getRestriction(s1);
-//    	AbstractSuffixValueRestriction restr5 = theory.restrictSuffixValue(s1, prefix5, suffix5, val5, consts5);
     	Assert.assertEquals(restr5.toString(), "(Unmapped(s1) OR Fresh(s1))");
 
     	// equal multiple suffix values
@@ -149,7 +142,6 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	Constants consts6 = new Constants();
     	SLLambdaEqRestrictionBuilder builder6 = new SLLambdaEqRestrictionBuilder(consts6, teachers, solver);
     	AbstractSuffixValueRestriction restr6 = builder6.constructRestrictedSuffix(prefix6, suffix6, u6, val6, uval6).getRestriction(s3);
-//    	AbstractSuffixValueRestriction restr6 = theory.restrictSuffixValue(s3, prefix6, suffix6, val6, consts6);
     	Assert.assertEquals(restr6.toString(), "(s3 == s1)");
 
     	// repeat occurrence of mapped
