@@ -35,11 +35,11 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
@@ -62,6 +62,11 @@ import net.automatalib.word.Word;
 public abstract class InequalityTheoryWithEq implements Theory {
 
     boolean useSuffixOpt = false;
+
+    @Override
+    public boolean isUsingSuffixOptimization() {
+    	return useSuffixOpt;
+    }
 
     /**
      * Given a potential, generate data values for each equivalence class.
@@ -154,11 +159,12 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			Word<PSymbolInstance> prefix,
 			SymbolicSuffix suffix,
 			SuffixValue suffixValue,
+			Constants consts,
 			WordValuation values) {
 		List<DataValue> equivClasses = new ArrayList<>();
 		equivClasses.addAll(valueGuards.keySet());
 		EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
-		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values);
+		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
 
 		Map<DataValue, SDTGuard> ret = new LinkedHashMap<>();
 		for (Map.Entry<DataValue, SDTGuard> e : valueGuards.entrySet()) {
@@ -421,7 +427,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	Map<DataValue, SDTGuardElement> pot = getPotential(prefix, suffixValues, consts);
 
         Map<DataValue, SDTGuard> equivClasses = generateEquivClasses(currentParam, pot, consts);
-        Map<DataValue, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, values);
+        Map<DataValue, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, consts, values);
 
         Map<SDTGuard, SDT> children = new LinkedHashMap<>();
         for (Map.Entry<DataValue, SDTGuard> ec : filteredEquivClasses.entrySet()) {
@@ -598,15 +604,15 @@ public abstract class InequalityTheoryWithEq implements Theory {
         return returnThis;
     }
 
-    @Override
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
-            Constants constants, ConstraintSolver solver) {
+            List<DataValue> prior, Constants constants, ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
     	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
     	vals.addAll(vals.stream()
     			.filter(w -> w.getDataType().equals(p.getDataType()))
     			.collect(Collectors.toSet()));
+    	vals.addAll(prior);
         DataValue fresh = getFreshValue(new ArrayList<>(vals));
 
     	if (isSatisfiableWithEquality(guard, p, fresh, solver)) {
@@ -645,7 +651,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
     	int firstActionArity = suffix.size() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
     	if (suffixValue.getId() <= firstActionArity) {
     	    return new UnrestrictedSuffixValue(suffixValue);
@@ -702,8 +708,18 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	return greater ? new GreaterSuffixValue(suffixValue) : new LesserSuffixValue(suffixValue);
     }
 
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
+    		Word<PSymbolInstance> prefix,
+    		Word<PSymbolInstance> suffix,
+    		Word<PSymbolInstance> u,
+    		RegisterValuation prefixValuation,
+    		RegisterValuation uValuation,
+    		Constants consts) {
+    	return this.restrictSuffixValue(suffixValue, prefix, suffix, consts);
+    }
+
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
     	SuffixValue sv = guard.getParameter();
 
         if (guard instanceof SDTGuard.IntervalGuard ig) {
@@ -713,7 +729,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     			return new LesserSuffixValue(sv);
     		}
     	}
-    	SuffixValueRestriction restr = SuffixValueRestriction.genericRestriction(guard, prior);
+    	AbstractSuffixValueRestriction restr = AbstractSuffixValueRestriction.genericRestriction(guard, prior);
     	if (restr instanceof FreshSuffixValue) {
     		restr = new GreaterSuffixValue(sv);
     	}

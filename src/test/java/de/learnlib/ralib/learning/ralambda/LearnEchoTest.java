@@ -74,4 +74,47 @@ public class LearnEchoTest extends RaLibTestSuite {
         Assert.assertEquals(hyp.getStates().size(), 11);
         Assert.assertTrue(hyp.accepts(ce));
     }
+
+    @Test
+    public void testLearnEchoSLLEq() {
+
+        Constants consts = new Constants();
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory theory = new IntegerEqualityTheory(TINT);
+        theory.setUseSuffixOpt(true);
+        teachers.put(TINT, theory);
+
+        RepeaterSUL sul = new RepeaterSUL(-1, 4);
+        IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
+
+        ConstraintSolver solver = new ConstraintSolver();
+
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
+
+        SLLambda learner = new SLLambdaEq(mto, teachers, consts, true, solver, sul.getActionSymbols());
+        learner.learn();
+
+        Word<PSymbolInstance> ce = Word.fromSymbols(
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ONE)),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ONE)),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, new BigDecimal(2))),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, new BigDecimal(2))),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, new BigDecimal(3))),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, new BigDecimal(3))),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, new BigDecimal(4))),
+       	        new PSymbolInstance(ONOK));
+
+        learner.addCounterexample(new DefaultQuery<>(ce, true));
+        learner.learn();
+
+        Hypothesis hyp = learner.getHypothesis();
+
+        Assert.assertEquals(hyp.getStates().size(), 11);
+        Assert.assertTrue(hyp.accepts(ce));
+    }
 }

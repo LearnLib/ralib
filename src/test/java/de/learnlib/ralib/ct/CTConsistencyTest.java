@@ -25,6 +25,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -34,7 +35,9 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.TrueRestriction;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -101,7 +104,8 @@ public class CTConsistencyTest extends RaLibTestSuite {
         Assert.assertTrue(closed);
 
         ct.refine(ct.getLeaf(pu0pu1), s1);
-        boolean consistent = ct.checkLocationConsistency();
+        boolean consistent;
+        consistent = ct.checkLocationConsistency();
         Assert.assertFalse(consistent);
 
         ct.sift(pu0po0);
@@ -254,6 +258,9 @@ public class CTConsistencyTest extends RaLibTestSuite {
         DataValue dv1 = new DataValue(T_INT, BigDecimal.ONE);
         DataValue dv2 = new DataValue(T_INT, BigDecimal.valueOf(2));
 
+        SuffixValue s1 = new SuffixValue(T_INT, 1);
+        SuffixValue s2 = new SuffixValue(T_INT, 2);
+
         Word<PSymbolInstance> b0 = Word.fromSymbols(new PSymbolInstance(BETA, dv0));
         Word<PSymbolInstance> a0 = Word.fromSymbols(new PSymbolInstance(ALPHA, dv0));
         Word<PSymbolInstance> a0a1 = Word.fromSymbols(
@@ -270,10 +277,14 @@ public class CTConsistencyTest extends RaLibTestSuite {
         		new PSymbolInstance(BETA, dv2),
         		new PSymbolInstance(BETA, dv1));
 
+        Map<SuffixValue, AbstractSuffixValueRestriction> sbbRestr = new LinkedHashMap<>();
+        sbbRestr.put(s1, new TrueRestriction(s1));
+        sbbRestr.put(s2, new TrueRestriction(s2));
+
         SymbolicSuffix sa = new SymbolicSuffix(RaStar.EMPTY_PREFIX, a0);
         SymbolicSuffix sb = new SymbolicSuffix(RaStar.EMPTY_PREFIX, b0);
         SymbolicSuffix sab = new SymbolicSuffix(RaStar.EMPTY_PREFIX, a0b1);
-        SymbolicSuffix sbb = new SymbolicSuffix(a0a1, b2b1);
+        SymbolicSuffix sbb = new SymbolicSuffix(Word.fromSymbols(BETA, BETA), sbbRestr);
 
         ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, ALPHA, BETA);
         ct.initialize();

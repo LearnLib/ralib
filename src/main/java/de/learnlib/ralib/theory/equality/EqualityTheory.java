@@ -16,19 +16,25 @@
  */
 package de.learnlib.ralib.theory.equality;
 
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +44,12 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.*;
-import de.learnlib.ralib.theory.SDT;
-import de.learnlib.ralib.theory.SDTLeaf;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -56,6 +61,8 @@ import net.automatalib.word.Word;
  * @author falk and sofia
  */
 public abstract class EqualityTheory implements Theory {
+
+	protected boolean useSuffixOpt = false;
 
     protected boolean useNonFreeOptimization;
 
@@ -78,232 +85,140 @@ public abstract class EqualityTheory implements Theory {
         this(false);
     }
 
+    @Override
+    public boolean isUsingSuffixOptimization() {
+    	return useSuffixOpt;
+    }
+
     public List<DataValue> getPotential(List<DataValue> vals) {
         return vals;
     }
 
-    // given a map from guards to SDTs, merge guards based on whether they can
-    // use another SDT. Base case: always add the 'else' guard first.
-    private Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard.EqualityGuard, SDT> eqs, SDTGuard.SDTAndGuard deqGuard, SDT deqSdt) {
-        Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
-        List<SDTGuard> deqList = new ArrayList<>();
-        List<SDTGuard.EqualityGuard> eqList = new ArrayList<>();
-        for (Map.Entry<SDTGuard.EqualityGuard, SDT> e : eqs.entrySet()) {
-            SDT eqSdt = e.getValue();
-            SDTGuard.EqualityGuard eqGuard = e.getKey();
-            LOGGER.trace("comparing guards: " + eqGuard.toString() + " to " + deqGuard.toString()
-                    + "\nSDT    : " + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            List<SDTGuard.EqualityGuard> ds = new ArrayList<>();
-            ds.add(eqGuard);
-            LOGGER.trace("remapping: " + ds);
-            if (! eqSdt.isEquivalentUnder(deqSdt, ds)) {
-                LOGGER.trace("--> not eq.");
-                deqList.add(SDTGuard.toDeqGuard(eqGuard));
-                eqList.add(eqGuard);
-            } else {
-                LOGGER.trace("--> equivalent");
-            }
-
-        }
-        if (eqList.isEmpty()) {
-            retMap.put(new SDTGuard.SDTTrueGuard(deqGuard.getParameter()), deqSdt);
-        } else if (eqList.size() == 1) {
-            SDTGuard.EqualityGuard q = eqList.get(0);
-            retMap.put(q, eqs.get(q));
-            retMap.put(SDTGuard.toDeqGuard(q), deqSdt);
-        } else if (eqList.size() > 1) {
-            for (SDTGuard.EqualityGuard q : eqList) {
-                retMap.put(q, eqs.get(q));
-            }
-            retMap.put(new SDTGuard.SDTAndGuard(deqGuard.getParameter(), deqList), deqSdt);
-        }
-        assert !retMap.isEmpty();
-
-        return retMap;
-    }
-
-    // process a tree query
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values,
-            Constants constants, SuffixValuation suffixValues, MultiTheoryTreeOracle oracle) {
+            Constants consts, SuffixValuation suffixValues, MultiTheoryTreeOracle oracle) {
+    	int currentId = values.size() + 1;
 
-        int pId = values.size() + 1;
+    	SuffixValue suffixValue = suffix.getSuffixValue(currentId);
 
-        SuffixValue currentParam = suffix.getSuffixValue(pId);
-        DataType type = currentParam.getDataType();
+    	Map<DataValue, SDTGuardElement> pot = getPotential(suffixValue.getDataType(), prefix, suffixValues, consts);
+    	List<DataValue> potVals = new ArrayList<>();
+    	pot.keySet().forEach(d -> potVals.add(d));
+    	DataValue fresh = getFreshValue(potVals);
 
-        Map<SDTGuard.EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
+    	List<DataValue> equivClasses = new ArrayList<>(potVals);
+    	equivClasses.add(fresh);
+		EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
+		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
 
-        Collection<DataValue> potSet = DataWords.joinValsToSet(constants.values(type),
-                DataWords.valSet(prefix, type), suffixValues.values(type));
+		if (freshValues) {
+			ParameterizedSymbol act = computeSymbol(suffix, currentId);
+			if (act.getArity() > 0 && act instanceof OutputSymbol) {
+		        int idx = computeLocalIndex(suffix, currentId);
+		        Word<PSymbolInstance> query = buildQuery(prefix, suffix, values);
+		        Word<PSymbolInstance> trace = ioOracle.trace(query);
 
-        List<DataValue> potList = new ArrayList<>(potSet);
-        List<DataValue> potential = getPotential(potList);
+		        if (!trace.isEmpty() && trace.lastSymbol().getBaseSymbol().equals(act)) {
+		            DataValue d = trace.lastSymbol().getParameterValues()[idx];
+		            if (d instanceof FreshValue) {
+		            	filteredEquivClasses = Arrays.asList(fresh);
+		            }
+		        } else {
+		        	Queue<DataType> types = new LinkedList<>();
+		        	DataType[] suffixTypes = DataWords.typesOf(suffix.getActions());
+		        	for (int i = currentId - 1; i < suffixTypes.length; i++) {
+		        		types.offer(suffixTypes[i]);
+		        	}
+		        	return SDT.makeRejectingSDT(currentId, types);
+		        }
+			}
+		}
 
-        DataValue fresh = getFreshValue(potential);
+		if (!filteredEquivClasses.contains(fresh)) {
+			fresh = Collections.max(filteredEquivClasses, (d1,d2) -> d1.compareTo(d2));
+		}
 
-        List<DataValue> equivClasses = new ArrayList<>(potSet);
-        equivClasses.add(fresh);
-        //System.out.println(" prefix: " + prefix);
-        //System.out.println(" potential: " + potential);
-        //System.out.println(" eqs " + Arrays.toString(equivClasses.toArray()));
-        EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useNonFreeOptimization);
-        List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
-        assert filteredEquivClasses.size() > 0;
+    	Map<DataValue, SDT> ifSdts = new LinkedHashMap<>();
+    	SDT elseSdt = null;
+    	for (DataValue d : filteredEquivClasses) {
+    		WordValuation nextValuation = new WordValuation();
+    		nextValuation.putAll(values);
+    		nextValuation.put(currentId, d);
+    		SuffixValuation nextSuffixValuation = new SuffixValuation();
+    		nextSuffixValuation.putAll(suffixValues);
+    		nextSuffixValuation.put(suffixValue, d);
 
-        // TODO: integrate fresh-value optimization with restrictions
-        // special case: fresh values in outputs
-        if (freshValues) {
+    		SDT sdt = oracle.treeQuery(prefix, suffix, nextValuation, consts, nextSuffixValuation);
 
-            ParameterizedSymbol ps = computeSymbol(suffix, pId);
+    		if (d.equals(fresh)) {
+    			elseSdt = sdt;
+    		} else {
+    			ifSdts.put(d, sdt);
+    		}
+    	}
 
-            if (ps instanceof OutputSymbol && ps.getArity() > 0) {
+    	Map<SDTGuard.EqualityGuard, SDT> eqChildren = getIfGuards(suffixValue, ifSdts, pot, elseSdt);
+    	SDTGuard elseGuard = getElseGuard(suffixValue, eqChildren.keySet());
 
-                int idx = computeLocalIndex(suffix, pId);
-                Word<PSymbolInstance> query = buildQuery(prefix, suffix, values);
-                Word<PSymbolInstance> trace = ioOracle.trace(query);
-
-                if (!trace.isEmpty() && trace.lastSymbol().getBaseSymbol().equals(ps)) {
-
-                    DataValue d = trace.lastSymbol().getParameterValues()[idx];
-
-                    if (d instanceof FreshValue) {
-                        d = getFreshValue(potential);
-                        values.put(pId, d);
-                        WordValuation trueValues = new WordValuation();
-                        trueValues.putAll(values);
-                        SuffixValuation trueSuffixValues = new SuffixValuation();
-                        trueSuffixValues.putAll(suffixValues);
-                        trueSuffixValues.put(currentParam, d);
-                        SDT sdt = oracle.treeQuery(prefix, suffix, trueValues, constants, trueSuffixValues);
-
-                        LOGGER.trace(" single deq SDT : " + sdt.toString());
-
-                        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, new SDTGuard.SDTAndGuard(currentParam, List.of()), sdt);
-
-                        LOGGER.trace("temporary guards = " + tempKids.keySet());
-                        LOGGER.trace("merged guards = " + merged.keySet());
-
-                        return new SDT(merged);
-                    }
-                } else {
-                    int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
-                    SDT rejSdt = makeRejectingBranch(currentParam.getId() + 1, maxSufIndex, type);
-                    SDTGuard.SDTTrueGuard trueGuard = new SDTGuard.SDTTrueGuard(currentParam);
-                    Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
-                    merged.put(trueGuard, rejSdt);
-                    return new SDT(merged);
-                }
-            }
-        }
-
-        LOGGER.trace("potential " + potential.toString());
-
-        // process each 'if' case
-        // prepare by picking up the prefix values
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-
-        LOGGER.trace("prefix list    " + prefixValues);
-
-        List<SDTGuard> diseqList = new ArrayList<>();
-        for (DataValue newDv : potential) {
-        	if (filteredEquivClasses.contains(newDv)) {
-	            LOGGER.trace(newDv.toString());
-
-	            // this is the valuation of the suffixvalues in the suffix
-	            SuffixValuation ifSuffixValues = new SuffixValuation();
-	            ifSuffixValues.putAll(suffixValues); // copy the suffix valuation
-
-	            SDTGuard.EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, constants);
-	            LOGGER.trace("eqGuard is: " + eqGuard);
-	            diseqList.add(new SDTGuard.DisequalityGuard(currentParam, eqGuard.register()));
-	            // construct the equality guard
-	            // find the data value in the prefix
-	            // this is the valuation of the positions in the suffix
-	            WordValuation ifValues = new WordValuation();
-	            ifValues.putAll(values);
-	            ifValues.put(pId, newDv);
-	            SDT eqOracleSdt = oracle.treeQuery(prefix, suffix, ifValues, constants, ifSuffixValues);
-
-	            tempKids.put(eqGuard, eqOracleSdt);
-        	}
-        }
-
-        Map<SDTGuard, SDT> merged;
-
-        // process the 'else' case
-        if (filteredEquivClasses.contains(fresh)) {
-        	// this is the valuation of the positions in the suffix
-	        WordValuation elseValues = new WordValuation();
-	        elseValues.putAll(values);
-	        elseValues.put(pId, fresh);
-
-	        // this is the valuation of the suffixvalues in the suffix
-	        SuffixValuation elseSuffixValues = new SuffixValuation();
-	        elseSuffixValues.putAll(suffixValues);
-	        elseSuffixValues.put(currentParam, fresh);
-
-	        SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, constants, elseSuffixValues);
-
-	        SDTGuard.SDTAndGuard deqGuard = new SDTGuard.SDTAndGuard(currentParam, diseqList);
-	        LOGGER.trace("diseq guard = " + deqGuard);
-
-	        // merge the guards
-	        merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
-        } else {
-        	// if no else case, we can only have a true guard
-        	// TODO: add  support for multiple equalities with same outcome
-        	assert tempKids.size() == 1;
-
-        	Iterator<Map.Entry<SDTGuard.EqualityGuard, SDT>> it = tempKids.entrySet().iterator();
-        	Map.Entry<SDTGuard.EqualityGuard, SDT> e = it.next();
-        	merged = new LinkedHashMap<SDTGuard, SDT>();
-        	merged.put(e.getKey(), e.getValue());
-        }
-
-        // only keep registers that are referenced by the merged guards
-        //pir.putAll(keepMem(merged));
-
-        LOGGER.trace("temporary guards = " + tempKids.keySet());
-        LOGGER.trace("merged guards = " + merged.keySet());
-
-        // clear the temporary map of children
-        tempKids.clear();
-
-        for (SDTGuard g : merged.keySet()) {
-            assert !(g == null);
-        }
-
-        SDT returnSDT = new SDT(merged);
-        return returnSDT;
-
+    	Map<SDTGuard, SDT> children = new LinkedHashMap<>();
+    	children.putAll(eqChildren);
+    	children.put(elseGuard, elseSdt);
+    	return new SDT(children);
     }
 
-    // construct equality guard by picking up a data value from the prefix
-    private SDTGuard.EqualityGuard pickupDataValue(DataValue newDv, List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, Constants constants) {
-        DataType type = currentParam.getDataType();
-        int newDv_i;
-        for (Map.Entry <Constant, DataValue> entry : constants.entrySet()) {
-            if (entry.getValue().equals(newDv)) {
-                return new SDTGuard.EqualityGuard(currentParam, entry.getKey());
-            }
-        }
-        if (prefixValues.contains(newDv)) {
-            // first index of the data value in the prefixvalues list
-            newDv_i = prefixValues.indexOf(newDv) + 1;
-            Register newDv_r = new Register(type, newDv_i);
-            LOGGER.trace("current param = " + currentParam);
-            LOGGER.trace("New register = " + newDv_r);
-            return new SDTGuard.EqualityGuard(currentParam, newDv);
+    private Map<DataValue, SDTGuardElement> getPotential(DataType type, Word<PSymbolInstance> prefix, SuffixValuation suffixValues, Constants consts) {
+    	Map<DataValue, SDTGuardElement> pot = new LinkedHashMap<>();
 
-        } // if the data value isn't in the prefix,
-            // it is somewhere earlier in the suffix
-        else {
+    	DataValue[] vals = DataWords.valsOf(prefix);
+    	for (DataValue val : vals) {
+    		if (val.getDataType().equals(type) && !consts.containsValue(val)) {
+    			pot.put(val, val);
+    		}
+    	}
 
-            int smallest = Collections.min(ifValues.getAllKeysForValue(newDv));
-            return new SDTGuard.EqualityGuard(currentParam, new SuffixValue(type, smallest));
-        }
+    	for (Map.Entry<SuffixValue, DataValue> e : suffixValues.entrySet()) {
+    		DataValue d = e.getValue();
+    		if (d != null && d.getDataType().equals(type) && !pot.containsKey(d)) {
+    			pot.put(d, e.getKey());
+    		}
+    	}
+
+    	for (Map.Entry<Constant, DataValue> e : consts.entrySet()) {
+    		DataValue d = e.getValue();
+    		if (d != null && d.getDataType().equals(type)) {
+    			pot.put(d, e.getKey());
+    		}
+    	}
+
+    	return pot;
+    }
+
+    private Map<SDTGuard.EqualityGuard, SDT> getIfGuards(SuffixValue suffixValue, Map<DataValue, SDT> sdts, Map<DataValue, SDTGuardElement> pot, SDT elseSdt) {
+    	Map<SDTGuard.EqualityGuard, SDT> ifGuards = new LinkedHashMap<>();
+    	for (Map.Entry<DataValue, SDT> e : sdts.entrySet()) {
+    		DataValue d = e.getKey();
+    		SDT sdt = e.getValue();
+			SDTGuard.EqualityGuard eq = new SDTGuard.EqualityGuard(suffixValue, pot.get(d));
+			List<SDTGuard.EqualityGuard> eqList = new ArrayList<>();
+			eqList.add(eq);
+    		if (!sdt.isEquivalentUnder(elseSdt, eqList)) {
+    			ifGuards.put(eq, sdt);
+    		}
+    	}
+    	return ifGuards;
+    }
+
+    private SDTGuard getElseGuard(SuffixValue suffixValue, Set<SDTGuard.EqualityGuard> eqGuards) {
+    	if (eqGuards.isEmpty()) {
+    		return new SDTGuard.SDTTrueGuard(suffixValue);
+    	}
+    	if (eqGuards.size() == 1) {
+    		SDTGuard.EqualityGuard eq = eqGuards.iterator().next();
+    		return new SDTGuard.DisequalityGuard(suffixValue, eq.register());
+    	}
+    	List<SDTGuard> deqList = new ArrayList<>();
+    	eqGuards.forEach(eq -> deqList.add(new SDTGuard.DisequalityGuard(suffixValue, eq.register())));
+    	return new SDTGuard.SDTAndGuard(suffixValue, deqList);
     }
 
     @Override
@@ -394,42 +309,25 @@ public abstract class EqualityTheory implements Theory {
         return query;
     }
 
-    /**
-     * Creates a "unary tree" of depth maxIndex - nextSufIndex which leads to a
-     * rejecting Leaf. Edges are of type {@link SDTTrueGuard}. Used to shortcut
-     * output processing.
-     */
-    private SDT makeRejectingBranch(int nextSufIndex, int maxIndex, DataType type) {
-        if (nextSufIndex == maxIndex) {
-            // map.put(guard, SDTLeaf.REJECTING);
-            return SDTLeaf.REJECTING;
-        } else {
-            Map<SDTGuard, SDT> map = new LinkedHashMap<>();
-            SDTGuard.SDTTrueGuard trueGuard = new SDTGuard.SDTTrueGuard(new SuffixValue(type, nextSufIndex));
-            map.put(trueGuard, makeRejectingBranch(nextSufIndex + 1, maxIndex, type));
-            SDT sdt = new SDT(map);
-            return sdt;
-        }
-    }
-
     @Override
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
-            Constants constants, ConstraintSolver solver) {
+            List<DataValue> prior, Constants constants, ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
     	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
     	vals.addAll(vals.stream()
     			.filter(v -> v.getDataType().equals(p.getDataType()))
     			.collect(Collectors.toSet()));
     	vals.addAll(constants.values());
-        DataValue fresh = getFreshValue(new ArrayList<>(vals));
+    	vals.addAll(prior);
+    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
-    	if (isSatisfiableWithEquality(guard, p, fresh, solver, constants)) {
+    	if (isSatisfiableWithEquality(guard, p, fresh, prior, solver, constants)) {
     		return Optional.of(fresh);
     	}
 
     	for (DataValue val : vals) {
-    		if (isSatisfiableWithEquality(guard, p, val, solver, constants)) {
+    		if (isSatisfiableWithEquality(guard, p, val, prior, solver, constants)) {
     			return Optional.of(val);
     		}
     	}
@@ -437,23 +335,202 @@ public abstract class EqualityTheory implements Theory {
     	return Optional.empty();
     }
 
-    private boolean isSatisfiableWithEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver, Constants consts) {
+    private boolean isSatisfiableWithEquality(Expression<Boolean> guard, Parameter p, DataValue val, List<DataValue> prior, ConstraintSolver solver, Constants consts) {
     	Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
+    	ParameterGenerator pgen = new ParameterGenerator();
+    	for (DataValue d : prior) {
+    		Parameter param = pgen.next(d.getDataType());
+    		valuation.put(param, d);
+    	}
     	valuation.put(p, val);
     	valuation.putAll(consts);
     	return solver.isSatisfiable(guard, valuation);
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
     	// for now, use generic restrictions with equality theory
-    	return SuffixValueRestriction.genericRestriction(suffixValue, prefix, suffix, consts);
+    	return AbstractSuffixValueRestriction.genericRestriction(suffixValue, prefix, suffix, consts);
+    }
+
+    /**
+     * @param u
+     * @param type
+     * @return position-injective potential of {@code u} matching data type {@code type}
+     */
+    private BiMap<Integer, DataValue> pot(Word<PSymbolInstance> u, DataType type) {
+    	BiMap<Integer, DataValue> pot = HashBiMap.create();
+    	DataValue[] vals = DataWords.valsOf(u);
+    	for (int i = 0; i < vals.length; i++) {
+    		if (vals[i].getDataType().equals(type) && !pot.values().contains(vals[i])) {
+    			pot.put(i+1, vals[i]);
+    		}
+    	}
+    	return pot;
+    }
+
+    /**
+     * Mapping of indices in the potential of {@code u} to data values in {@code w} such that
+     * for each index {@code l}, the data value at position {@code l} in {@code u} maps to
+     * the same register in {@code uValuation} as the corresponding data value in {@code w}
+     * does in {@code wValuation}.
+     *
+     * @param u
+     * @param uValuation
+     * @param w
+     * @param wValuation
+     * @param type
+     * @return
+     */
+    public Map<Integer, DataValue> potmap(Word<PSymbolInstance> u, RegisterValuation uValuation, Word<PSymbolInstance> w, RegisterValuation wValuation, DataType type) {
+    	BiMap<DataValue, Integer> pot = pot(u, type).inverse();
+    	Map<Integer, DataValue> map = new LinkedHashMap<>();
+    	for (Map.Entry<Register, DataValue> uEntry : uValuation.entrySet()) {
+    		DataValue wVal = wValuation.get(uEntry.getKey());
+    		if (wVal != null && wVal.getDataType().equals(type)) {
+    			int id = pot.get(uEntry.getValue());
+    			map.put(id, wVal);
+    		}
+    	}
+    	return map;
+    }
+
+    /**
+     * The indices {@code l} of {@code u} such that if a hypothesis reaches {@code wValuation}
+     * after a run over {@code w}, then there is a position-injective extension of
+     * {@code uValuation} under which a data value {@code d} at index {@code l} of {@code u} will
+     * satisfy an equality guard {@code (s == d)}.
+     *
+     * @param w
+     * @param d
+     * @param u
+     * @param uValuation
+     * @param potmap
+     * @return
+     */
+    public Set<Integer> potmatch(Word<PSymbolInstance> w, DataValue d, Word<PSymbolInstance> u, RegisterValuation uValuation, Map<Integer, DataValue> potmap) {
+    	List<DataValue> wVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(w, d.getDataType())));
+    	Set<Integer> indices = new LinkedHashSet<>();
+
+    	// add indices for each mapped occurrence of d
+    	for (Map.Entry<Integer, DataValue> potmapEntry : potmap.entrySet()) {
+    		if (potmapEntry.getValue().equals(d)) {
+    			indices.add(potmapEntry.getKey());
+    			wVals.remove(d);
+    		}
+    	}
+
+    	// if there are more occurrences of d than the unmapped, add all indices of unmapped data values
+    	if (wVals.contains(d)) {
+    		BiMap<Integer, DataValue> pot = pot(u, d.getDataType());
+        	pot.forEach((i,dv) -> {if (!uValuation.containsValue(dv)) indices.add(i);});
+    	}
+
+    	return indices;
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
+    		Word<PSymbolInstance> prefix,
+    		Word<PSymbolInstance> suffix,
+    		Word<PSymbolInstance> u,
+    		RegisterValuation prefixValuation,
+    		RegisterValuation uValuation,
+    		Constants consts) {
+    	int index = suffixValue.getId() - 1;
+    	DataValue[] suffixVals = DataWords.valsOf(suffix);
+    	Collection<DataValue> prefixVals = Arrays.asList(DataWords.valsOf(prefix));
+    	DataValue[] uVals = DataWords.valsOf(u);
+    	DataValue d = suffixVals[index];
+
+    	// find data values in u that the current suffix value may equal
+    	List<DataValue> eqList = new ArrayList<>();
+    	Map<Integer, DataValue> potmap = potmap(u, uValuation, prefix, prefixValuation, d.getDataType());
+    	potmatch(prefix, d, u, uValuation, potmap).forEach(i -> eqList.add(uVals[i-1]));
+
+    	// find prior suffix values that the current suffix value may equal
+    	List<SuffixValue> suffixEqList = new ArrayList<>();
+    	List<SuffixValue> priorSuffixes = new ArrayList<>();
+    	for (int i = 0; i < index; i++) {
+			SuffixValue s = new SuffixValue(d.getDataType(), i+1);
+    		priorSuffixes.add(s);
+    		if (suffixVals[i].equals(d)) {
+    			suffixEqList.add(s);
+    		}
+    	}
+
+    	// find constants the current suffix value may equal
+    	Set<Constant> constEqList = new LinkedHashSet<>(consts.getAllKeysForValue(d));
+
+    	// find registers in u that the current suffix value may equal
+    	Collection<Register> regsEqList = dataValueToRegister(eqList, uValuation);
+
+    	// collect unmapped data values in u that the current suffix value may equal
+    	List<DataValue> unmappedEqList = new ArrayList<>(eqList);
+    	for (SuffixValue s : suffixEqList) {
+    		DataValue dv = suffixVals[s.getId()-1];
+    		if (!prefixVals.contains(dv)) {
+    			unmappedEqList.remove(dv);
+    		}
+    	}
+    	constEqList.forEach(c -> unmappedEqList.remove(consts.get(c)));
+    	regsEqList.forEach(r -> unmappedEqList.remove(uValuation.get(r)));
+
+    	FreshSuffixValue restrrFresh = new FreshSuffixValue(suffixValue);
+		UnmappedEqualityRestriction eqRestrUnmapped = new UnmappedEqualityRestriction(suffixValue);
+    	AbstractSuffixValueRestriction eqRestrSuffix = SuffixValueRestriction.equalityRestriction(suffixValue, suffixEqList);
+    	AbstractSuffixValueRestriction eqRestrReg = SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
+    	AbstractSuffixValueRestriction eqRestrConst = SuffixValueRestriction.equalityRestriction(suffixValue, constEqList);
+
+    	if (unmappedEqList.isEmpty()) {
+    		// no unmapped equality
+	    	if (regsEqList.size() == 1 && /*suffixEqList.isEmpty() &&*/ constEqList.isEmpty()) {
+	    		// equals one register
+	    		AbstractSuffixValueRestriction eqr = SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
+	    		return eqr;
+	    	}
+	    	if (regsEqList.isEmpty() && suffixEqList.size() > 0 && constEqList.isEmpty()) {
+	    		// equals prior suffix values
+	    		return SuffixValueRestriction.equalityRestriction(suffixValue, suffixEqList.get(0));
+	    	}
+	    	if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.size() == 1) {
+	    		// equals one constant
+	    		return SuffixValueRestriction.equalityRestriction(suffixValue, constEqList);
+	    	}
+	    	if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.isEmpty()) {
+	    		// equals nothing
+	    		return restrrFresh;
+	    	}
+	    	// equals any number of register, constant, prior suffix value, but no unmapped
+	    	return DisjunctionRestriction.create(suffixValue, restrrFresh, eqRestrSuffix, eqRestrReg, eqRestrConst);
+    	} else if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.isEmpty()) {
+    		// equals only unmapped
+    		return DisjunctionRestriction.create(suffixValue, eqRestrUnmapped, restrrFresh);
+    	}
+
+    	// all classes of equality, collect all data values the current suffix value can not equal
+    	List<Register> regsDiseqList = new ArrayList<>(uValuation.keySet());
+    	regsDiseqList.removeAll(regsEqList);
+    	List<Constant> constDiseqList = new ArrayList<>(consts.keySet());
+    	constDiseqList.removeAll(constEqList);
+    	List<SuffixValue> suffixDiseqList = new ArrayList<>(priorSuffixes);
+    	suffixDiseqList.removeAll(suffixEqList);
+    	SuffixValueRestriction diseqRestrRegs = SuffixValueRestriction.disequalityRestriction(suffixValue, regsDiseqList);
+    	SuffixValueRestriction diseqRestrConst = SuffixValueRestriction.disequalityRestriction(suffixValue, constDiseqList);
+    	SuffixValueRestriction diseqRestrSuffix = SuffixValueRestriction.disequalityRestriction(suffixValue, suffixDiseqList);
+    	return DisjunctionRestriction.create(suffixValue, diseqRestrRegs, diseqRestrConst, diseqRestrSuffix);
+    }
+
+    private Collection<Register> dataValueToRegister(Collection<DataValue> vals, RegisterValuation valuation) {
+    	Collection<Register> regs = new ArrayList<>();
+    	valuation.forEach((r, v) -> {if (vals.contains(v)) regs.add(r);});
+    	return regs;
+    }
+
+    @Override
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
     	// for now, use generic restrictions with equality theory
-    	return SuffixValueRestriction.genericRestriction(guard, prior);
+    	return AbstractSuffixValueRestriction.genericRestriction(guard, prior);
     }
 
     @Override
@@ -475,5 +552,19 @@ public abstract class EqualityTheory implements Theory {
             }
             return revealsGuard;
         }    	return false;
+    }
+
+    /**
+     * @param vals
+     * @param type
+     * @return fresh data value of type {@code type} not present in {@code vals}
+     */
+    public static DataValue getFreshValue(Collection<DataValue> vals, DataType type) {
+        BigDecimal dv = new BigDecimal("-1");
+        for (DataValue d : vals) {
+            dv = dv.max(d.getValue());
+        }
+
+        return new DataValue(type, BigDecimal.ONE.add(dv));
     }
 }

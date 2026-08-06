@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,7 +42,6 @@ import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -93,7 +90,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
     	if (!isValid(prefix)) {
-    		return makeRejectingSDT(suffix);
+    		return SDT.makeRejectingSDT(suffix);
     	}
         SDT sdt = treeQuery(prefix, suffix, new WordValuation(), constants, new SuffixValuation());
         //System.out.println(sdt);
@@ -395,50 +392,6 @@ public class MultiTheoryTreeOracle implements TreeOracle {
         return valuation;
     }
 
-    @Override
-    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            SDT sdt) {
-
-        Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-        instantiate(words, prefix, suffix,  sdt, 0, 0,
-                new SuffixValuation(), new ParameterGenerator(), new SuffixValuation(), new ParameterGenerator());
-        return words;
-    }
-
-    private void instantiate(Map<Word<PSymbolInstance>, Boolean> words, Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix, SDT sdt, int aidx, int pidx,
-                             SuffixValuation pval, ParameterGenerator pgen, SuffixValuation gpval, ParameterGenerator gpgen) {
-        if (aidx == suffix.getActions().length()) {
-            words.put(prefix, sdt.isAccepting());
-        } else {
-            ParameterizedSymbol ps = suffix.getActions().getSymbol(aidx);
-            if (ps.getArity() == pidx) {
-                DataValue[] vals = pval.values().toArray(new DataValue [] {});
-                PSymbolInstance psi = new PSymbolInstance(ps, vals);
-                Word<PSymbolInstance> newPrefix = prefix.append(psi);
-                instantiate(words, newPrefix, suffix, sdt, aidx+1, 0, new SuffixValuation(), new ParameterGenerator(), gpval, gpgen);
-            } else {
-                SuffixValue p = new SuffixValue(ps.getPtypes()[pidx], pgen.next(ps.getPtypes()[pidx]).getId());
-                SuffixValue gp = new SuffixValue( ps.getPtypes()[pidx], gpgen.next(ps.getPtypes()[pidx]).getId() );
-                Theory t = teachers.get(ps.getPtypes()[pidx]);
-                for (Map.Entry<SDTGuard, SDT> entry : sdt.getChildren().entrySet()) {
-                    DataValue val = t.instantiate(prefix, ps, gpval, constants, entry.getKey(), p, Collections.emptySet());
-                    SuffixValuation newPval = new SuffixValuation();
-                    newPval.putAll(pval);
-                    newPval.put(p, val);
-                    SuffixValuation newGpval = new SuffixValuation();
-                    newGpval.putAll(gpval);
-                    newGpval.put(gp, val);
-                    ParameterGenerator newPgen = new ParameterGenerator();
-                    newPgen.set(pgen);
-                    ParameterGenerator newGpgen = new ParameterGenerator();
-                    newGpgen.set(gpgen);
-                    instantiate(words, prefix, suffix, entry.getValue(), aidx, pidx+1, newPval, newPgen, newGpval, newGpgen);
-                }
-            }
-        }
-    }
-
     /**
      * This method computes the initial branching for an SDT. It reuses existing
      * valuations where possible.
@@ -496,30 +449,5 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     	}
 
     	return true;
-    }
-
-    private SDT makeRejectingSDT(SymbolicSuffix suffix) {
-        Queue<DataType> types = new ArrayDeque<>();
-    	for (ParameterizedSymbol ps : suffix.getActions()) {
-    		for (DataType type : ps.getPtypes()) {
-    			types.offer(type);
-    		}
-    	}
-    	return makeRejectingSDT(1, types);
-    }
-
-    private SDT makeRejectingSDT(int param, Queue<DataType> types) {
-    	if (types.isEmpty()) {
-    		return SDTLeaf.REJECTING;
-    	}
-
-    	DataType type = types.poll();
-    	SuffixValue sv = new SuffixValue(type, param);
-    	SDTGuard g = new SDTGuard.SDTTrueGuard(sv);
-
-    	Map<SDTGuard, SDT> child = new LinkedHashMap<>();
-    	child.put(g, makeRejectingSDT(param+1, types));
-
-    	return new SDT(child);
     }
 }

@@ -1,5 +1,8 @@
 package de.learnlib.ralib.ct;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +13,13 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
-import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
+import de.learnlib.ralib.theory.ConcretizingTreeOracle;
+import de.learnlib.ralib.theory.ElementRestriction;
 import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  * This data structure stores the SDTs from tree queries for a prefix along a path
@@ -26,6 +33,7 @@ import de.learnlib.ralib.theory.SDT;
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;
 	private final MemorableSet memorable;
+	private final List<SymbolicSuffix> suffixes;
 
 	private boolean ioMode;
 
@@ -33,12 +41,14 @@ public class CTPath {
 		this.sdts = new LinkedHashMap<>();
 		this.memorable = new MemorableSet();
 		this.ioMode = ioMode;
+		this.suffixes = new ArrayList<>();
 	}
 
 	public void putSDT(SymbolicSuffix suffix, SDT sdt) {
 		assert !sdts.containsKey(suffix);
 		sdts.put(suffix, sdt);
 		memorable.addAll(sdt.getDataValues());
+		suffixes.add(suffix);
 	}
 
 	public MemorableSet getMemorable() {
@@ -51,6 +61,21 @@ public class CTPath {
 
 	public Map<SymbolicSuffix, SDT> getSDTs() {
 		return sdts;
+	}
+
+	/**
+	 * @param suffix
+	 * @return the symbolic suffix one node above {@code suffix}
+	 */
+	public SymbolicSuffix getPrior(SymbolicSuffix suffix) {
+		int index = suffixes.indexOf(suffix);
+		if (index < 0) {
+			throw new IllegalArgumentException("No occurrence of " + suffix);
+		}
+		if (index == 0) {
+			return RaStar.EMPTY_SUFFIX;
+		}
+		return suffixes.get(index - 1);
 	}
 
 	public boolean isAccepting() {
@@ -134,23 +159,53 @@ public class CTPath {
 	 * @param ioMode {@code true} if the language being learned is an IO language
 	 * @return a {@code CTPath} containing SDTs for each suffix in {@code suffixes}
 	 */
-	public static CTPath computePath(TreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
+	public static CTPath computePath(ConcretizingTreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
 		CTPath r = new CTPath(ioMode);
 		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
 		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
 		r.putSDT(RaStar.EMPTY_SUFFIX, sdt);
+		SymbolicSuffix prevSuffix = RaStar.EMPTY_SUFFIX;
 		for (SymbolicSuffix s : suffixes) {
+			if (s.equals(RaStar.EMPTY_SUFFIX)) {
+				continue;
+			}
+			// relabel restrictions in symbolic suffix
+			Bijection<DataValue> renaming = prefix.getBijection(prevSuffix);
+			SymbolicSuffix sRelabeled = s.relabel(renaming.inverse().toVarMapping());
+			PSymbolInstance action = prefix.size() > 0 ? prefix.lastSymbol() : null;
+			assert noUnmapped(action, sRelabeled, r.getMemorable()) : "Equality with unmapped data value";
 			sdt = prefix.getSDT(s);
 			if (sdt == null) {
-				sdt = oracle.treeQuery(prefix, s);
+				sdt = oracle.treeQuery(prefix, sRelabeled, r.getMemorable());
 			}
 
 			if (r.getSDT(s) == null) {
 				r.putSDT(s, sdt);
 			}
+			prevSuffix = s;
 		}
 
 		return r;
+	}
+
+	/**
+	 * @param action
+	 * @param suffix
+	 * @param memorable
+	 * @return {@code true} if and only if the restrictions for {@code suffix} contain any data value not in {@code memorable} or {@code action}
+	 */
+	private static boolean noUnmapped(PSymbolInstance action, SymbolicSuffix suffix, Set<DataValue> memorable) {
+		List<DataValue> actionVals = action == null ? new ArrayList<>() : Arrays.asList(action.getParameterValues());
+		for (AbstractSuffixValueRestriction r : suffix.getRestrictions().values()) {
+			if (r instanceof ElementRestriction er) {
+				for (Expression<BigDecimal> e : er.getElements()) {
+					if (e instanceof DataValue d && !memorable.contains(d) && !actionVals.contains(d)) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
     @Override

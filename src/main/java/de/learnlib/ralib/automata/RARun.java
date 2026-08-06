@@ -22,6 +22,7 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import net.automatalib.word.Word;
 
 /**
  * Data structure containing the locations, register valuations, symbol instances
@@ -133,6 +134,18 @@ public class RARun {
 		}
 
 		return ExpressionUtil.and(expressions);
+	}
+
+	public Word<PSymbolInstance> getPrefix(int id) {
+		return Word.fromArray(symbols, 0, id);
+	}
+
+	public Word<PSymbolInstance> getSuffix(int id) {
+		return Word.fromArray(symbols, id, symbols.length - id);
+	}
+
+	public Word<PSymbolInstance> getWord() {
+		return getPrefix(symbols.length);
 	}
 
 	@Override

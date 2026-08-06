@@ -10,8 +10,8 @@ import java.util.Set;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.ConcretizingTreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -28,7 +28,7 @@ public class CTInnerNode extends CTNode {
 	private final SymbolicSuffix suffix;
 	private final List<CTBranch> branches;
 
-	public CTInnerNode(CTNode parent, SymbolicSuffix suffix) {
+	public CTInnerNode(CTInnerNode parent, SymbolicSuffix suffix) {
 		super(parent);
 		this.suffix = suffix;
 		branches = new ArrayList<>();
@@ -52,20 +52,23 @@ public class CTInnerNode extends CTNode {
 	}
 
 	@Override
-	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
-		CTPath path = CTPath.computePath(oracle, prefix, getSuffixes(), ioMode);
+	protected CTLeaf sift(Prefix prefix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
+		List<SymbolicSuffix> suffixes = getSuffixes();
+		CTPath path = CTPath.computePath(oracle, prefix, suffixes, ioMode);
 
 		// find a matching branch and sift to child
 		for (CTBranch b : branches) {
 			Bijection<DataValue> vars = b.matches(path, solver);
 			if (vars != null) {
-				prefix = new Prefix(prefix, vars, path);
+				prefix = new Prefix(prefix, vars, path, prefix.getBijections());
+				prefix.putBijection(getSuffix(), vars);
 				return b.getChild().sift(prefix, oracle, solver, ioMode);
 			}
 		}
 
-		// no child with equivalent SDTs, create a new leaf
+        // no child with equivalent SDTs, create a new leaf
 		prefix = new Prefix(prefix, path);
+		prefix.putBijection(suffix);
 		CTLeaf leaf = new CTLeaf(prefix, this);
 		CTBranch branch = new CTBranch(path, leaf);
 		branches.add(branch);
@@ -86,10 +89,13 @@ public class CTInnerNode extends CTNode {
 	 * @param inputs
 	 * @return a mapping of prefixes in {@code leaf} to their new leaf nodes
 	 */
-	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode, ParameterizedSymbol[] inputs) {
+	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode, ParameterizedSymbol[] inputs) {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
+		List<SymbolicSuffix> suffixes = getSuffixes();
 		assert !getSuffixes().contains(suffix) : "Duplicate suffix: " + suffix;
+
+		Set<ShortPrefix> shorts = leaf.getShortPrefixes();
 
 		// replace leaf with a new inner node, with same path as leaf
 		CTInnerNode newNode = new CTInnerNode(this, suffix);
@@ -110,18 +116,24 @@ public class CTInnerNode extends CTNode {
 			l = sift(u, oracle, solver, ioMode);
 			leaves.put(u, l);
 		}
+
+		// make sure all short prefixes of leaf are still short
+		for (ShortPrefix u : shorts) {
+			if (!(u instanceof ShortPrefix)) {
+				leaves.get(u).elevatePrefix(u, oracle, inputs);
+			}
+		}
+
 		return leaves;
 	}
 
 	@Override
 	public List<SymbolicSuffix> getSuffixes() {
 		List<SymbolicSuffix> suffixes = new ArrayList<>();
-		suffixes.add(suffix);
-		if (getParent() == null) {
-			return suffixes;
+		if (getParent() != null) {
+			suffixes.addAll(getParent().getSuffixes());
 		}
-
-		suffixes.addAll(getParent().getSuffixes());
+		suffixes.add(suffix);
 		return suffixes;
 	}
 
