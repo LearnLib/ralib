@@ -254,8 +254,8 @@ public class PrefixFinder {
 	 * @param loc the source location
 	 * @param u short prefix from leaf of {@code loc}
 	 * @param action the symbol of the next transition
-	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
 	 * @param v the suffix after {@code u} and {@code action}
+	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
 	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
 	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
 	 */
