@@ -119,10 +119,10 @@ public class RaLibLearningExperimentRunner {
 			    new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
 			case RALAMBDA ->
 			    new SLLambda(mto, teachers, consts, ioMode, solver, actionSymbols);
-			case RADT ->
-			    new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
 			case RALAMBDAEQ ->
 			    new SLLambdaEq(mto, teachers, consts, ioMode, solver, actionSymbols);
+			case RADT ->
+			    new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
 			default ->
 			    throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));
 			};
