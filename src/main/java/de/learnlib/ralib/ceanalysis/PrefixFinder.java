@@ -87,7 +87,7 @@ public class PrefixFinder {
 
 	/**
 	 * Analyze counterexample {@code ce} from right to leaf to find a transition or
-	 * location discrepancy. If a discrepancy is found, returns the prefix which reveals
+	 * location discrepancy. If a discrepancy is found, return the prefix which reveals
 	 * the discrepancy, along with a {@code ResultType} indicating the type of discrepancy.
 	 *
 	 * @param ce
@@ -199,8 +199,8 @@ public class PrefixFinder {
 		}
 
 		/* remove data values from valuation.
-		 * may have multiple copies of same data value, which may be mapped to different
-		 * data values in uSDT, so only remove one instance of data values in valuation
+		 * May have multiple copies of same data value, which may be mapped to different
+		 * data values in uSDT, so only remove one instance of data values in valuation.
 		 */
 		for (DataValue d : run.getValuation(id-1).values()) {
 			runVals = removeFirst(runVals, d);
@@ -404,7 +404,7 @@ public class PrefixFinder {
 
 	/**
 	 * For each register r<sub>i</sub> in {@code sdtElse} that is not present in {@code sdtIf}, check whether data value d<sub>i</sub> of {@code uIf} is equal to some other register in {@code sdtIf}.
-	 * If so, maps r<sub>i</sub> to that register and returns {@code true} if {@code sdtIf} and {@code sdtElse} are equivalent under that remapping.
+	 * If so, map r<sub>i</sub> to that register and return {@code true} if {@code sdtIf} and {@code sdtElse} are equivalent under that remapping.
 	 *
 	 * @param sdtIf
 	 * @param sdtElse
