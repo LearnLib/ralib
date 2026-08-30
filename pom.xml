@@ -368,7 +368,8 @@
         </dependency>
         <dependency>
             <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-util</artifactId>
+            <artifactId>learnlib-statistics</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>tools.aqua</groupId>

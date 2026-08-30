@@ -61,7 +61,9 @@ import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import de.learnlib.util.statistic.SimpleProfiler;
+import de.learnlib.statistic.Statistics;
+import de.learnlib.statistic.StatisticsKey;
+import de.learnlib.statistic.StatisticsService;
 
 /**
  *
@@ -263,10 +265,11 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         System.out.println("=============================== START ===============================");
 
-        final String __RUN__ = "overall execution time";
-        final String __LEARN__ = "learning";
-        final String __SEARCH__ = "ce searching";
-        final String __EQ__ = "eq tests";
+        final StatisticsService statistics = Statistics.getService();
+        final StatisticsKey runTime = new StatisticsKey("overall execution time");
+        final StatisticsKey learningTime = new StatisticsKey("learning");
+        final StatisticsKey counterexampleSearchTime = new StatisticsKey("ce searching");
+        final StatisticsKey equivalenceTestTime = new StatisticsKey("eq tests");
 
         System.out.println("SYS:------------------------------------------------");
         System.out.println(model);
@@ -276,8 +279,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         System.out.println("Sys. Registers: " + model.getRegisters().size());
         System.out.println("Constants: " + consts.size());
 
-        SimpleProfiler.start(__RUN__);
-        SimpleProfiler.start(__LEARN__);
+        statistics.startOrResumeClock(runTime);
+        statistics.startOrResumeClock(learningTime);
 
         boolean eqTestfoundCE = false;
         ArrayList<Integer> ceLengths = new ArrayList<>();
@@ -295,8 +298,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             System.out.println(hyp);
             System.out.println("----------------------------------------------------");
 
-            SimpleProfiler.stop(__LEARN__);
-            SimpleProfiler.start(__EQ__);
+            statistics.pauseClock(learningTime);
+            statistics.startOrResumeClock(equivalenceTestTime);
             DefaultQuery<PSymbolInstance, Boolean> ce  = null;
 
             if (useEqTest) {
@@ -311,8 +314,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 }
             }
 
-            SimpleProfiler.stop(__EQ__);
-            SimpleProfiler.start(__SEARCH__);
+            statistics.pauseClock(equivalenceTestTime);
 
             if (findCounterexamples) {
                 ce = null;
@@ -322,9 +324,10 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
+                statistics.startOrResumeClock(counterexampleSearchTime);
                 ce2 = (findCounterexamples ? this.randomWalk.findCounterExample(hyp, new ArrayList<>()) : ce);
 
-                SimpleProfiler.stop(__SEARCH__);
+                statistics.pauseClock(counterexampleSearchTime);
                 System.out.println("CE: " + ce2);
                 if (ce2 == null) {
                     break;
@@ -350,7 +353,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 break;
             }
 
-            SimpleProfiler.start(__LEARN__);
+            statistics.startOrResumeClock(learningTime);
             //ceLengths.add(ce.getInput().length());
 
             //ceLengthsShortened.add(ce.getInput().length());
@@ -362,7 +365,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
 
         System.out.println("=============================== STOP ===============================");
-        SimpleProfiler.logResults();
+        statistics.pauseClock(runTime);
+        System.out.println(statistics.print());
 
         System.out.println("Learner: " + rastar.getClass().getSimpleName());
 
