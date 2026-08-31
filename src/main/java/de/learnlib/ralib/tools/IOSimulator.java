@@ -220,10 +220,10 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 new RaStar(mto, hypFactory, mlo, consts, true, actions);
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
                 new SLLambda(mto, teachers, consts, true, solver, actions);
-            case AbstractToolWithRandomWalk.LEARNER_RADT ->
-                new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ ->
                 new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
+            case AbstractToolWithRandomWalk.LEARNER_RADT ->
+                new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
             default ->
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
         };
