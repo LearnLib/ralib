@@ -94,13 +94,13 @@ public class PalindromeGenerator {
 		}
 
 		private Integer determineMaxMemV () {
-				Integer futureMaxMemV = this.determineMaxDownstreamEdge();
-				for (Entry<Integer, Node> entry : children.entrySet()) {
-					entry.getValue().determineMaxMemV();
-				}
-				Integer pastMaxMemV = parent == null? 0 : Collections.max(this.getPrefix());
-				maxMemV = Math.min(futureMaxMemV, pastMaxMemV);
-				return maxMemV;
+			Integer futureMaxMemV = this.determineMaxDownstreamEdge();
+			for (Entry<Integer, Node> entry : children.entrySet()) {
+				entry.getValue().determineMaxMemV();
+			}
+			Integer pastMaxMemV = parent == null ? 0 : Collections.max(this.getPrefix());
+			maxMemV = Math.min(futureMaxMemV, pastMaxMemV);
+			return maxMemV;
 		}
 
 		public Integer getMaxMemV() {
@@ -135,9 +135,8 @@ public class PalindromeGenerator {
 
 	static record WorkItem (Node node) {};
 
-
 	private static boolean isPalindrome(List<Integer> word) {
-		for (int i=0; i<word.size()/2; i++) {
+		for (int i = 0; i < word.size()/2; i++) {
 			if (!word.get(i).equals(word.get(word.size() - (i + 1)))) {
 				return false;
 			}
@@ -168,13 +167,13 @@ public class PalindromeGenerator {
 			// create srcNode registers and parameter
 			SymbolicDataValueGenerator.RegisterGenerator srcRgen = new SymbolicDataValueGenerator.RegisterGenerator();
 			Register [] srcRegs = new Register [srcNode.getMaxMemV()];
-			for (int i=0; i<srcNode.getMaxMemV(); i ++) {
+			for (int i = 0; i < srcNode.getMaxMemV(); i++) {
 				srcRegs[i] = srcRgen.next(type);
 			}
 			SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
 			Parameter param = pgen.next(type);
 			List<Register> eqRegs = new ArrayList<>();
-			for (int edge=1; edge<=srcNode.getMaxMemV() + 1; edge++) {
+			for (int edge = 1; edge <= srcNode.getMaxMemV() + 1; edge++) {
 				Node destNode = srcNode.getChildren().get(edge);
 				if (destNode == null) {
 					continue;
@@ -185,7 +184,7 @@ public class PalindromeGenerator {
 				// create assignment
 				SymbolicDataValueGenerator.RegisterGenerator destRgen = new SymbolicDataValueGenerator.RegisterGenerator();
 				VarMapping<SymbolicDataValue.Register, SymbolicDataValue> assignmentMapping = new VarMapping<>();
-				for (int i=1; i<=srcNode.getMaxMemV(); i++) {
+				for (int i = 1; i <= srcNode.getMaxMemV(); i++) {
 					if (destNode.getMaxMemV() >= i) {
 						assignmentMapping.put(destRgen.next(type), srcRegs[i-1]);
 					}
@@ -232,7 +231,6 @@ public class PalindromeGenerator {
 		Expression<Boolean> guard = ExpressionUtil.TRUE;
 		Transition transition = new Transition(in, guard, sink, sink, new Assignment(assignmentMapping));
 		ra.addTransition(sink, in, transition);
-
 		return ra;
 	}
 
@@ -251,7 +249,7 @@ public class PalindromeGenerator {
 			List<Integer> p = node.getPrefix();
 			if (2*p.size() <= maxLen) {
 				Node last = node;
-				for (int idx = p.size()-1; idx>=0; idx--) {
+				for (int idx = p.size()-1; idx >= 0; idx--) {
 					last = last.createChildIfAbsent(p.get(idx));
 					q.add(new WorkItem(last));
 				}
@@ -260,12 +258,12 @@ public class PalindromeGenerator {
 					Integer maxVal = p.stream().max((i1, i2) -> i1.compareTo(i2)).orElse(0);
 					for (int middleVal = 1; middleVal <= maxVal+1; middleVal++) {
 						last = node.createChildIfAbsent(middleVal);
+						q.add(new WorkItem(last));
+						for (int idx = p.size()-1; idx >= 0; idx--) {
+							last = last.createChildIfAbsent(p.get(idx));
 							q.add(new WorkItem(last));
-							for (int idx = p.size()-1; idx>=0; idx--) {
-								last = last.createChildIfAbsent(p.get(idx));
-								q.add(new WorkItem(last));
-							}
-							last.setAccept(true);
+						}
+						last.setAccept(true);
 					}
 				}
 			}
@@ -288,16 +286,14 @@ public class PalindromeGenerator {
 		while (!q.isEmpty()) {
 			List<Integer> valWord = q.poll();
 			WordBuilder<PSymbolInstance> wb = new WordBuilder<PSymbolInstance>();
-			valWord.forEach(d ->
-			wb.add(new PSymbolInstance(IN,
-					new DataValue(TYPE, BigDecimal.valueOf(d)))));
+			valWord.forEach(d -> wb.add(new PSymbolInstance(IN, new DataValue(TYPE, BigDecimal.valueOf(d)))));
 			Assert.assertEquals(ra.accepts(wb.toWord()), isPalindrome(valWord), "Mismatch for word " + valWord);
 			if (valWord.size() < TEST_MAX_LEN) {
 				if (valWord.isEmpty()) {
 					q.add(Arrays.asList(1));
 				} else {
 					Integer maxVal = valWord.stream().max((i1, i2) -> i1.compareTo(i2)).get();
-					for (int i=1; i<= maxVal+1; i++) {
+					for (int i = 1; i <= maxVal+1; i++) {
 						List<Integer> next = new ArrayList<>(valWord);
 						next.add(i);
 						q.add(next);
