@@ -91,12 +91,12 @@ public class PrefixFinderEq extends PrefixFinder {
 	 * @param id index of {@code run} being searched
 	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
 	 */
-	private Optional<Result> checkTransition(ShortPrefix u, RARun run, int i) {
-		int arity = run.getTransitionSymbol(i).getBaseSymbol().getArity();
+	private Optional<Result> checkTransition(ShortPrefix u, RARun run, int id) {
+		int arity = run.getTransitionSymbol(id).getBaseSymbol().getArity();
 		if (arity == 0) {
 			return Optional.empty();
 		}
-		return checkTransition(new DataValue[arity], 0, u, run, i);
+		return checkTransition(new DataValue[arity], 0, u, run, id);
 	}
 
 	/**
@@ -109,17 +109,17 @@ public class PrefixFinderEq extends PrefixFinder {
 	 * @param did index of next value not yet generated
 	 * @param u short prefix matching {@code run.getPrefix(i-1)}
 	 * @param run run of hypothesis over counterexample
-	 * @param i index of run to check
+	 * @param id index of run to check
 	 * @return {@code Optional} enclosing new transition, if one is found, otherwise {@code Optional.empty()}
 	 */
-	private Optional<Result> checkTransition(DataValue[] dvals, int did, ShortPrefix u, RARun run, int i) {
-		Word<PSymbolInstance> prefix = run.getPrefix(i - 1);
-		Word<PSymbolInstance> prefixNext = run.getPrefix(i);
-		Word<PSymbolInstance> suffixNext = run.getSuffix(i);
-		RegisterValuation prefixValuation = run.getValuation(i - 1);
-		RegisterValuation prefixExtValuation = run.getValuation(i);
+	private Optional<Result> checkTransition(DataValue[] dvals, int did, ShortPrefix u, RARun run, int id) {
+		Word<PSymbolInstance> prefix = run.getPrefix(id - 1);
+		Word<PSymbolInstance> prefixNext = run.getPrefix(id);
+		Word<PSymbolInstance> suffixNext = run.getSuffix(id);
+		RegisterValuation prefixValuation = run.getValuation(id - 1);
+		RegisterValuation prefixExtValuation = run.getValuation(id);
 
-		PSymbolInstance action = run.getTransitionSymbol(i);
+		PSymbolInstance action = run.getTransitionSymbol(id);
 		DataValue d = action.getParameterValues()[did];
 
 		// find the indices of data values in u that parameter with index did may be equal to
@@ -130,7 +130,7 @@ public class PrefixFinderEq extends PrefixFinder {
 
 		if (potmatch.isEmpty()) {
 			// not equal to a data value in the prefix, could equal a constant or a prior data value in the action
-			Word<PSymbolInstance> suffix = run.getSuffix(i - 1);
+			Word<PSymbolInstance> suffix = run.getSuffix(id - 1);
 			SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefix, suffix, u, prefixValuation, uValuation);
 			SymbolicSuffix vHyp = SLLambdaEqRestrictionBuilder.concretize(v, uValuation, ParameterValuation.fromPSymbolWord(u), consts);
 			SDT sdt = sulOracle.treeQuery(u, vHyp);
@@ -154,7 +154,7 @@ public class PrefixFinderEq extends PrefixFinder {
 			dvals[did] = dPot;
 			if (did + 1 < action.getBaseSymbol().getArity()) {
 				// not final index, check each potmatch for next index
-				Optional<Result> res = checkTransition(dvals, did + 1, u, run, i);
+				Optional<Result> res = checkTransition(dvals, did + 1, u, run, id);
 				if (res.isPresent()) {
 					return res;
 				}
