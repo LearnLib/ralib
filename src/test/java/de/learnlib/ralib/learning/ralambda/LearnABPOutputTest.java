@@ -78,7 +78,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
 
-        SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, actions);
+        SLLambda learner = new SLLambda(mto, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
@@ -103,8 +103,8 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         		inputs);
 
         for (int check = 0; check < 100; ++check) {
-            sllambda.learn();
-            Hypothesis hyp = sllambda.getHypothesis();
+            learner.learn();
+            Hypothesis hyp = learner.getHypothesis();
 
             ce = null;
 
@@ -134,10 +134,10 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            sllambda.addCounterexample(ce);
+            learner.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = sllambda.getHypothesis();
+        RegisterAutomaton hyp = learner.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         ce = ioEquiv.findCounterExample(hyp, null);
 
@@ -185,7 +185,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
 
-        SLLambda sllambda = new SLLambdaEq(mto, teachers, consts, true, solver, actions);
+        SLLambdaEq learner = new SLLambdaEq(mto, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
@@ -210,8 +210,8 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         		inputs);
 
         for (int check = 0; check < 100; ++check) {
-            sllambda.learn();
-            Hypothesis hyp = sllambda.getHypothesis();
+            learner.learn();
+            Hypothesis hyp = learner.getHypothesis();
 
             ce = null;
 
@@ -241,10 +241,10 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            sllambda.addCounterexample(ce);
+            learner.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = sllambda.getHypothesis();
+        RegisterAutomaton hyp = learner.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         ce = ioEquiv.findCounterExample(hyp, null);
 

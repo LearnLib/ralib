@@ -94,7 +94,7 @@ public class LearnEchoTest extends RaLibTestSuite {
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
 
-        SLLambda learner = new SLLambdaEq(mto, teachers, consts, true, solver, sul.getActionSymbols());
+        SLLambdaEq learner = new SLLambdaEq(mto, teachers, consts, true, solver, sul.getActionSymbols());
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
