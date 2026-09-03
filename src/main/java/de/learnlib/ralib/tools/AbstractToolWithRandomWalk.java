@@ -42,7 +42,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     public static final String LEARNER_SLLAMBDA = "sllambda";
     public static final String LEARNER_SLSTAR = "slstar";
     public static final String LEARNER_RADT = "sldt";
-    public static final String LEARNER_SLLAMBDAEQ = "slleq";
+    public static final String LEARNER_SLLAMBDAEQ = "sllambdaeq";
 
     protected static final ConfigurationOption.StringOption OPTION_LEARNER
             = new ConfigurationOption.StringOption("learner",
