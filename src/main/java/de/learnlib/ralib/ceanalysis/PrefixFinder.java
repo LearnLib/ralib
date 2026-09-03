@@ -402,13 +402,13 @@ public class PrefixFinder {
 	}
 
 	/**
-	 * For each register r<sub>i</sub> in {@code sdtElse} that is not present in {@code sdtIf}, check whether data value d<sub>i</sub> of {@code uIf} is equal to some other register in {@code sdtIf}.
-	 * If so, map r<sub>i</sub> to that register and return {@code true} if {@code sdtIf} and {@code sdtElse} are equivalent under that remapping.
+	 * Check whether {@code sdtIf} and {@code sdtElse} are equivalent when taking into account registers
+	 * of {@code sdtIf} that, in {@code uIf}, have equal data values. The method does so by collapsing
+	 * registers in {@code sdtElse} that are equal in {@code uIf} into one before checking for equivalence.
 	 *
 	 * @param sdtIf
 	 * @param sdtElse
 	 * @param uIf
-	 * @param uElse
 	 * @return {@code true} if and only if {@code sdtIf} and {@code sdtElse} are equivalent when collapsing equivalent registers of {@code uIf}
 	 */
 	private boolean equivalentSDTsWithEqualityMapping(SDT sdtIf, SDT sdtElse, Word<PSymbolInstance> uIf) {

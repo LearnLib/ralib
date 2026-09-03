@@ -52,7 +52,7 @@ public class PrefixFinderEq extends PrefixFinder {
 			SLLambdaEqRestrictionBuilder restrBuilder, ConstraintSolver solver, Constants consts) {
 		super(sulOracle, hyp, ct, teachers, restrBuilder, solver, consts);
 		if (!isEqTheory(teachers)) {
-			throw new RuntimeException("PrefixFinderEq onlu supports theories of type EqualityTheory");
+			throw new RuntimeException("PrefixFinderEq only supports theories of type EqualityTheory");
 		}
 	}
 
@@ -81,17 +81,14 @@ public class PrefixFinderEq extends PrefixFinder {
 
 	/**
 	 * Check for a transition discrepancy. This is done by checking whether there exists no
-	 * {@code action}-extension of {@code u} in the leaf of the location of {@code run} at
-	 * index {@code id} that is equivalent to the {@code (hypGuard && sulGuard)} extension
-	 * of {@code u} after the symbolic suffix derived from the remaining transitions of
-	 * {@code v}.
+	 * one-symbol extension of {@code u} in the leaf of the location of {@code run} at
+	 * index {@code id} that, after the symbolic suffix derived from the concrete suffix
+	 * of {@code run} after {@code id}, is equivalent to any one-symbol extension of {@code u}
+	 * in the hypothesis.
 	 *
+	 * @param u short prefix from leaf of {@code loc}
 	 * @param run counterexample run on the hypothesis
 	 * @param id index of {@code run} being searched
-	 * @param u short prefix from leaf of {@code loc}
-	 * @param action the symbol of the next transition
-	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
-	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
 	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
 	 */
 	private Optional<Result> checkTransition(ShortPrefix u, RARun run, int i) {
