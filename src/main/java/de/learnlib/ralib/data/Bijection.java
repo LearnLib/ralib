@@ -56,6 +56,14 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 		return injection.get(key);
 	}
 
+	public T getValue(Object key) {
+		return get(key);
+	}
+
+	public T getKey(Object value) {
+		return surjection.get(value);
+	}
+
 	@Override
 	public T remove(Object key) {
 		T val = get(key);

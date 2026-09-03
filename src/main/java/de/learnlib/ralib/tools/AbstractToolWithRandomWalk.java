@@ -42,6 +42,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     public static final String LEARNER_SLLAMBDA = "sllambda";
     public static final String LEARNER_SLSTAR = "slstar";
     public static final String LEARNER_RADT = "sldt";
+    public static final String LEARNER_SLLAMBDAEQ = "sllambdaeq";
 
     protected static final ConfigurationOption.StringOption OPTION_LEARNER
             = new ConfigurationOption.StringOption("learner",
@@ -87,6 +88,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected static final ConfigurationOption.BooleanOption OPTION_USE_SUFFIXOPT
             = new ConfigurationOption.BooleanOption("use.suffixopt",
                     "Do only use fresh values for non-free suffix values", Boolean.FALSE, true);
+
+    protected static final ConfigurationOption.BooleanOption OPTION_OPTIMIZE_REGCLOSED
+            = new ConfigurationOption.BooleanOption("suffixopt.reg.closed",
+            		"Use improved optimizations for register closedness (" + LEARNER_SLLAMBDAEQ + " only)", Boolean.FALSE, true);
 
     protected static final ConfigurationOption.LongOption OPTION_TIMEOUT
             = new ConfigurationOption.LongOption("max.time.millis",

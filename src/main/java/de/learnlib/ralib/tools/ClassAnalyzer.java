@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2026 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,7 @@ import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.ralambda.SLCT;
 import de.learnlib.ralib.learning.ralambda.SLLambda;
+import de.learnlib.ralib.learning.ralambda.SLLambdaEq;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -246,11 +247,14 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
 
+            boolean useImprovedRegClosed = OPTION_OPTIMIZE_REGCLOSED.parse(config);
             this.rastar = switch (this.learner) {
                 case AbstractToolWithRandomWalk.LEARNER_SLSTAR ->
                     new RaStar(mto, hypFactory, mlo, consts, true, actions);
                 case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA ->
                     new SLLambda(mto, teachers, consts, true, solver, actions);
+                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDAEQ ->
+                    new SLLambdaEq(mto, teachers, consts, true, solver, useImprovedRegClosed, actions);
                 case AbstractToolWithRandomWalk.LEARNER_RADT ->
                     new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
                 default ->

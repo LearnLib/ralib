@@ -15,7 +15,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -58,7 +58,7 @@ public class IneqTheoryRestrictionsTest extends RaLibTestSuite {
         		new PSymbolInstance(A, dv1),
         		new PSymbolInstance(A, dv3));
 
-        Map<SuffixValue, SuffixValueRestriction> restr1 = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = new LinkedHashMap<>();
         restr1.put(s1, new UnrestrictedSuffixValue(s1));
         restr1.put(s2, new GreaterSuffixValue(s2));
         restr1.put(s3, new UnrestrictedSuffixValue(s3));
@@ -76,7 +76,7 @@ public class IneqTheoryRestrictionsTest extends RaLibTestSuite {
         		new PSymbolInstance(A, dv1),
         		new PSymbolInstance(A, dv0));
 
-        Map<SuffixValue, SuffixValueRestriction> restr2 = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> restr2 = new LinkedHashMap<>();
         restr2.put(s1, new UnrestrictedSuffixValue(s1));
         restr2.put(s2, new LesserSuffixValue(s2));
         restr2.put(s3, new UnrestrictedSuffixValue(s3));

@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import java.util.Map;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -63,12 +62,6 @@ public class LoggingOracle implements TreeOracle {
         Branching b = treeoracle.updateBranching(prefix, ps, current, sdts);
         //System.out.println(b.getBranches().size());
         return b;
-    }
-
-    @Override
-    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SDT sdt) {
-    	return treeoracle.instantiate(prefix, suffix, sdt);
     }
 
     @Override

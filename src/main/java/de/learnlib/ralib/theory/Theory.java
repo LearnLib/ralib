@@ -24,6 +24,7 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -115,12 +116,37 @@ public interface Theory {
      */
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
-            Constants constants, ConstraintSolver solver);
+            List<DataValue> prior, Constants constants, ConstraintSolver solver);
 
-    SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
+    /**
+     * Restrict suffix value by examining relation between corresponding data value in {@code suffix}
+     * and values in {@code prefix} and {@code u} during counterexample analysis.
+     * <br>
+     * Note that restrictions computed by this method are specific to the counterexample and should
+     * not be used for suffixes added to the data structure.
+     *
+     * @param suffixValue suffix value to compute restriction for
+     * @param prefix prefix of counterexample
+     * @param suffix suffix of counterexample
+     * @param u prefix in data structure corresponding to {@code prefix}
+     * @param prefixValuation valuation after a run of {@code prefix} over the hypothesis
+     * @param uValuation valuation after a run of {@code u} over the hypothesis
+     * @param consts constants
+     * @return
+     */
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
+    		Word<PSymbolInstance> prefix,
+    		Word<PSymbolInstance> suffix,
+    		Word<PSymbolInstance> u,
+    		RegisterValuation prefixValuation,
+    		RegisterValuation uValuation,
+    		Constants consts);
 
-    SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior);
+    AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
+
+    AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior);
 
     boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);
 
+    boolean isUsingSuffixOptimization();
 }

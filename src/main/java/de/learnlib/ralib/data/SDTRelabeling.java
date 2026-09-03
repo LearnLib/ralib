@@ -8,7 +8,7 @@ public class SDTRelabeling extends Mapping<SDTGuardElement, SDTGuardElement> {
         return ret;
     }
 
-    public static SDTRelabeling fromMapping(Mapping<SDTGuardElement, SDTGuardElement> mapping) {
+    public static SDTRelabeling fromMapping(Mapping<? extends SDTGuardElement, ? extends SDTGuardElement> mapping) {
     	SDTRelabeling ret = new SDTRelabeling();
     	ret.putAll(mapping);
     	return ret;
