@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -273,7 +272,7 @@ public class PrefixFinder {
         // instantiate a representative data value for the conjunction
         DataType[] types = action.getPtypes();
         DataValue[] reprDataVals = new DataValue[types.length];
-        List<DataValue> prior = new ArrayList<>();
+        ArrayList<DataValue> prior = new ArrayList<>();
         for (int i = 0; i < types.length; i++) {
         	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, prior, consts, solver);
         	if (reprDataVal.isEmpty()) {
