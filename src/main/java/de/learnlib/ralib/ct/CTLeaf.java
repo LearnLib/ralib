@@ -121,7 +121,6 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	@Override
 	protected CTLeaf sift(Prefix prefix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		prefixes.add(prefix);
-		prefixes.add(prefix);
 		if (prefix instanceof ShortPrefix sp) {
 			shortPrefixes.add(sp);
 			sp.updateBranching();
