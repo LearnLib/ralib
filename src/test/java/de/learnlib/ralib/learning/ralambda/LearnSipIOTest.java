@@ -114,7 +114,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testLearnSipIOSLLEq() {
+    public void testLearnSipIOSLLambdaEq() {
 
         long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();

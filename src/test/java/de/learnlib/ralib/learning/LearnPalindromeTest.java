@@ -53,7 +53,7 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 	}
 
 	@Test(enabled = true)
-	public void testLearnPalindromeSLLEq() {
+	public void testLearnPalindromeSLLambdaEq() {
 		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RALAMBDAEQ);
 	}
 

@@ -87,7 +87,7 @@ public class LearnRepeaterTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testLearnRepeaterSLLEQ() {
+    public void testLearnRepeaterSLLambdaEq() {
 
         Constants consts = new Constants();
 

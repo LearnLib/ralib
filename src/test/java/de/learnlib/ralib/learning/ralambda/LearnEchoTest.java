@@ -76,7 +76,7 @@ public class LearnEchoTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testLearnEchoSLLEq() {
+    public void testLearnEchoSLLambdaEq() {
 
         Constants consts = new Constants();
 

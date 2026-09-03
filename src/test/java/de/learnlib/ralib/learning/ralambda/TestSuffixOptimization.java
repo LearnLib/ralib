@@ -127,7 +127,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     }
 
     @Test
-    public void testLearnRepeaterSuffixOptSLLEq() {
+    public void testLearnRepeaterSuffixOptSLLambdaEq() {
 
         Constants consts = new Constants();
 

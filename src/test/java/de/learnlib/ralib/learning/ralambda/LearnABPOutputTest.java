@@ -145,7 +145,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testLearnABPOutputSLLEq() {
+    public void testLearnABPOutputSLLambdaEq() {
 
         long seed = -1297170870937649002L;
         final Random random = new Random(seed);

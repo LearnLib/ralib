@@ -96,7 +96,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testLearnPalindromeIOSLLEq() {
+    public void testLearnPalindromeIOSLLambdaEq() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/palindrome.xml");
