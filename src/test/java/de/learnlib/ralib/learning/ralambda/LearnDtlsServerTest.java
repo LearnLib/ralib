@@ -27,9 +27,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnDtlsServerTest extends RaLibTestSuite {
 
     @Test
-    public void testLearnDtlsServer() {
+    public void testLearnScandiumServer() {
         RegisterAutomatonImporter loader = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/dtls-server.xml");
+                "/de/learnlib/ralib/automata/xml/dtls/scandium-server.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
 
