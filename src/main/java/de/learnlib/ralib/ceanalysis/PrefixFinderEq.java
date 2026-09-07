@@ -22,6 +22,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -149,8 +150,10 @@ public class PrefixFinderEq extends PrefixFinder {
 
 		// for each data value in action allowed by the potmatch, check if (prefix+action) is equivalent to an existing extension
 		DataValue[] uVals = DataWords.valsOf(u);
-		POTMATCH: for (int l : potmatch) {
-			DataValue dPot = uVals[l - 1];
+		DataValue[] allVals = addConsts(uVals, d.getDataType());
+		Set<Integer> potmatchPlusConsts = addConstIndices(potmatch, uVals.length + 1, d.getDataType());
+		POTMATCH: for (int l : potmatchPlusConsts) {
+			DataValue dPot = allVals[l - 1];
 			dvals[did] = dPot;
 			if (did + 1 < action.getBaseSymbol().getArity()) {
 				// not final index, check each potmatch for next index
@@ -228,6 +231,51 @@ public class PrefixFinderEq extends PrefixFinder {
 			return Optional.of(new Result(uExt, ResultType.LOCATION));
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Append all constants of type {@code type} to {@code vals}
+	 *
+	 * @param vals
+	 * @param type
+	 * @return
+	 */
+	private DataValue[] addConsts(DataValue[] vals, DataType type) {
+		List<DataValue> allVals = new ArrayList<>();
+		for (DataValue val : vals) {
+			allVals.add(val);
+		}
+		Set<DataValue> constVals = new LinkedHashSet<>();
+		constVals.addAll(consts.values());
+		for (DataValue c : constVals) {
+			if (c.getDataType().equals(type)) {
+				allVals.add(c);
+			}
+		}
+		return allVals.toArray(new DataValue[allVals.size()]);
+	}
+
+	/**
+	 * Add to {@code indices} an index for each constant with data type {@code type}, starting from index {@code startIndex}
+	 *
+	 * @param indices
+	 * @param startIndex
+	 * @param type
+	 * @return
+	 */
+	private Set<Integer> addConstIndices(Set<Integer> indices, int startIndex, DataType type) {
+		Set<Integer> ret = new LinkedHashSet<>(indices);
+		int n = 0;
+		for (Constant c : consts.keySet()) {
+			if (c.getDataType().equals(type)) {
+				n++;
+			}
+		}
+		int stopIndex = startIndex + n;
+		for (int i = startIndex; i < stopIndex; i++) {
+			ret.add(i);
+		}
+		return ret;
 	}
 
 	/**
