@@ -118,7 +118,7 @@ public class PrefixFinderEq extends PrefixFinder {
 		Word<PSymbolInstance> prefixNext = run.getPrefix(id);
 		Word<PSymbolInstance> suffixNext = run.getSuffix(id);
 		RegisterValuation prefixValuation = run.getValuation(id - 1);
-		RegisterValuation prefixExtValuation = run.getValuation(id);
+		RegisterValuation prefixExtValuation = extendValuation(prefixValuation, prefix, prefixNext.lastSymbol());
 
 		PSymbolInstance action = run.getTransitionSymbol(id);
 		DataValue d = action.getParameterValues()[did];
@@ -170,8 +170,8 @@ public class PrefixFinderEq extends PrefixFinder {
 					continue;
 				}
 				for (Word<PSymbolInstance> uExtHyp : extensions) {
-					RegisterValuation uExtSulValuation = hyp.getRun(uExtSul).getValuation(uExtSul.length());
-					RegisterValuation uExtHypValuation = hyp.getRun(uExtHyp).getValuation(uExtHyp.length());
+					RegisterValuation uExtSulValuation = extendValuation(uValuation, u, uExtSul.lastSymbol());
+					RegisterValuation uExtHypValuation = extendValuation(uValuation, u, uExtHyp.lastSymbol());
 					SymbolicSuffix v = getRestrBuilder().constructRestrictedSuffix(prefixNext, suffixNext, uExtSul, prefixExtValuation, uExtSulValuation);
 					SymbolicSuffix vSul = SLLambdaEqRestrictionBuilder.concretize(v, uExtSulValuation, ParameterValuation.fromPSymbolWord(uExtSul), consts);
 					SymbolicSuffix vHyp = SLLambdaEqRestrictionBuilder.concretize(v, uExtHypValuation, ParameterValuation.fromPSymbolWord(uExtHyp), consts);
@@ -275,6 +275,29 @@ public class PrefixFinderEq extends PrefixFinder {
 		for (int i = startIndex; i < stopIndex; i++) {
 			ret.add(i);
 		}
+		return ret;
+	}
+
+	/**
+	 * Extend {@code valuation} by adding a mapping for each data value in {@code extension}.
+	 * The registers for these additional mappings are numbered starting from the length of {@code prefix}.
+	 *
+	 * @param valuation
+	 * @param prefix
+	 * @param extension
+	 * @return
+	 */
+	private RegisterValuation extendValuation(RegisterValuation valuation, Word<PSymbolInstance> prefix, PSymbolInstance extension) {
+		int startingIndex = DataWords.paramValLength(prefix) + 1;
+		DataValue[] extVals = extension.getParameterValues();
+		RegisterValuation ret = new RegisterValuation();
+		ret.putAll(valuation);
+
+		for (int i = 0; i < extVals.length; i++) {
+			Register r = new Register(extVals[i].getDataType(), i + startingIndex);
+			ret.put(r, extVals[i]);
+		}
+
 		return ret;
 	}
 
