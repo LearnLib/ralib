@@ -1,0 +1,13 @@
+│ >_ OpenAI Codex (v0.153.4)                            │
+│ model:     gpt-6-astra 
+
+› Write a Docker file that first sets up RALib via build.sh, then, given allows a user to execute any of the three run- bash
+  scripts, passing parameters to them. These scripts require the 'scripts', 'experiments', 'results' and 'configs' folders,
+  and the 'ralib' folder where RALib will be installed. They store results in the 'results' folder. This folder needs to be
+  made available to the user. RALib is a Java library which requires JDK 21 and Maven 3.9.16 to build.
+
+
+> › Can you write a Markdown file "GUIDE.MD" which describes how to run the scripts using Docker? You can use the "README.MD"
+  file as a reference.
+
+

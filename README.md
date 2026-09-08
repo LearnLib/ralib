@@ -41,7 +41,45 @@ git submodule update
 ./build.sh
 ```
 
-## Running experiments 
+## Running experiments
+
+### Running with Docker
+
+The image builds RALib using `build.sh` with JDK 21 and Maven 3.9.16.
+It includes Python and LaTeX for experiment summaries and plots.
+Initialize the RALib submodule before building:
+
+```bash
+git submodule update --init --recursive
+docker build -t ralib-benchmark .
+mkdir -p results
+```
+
+Choose a script after the image name. Additional arguments are passed
+unchanged to that script:
+
+```bash
+docker run --rm --mount type=bind,source="$(pwd)/results",target=/benchmark/results \
+  ralib-benchmark run-palindrome-experiments.sh --max-n 2
+
+docker run --rm --mount type=bind,source="$(pwd)/results",target=/benchmark/results \
+  ralib-benchmark run-synthetic-models-experiments.sh
+
+docker run --rm --mount type=bind,source="$(pwd)/results",target=/benchmark/results \
+  ralib-benchmark run-dtls-experiments.sh
+```
+
+Logs and models are written to the host's `results/` directory. On script
+exit, generated summary CSVs and DTLS PDFs are also copied there. Existing
+host results are excluded from the image build. The scripts may overwrite
+results from earlier runs; use a separate host directory to keep runs apart.
+Files created by the container use its default root user.
+
+Run `docker run --rm ralib-benchmark` for the script list, or
+`docker run --rm ralib-benchmark run-palindrome-experiments.sh --help`
+for palindrome options. The synthetic and DTLS scripts currently have no
+command-line options. When using palindrome's `--out` option, choose a path
+under `/benchmark/results` to keep its logs on the host.
 
 Generally, experiments are organized in series.
 Shell scripts exist for running individual experiments and series,

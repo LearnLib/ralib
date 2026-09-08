@@ -1,0 +1,13 @@
+.git
+**/.git
+ralib/target
+results
+*.csv
+*.pdf
+scripts/plots/*.csv
+scripts/plots/*.pdf
+scripts/plots/*.aux
+scripts/plots/*.log
+scripts/plots/*.fdb_latexmk
+scripts/plots/*.fls
+**/__pycache__
