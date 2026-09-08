@@ -3,7 +3,7 @@ experiment=$2
 
 stats=("Locations" "Transitions" "Registers" "Constants" "Analysis" "Processing" "Total excl tests")
 headers=("Locations" "Transitions" "Registers" "Constants" "CE Analysis Resets" "Hyp Construction Resets" "Total Resets")
-learners=("slstar" "sllambda" "slleq")
+learners=("slstar" "sllambda" "sllambdaeq")
 
 print_averages() {
     for h in "${stats[@]}"; do

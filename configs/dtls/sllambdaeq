@@ -8,4 +8,4 @@ use.ceopt=false
 use.suffixopt=true
 use.fresh=false
 use.rwalk=false
-learner=slleq
+learner=sllambdaeq

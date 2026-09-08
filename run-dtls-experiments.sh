@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-learners=("slstar" "sllambda" "slleq")
+learners=("slstar" "sllambda" "sllambdaeq")
 
 cd scripts
 

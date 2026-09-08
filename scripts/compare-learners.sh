@@ -1,7 +1,7 @@
 series=$1
 experiment=$2
 
-learners=("slstar" "sllambda" "slleq")
+learners=("slstar" "sllambda" "sllambdaeq")
 stat="Resets"
 phases=("testing:" "Total:")
 
