@@ -5,18 +5,18 @@ from pathlib import Path
 from typing import Callable, Pattern
 
 SLL="SLLambda"
-SLLEQ="SLLEq"
+SLLAMBDAEQ="SLLambdaEq"
 SLSTAR="SLStar"
 
-ALGS = [SLL, SLLEQ, SLSTAR]
+ALGS = [SLL, SLLAMBDAEQ, SLSTAR]
 # Regex patterns
-ALG_RE = re.compile(r".*(SLLambda|SLLEq|SLStar).*")
+ALG_RE = re.compile(r".*(SLLambda|SLLambdaEq|SLStar).*")
 TOTAL_RESETS_RE = re.compile(r"Total:\s*\{[^}]*Resets:\s*(\d+)")
 CE_ANALYSIS_RESETS_RE = re.compile(r"CE Analysis:\s*\{[^}]*Resets:\s*(\d+)")
 CE_RE = re.compile(r"Counterexamples:\s*(\d+)")
 LOC_RE = re.compile(r"Hyp.\sLocations:\s*(\d+)")
 TRANS_RE = re.compile(r"Hyp.\sTransitions:\s*(\d+)")
-SIZE_RE = re.compile(r".*-(\d+)(-(SLLambda|SLLEq|SLStar|all))?\.log")
+SIZE_RE = re.compile(r".*-(\d+)(-(SLLambda|SLLambdaEq|SLStar|all))?\.log")
 
 
 
@@ -97,6 +97,7 @@ def process_logs(log_dir: Path):
     size_results = {}
 
     for log_file in sorted(log_dir.glob("*.log")):
+        print(log_file.name)
         size_match = SIZE_RE.search(log_file.name)
         size = int(size_match.group(1))
         if size not in size_results:

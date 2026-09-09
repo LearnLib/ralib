@@ -10,7 +10,7 @@ out="${SCRIPT_DIR}/results/palindrome"
 declare -A algs=(
     [slstar]="SLStar"
     [sllambda]="SLLambda"
-    [slleq]="SLLeq"
+    [slleq]="SLLambdaEq"
 )
 
 alg=""
