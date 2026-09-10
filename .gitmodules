@@ -2,3 +2,6 @@
 	path = ralib
 	url = git@github.com:LearnLib/ralib.git
 	branch = rattt-dt
+[submodule "dtls-fuzzer"]
+	path = dtls-fuzzer
+	url = git@github.com:assist-project/dtls-fuzzer.git
