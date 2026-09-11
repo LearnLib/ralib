@@ -604,6 +604,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         return returnThis;
     }
 
+    @Override
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
             List<DataValue> prior, Constants constants, ConstraintSolver solver) {
@@ -708,6 +709,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	return greater ? new GreaterSuffixValue(suffixValue) : new LesserSuffixValue(suffixValue);
     }
 
+    @Override
     public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
     		Word<PSymbolInstance> prefix,
     		Word<PSymbolInstance> suffix,

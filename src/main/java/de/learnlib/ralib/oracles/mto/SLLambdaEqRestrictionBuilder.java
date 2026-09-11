@@ -50,29 +50,29 @@ import net.automatalib.word.Word;
 
 public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuilder {
 
-	private boolean useImprovedRegClosedOpt = false;
+    private boolean useImprovedRegClosedOpt = false;
 
-	protected final ConstraintSolver solver;
+    protected final ConstraintSolver solver;
 
-	public SLLambdaEqRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
-		this(restrBuilder.consts, restrBuilder.teachers, solver);
-	}
+    public SLLambdaEqRestrictionBuilder(SymbolicSuffixRestrictionBuilder restrBuilder, ConstraintSolver solver) {
+        this(restrBuilder.consts, restrBuilder.teachers, solver);
+    }
 
-	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
-		super(consts, teachers);
-		if (teachers == null) {
-			throw new IllegalArgumentException("Non-null argument expected");
-		}
-		this.solver = solver;
-	}
+    public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
+        super(consts, teachers);
+        if (teachers == null) {
+            throw new IllegalArgumentException("Non-null argument expected");
+        }
+        this.solver = solver;
+    }
 
-	public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, boolean useImprovedRegClosedOpt) {
-		this(consts, teachers, solver);
-		this.useImprovedRegClosedOpt = useImprovedRegClosedOpt;
-	}
+    public SLLambdaEqRestrictionBuilder(Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver, boolean useImprovedRegClosedOpt) {
+        this(consts, teachers, solver);
+        this.useImprovedRegClosedOpt = useImprovedRegClosedOpt;
+    }
 
-	/**
-	 * Restrict suffix value by examining relation between corresponding data values in {@code suffix}
+    /**
+     * Restrict suffix value by examining relation between corresponding data values in {@code suffix}
      * and values in {@code prefix} and {@code u} during counterexample analysis.
      * <br>
      * Note that restrictions computed by this method are specific to the counterexample and should
@@ -80,180 +80,181 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
      * <p>
      * This method is currently only implemented for the {@link EqualityTheory}
      *
+     * @param  prefix prefix of counterexample
+     * @param  suffix suffix of counterexample
+     * @param  u short prefix in classification tree corresponding to {@code prefix}
+     * @param  prefixValuation valuation after a run of the hypothesis over {@code prefix}
+     * @param  uValuation valuation after a run of the hypothesis over {@code u}
+     * @return
+     */
+    @Override
+    public Map<SuffixValue, AbstractSuffixValueRestriction> restrictSuffix(Word<PSymbolInstance> prefix,
+		Word<PSymbolInstance> suffix,
+		Word<PSymbolInstance> u,
+		RegisterValuation prefixValuation,
+		RegisterValuation uValuation) {
+	Map<SuffixValue, AbstractSuffixValueRestriction> restrs = new LinkedHashMap<>();
+	DataValue[] suffixVals = DataWords.valsOf(suffix);
+	for (int i = 0; i < suffixVals.length; i++) {
+            SuffixValue sv = new SuffixValue(suffixVals[i].getDataType(), i+1);
+            assert teachers != null;
+            Theory theory = teachers.get(suffixVals[i].getDataType());
+            restrs.put(sv, theory.restrictSuffixValue(sv, prefix, suffix, u, prefixValuation, uValuation, consts));
+        }
+        return restrs;
+    }
+
+    /**
+     * Construct a restricted symbolic suffix with restrictions derived by examining relations
+     * between data values in {@code suffix} and data values in {@code prefix} and {@code u}
+     * during counterexample analysis.
+     * Note that restrictions computed by this method are specific to the counterexample and should
+     * not be used for suffixes added to the classification tree.
+     * <p>
+     * This method is currently only implemented for the {@link EqualityTheory}.
+     *
+     * @param  prefix prefix of counterexample
+     * @param  suffix suffix of counterexample
+     * @param  u short prefix in classification tree corresponding to {@code prefix}
+     * @param  prefixValuation valuation after a run of the hypothesis over {@code prefix}
+     * @param  uValuation valuation after a run of the hypothesis over {@code u}
+     * @return symbolic suffix with restrictions respecting the relations between data values in counterexample
+     */
+    public SymbolicSuffix constructRestrictedSuffix(Word<PSymbolInstance> prefix,
+			Word<PSymbolInstance> suffix,
+			Word<PSymbolInstance> u,
+			RegisterValuation prefixValuation,
+			RegisterValuation uValuation) {
+        return new SymbolicSuffix(DataWords.actsOf(suffix),
+			restrictSuffix(prefix, suffix, u, prefixValuation, uValuation));
+    }
+
+    /**
+     * Construct a restricted symbolic suffix with restrictions derived by examining relations
+     * between data values in {@code suffix} and data values in {@code prefix} and {@code u}
+     * during counterexample analysis.
+     * Note that restrictions computed by this method are specific to the counterexample and should
+     * not be used for suffixes added to the classification tree.
+     * <p>
+     * This method is currently only implemented for the {@link EqualityTheory}.
+     *
      * @param prefix prefix of counterexample
      * @param suffix suffix of counterexample
-     * @param u short prefix in classification tree corresponding to {@code prefix}
+     * @param u1 short prefix in classification tree corresponding to {@code prefix}
+     * @param u2 other short prefix in same leaf as {@code u1}
      * @param prefixValuation valuation after a run of the hypothesis over {@code prefix}
-     * @param uValuation valuation after a run of the hypothesis over {@code u}
-     * @return
-	 */
-	public Map<SuffixValue, AbstractSuffixValueRestriction> restrictSuffix(Word<PSymbolInstance> prefix,
-			Word<PSymbolInstance> suffix,
-			Word<PSymbolInstance> u,
-			RegisterValuation prefixValuation,
-			RegisterValuation uValuation) {
-		Map<SuffixValue, AbstractSuffixValueRestriction> restrs = new LinkedHashMap<>();
-		DataValue[] suffixVals = DataWords.valsOf(suffix);
-		for (int i = 0; i < suffixVals.length; i++) {
-			SuffixValue sv = new SuffixValue(suffixVals[i].getDataType(), i+1);
-			assert teachers != null;
-			Theory theory = teachers.get(suffixVals[i].getDataType());
-			restrs.put(sv, theory.restrictSuffixValue(sv, prefix, suffix, u, prefixValuation, uValuation, consts));
-		}
-		return restrs;
-	}
-
-	/**
-	 * Construct a restricted symbolic suffix with restrictions derived by examining relations
-	 * between data values in {@code suffix} and data values in {@code prefix} and {@code u}
-	 * during counterexample analysis.
-     * Note that restrictions computed by this method are specific to the counterexample and should
-     * not be used for suffixes added to the classification tree.
-     * <p>
-     * This method is currently only implemented for the {@link EqualityTheory}.
-     *
-	 * @param prefix prefix of counterexample
-	 * @param suffix suffix of counterexample
-	 * @param u short prefix in classification tree corresponding to {@code prefix}
-	 * @param prefixValuation valuation after a run of the hypothesis over {@code prefix}
-	 * @param uValuation valuation after a run of the hypothesis over {@code u}
-	 * @return symbolic suffix with restrictions respecting the relations between data values in counterexample
-	 */
-	public SymbolicSuffix constructRestrictedSuffix(Word<PSymbolInstance> prefix,
-			Word<PSymbolInstance> suffix,
-			Word<PSymbolInstance> u,
-			RegisterValuation prefixValuation,
-			RegisterValuation uValuation) {
-		return new SymbolicSuffix(DataWords.actsOf(suffix),
-				restrictSuffix(prefix, suffix, u, prefixValuation, uValuation));
-	}
-
-	/**
-	 * Construct a restricted symbolic suffix with restrictions derived by examining relations
-	 * between data values in {@code suffix} and data values in {@code prefix} and {@code u}
-	 * during counterexample analysis.
-     * Note that restrictions computed by this method are specific to the counterexample and should
-     * not be used for suffixes added to the classification tree.
-     * <p>
-     * This method is currently only implemented for the {@link EqualityTheory}.
-     *
-	 * @param prefix prefix of counterexample
-	 * @param suffix suffix of counterexample
-	 * @param u1 short prefix in classification tree corresponding to {@code prefix}
-	 * @param u2 other short prefix in same leaf as {@code u1}
-	 * @param prefixValuation valuation after a run of the hypothesis over {@code prefix}
-	 * @param u1Valuation valuation after a run of the hypothesis over {@code u1}
-	 * @param u2Valuation valuation after a run of the hypothesis over {@code u2}
-	 * @return symbolic suffix with restrictions respecting the relations between data values in counterexample
-	 */
-	public SymbolicSuffix constructRestrictedSuffix(Word<PSymbolInstance> prefix,
+     * @param u1Valuation valuation after a run of the hypothesis over {@code u1}
+     * @param u2Valuation valuation after a run of the hypothesis over {@code u2}
+     * @return symbolic suffix with restrictions respecting the relations between data values in counterexample
+     */
+    public SymbolicSuffix constructRestrictedSuffix(Word<PSymbolInstance> prefix,
 			Word<PSymbolInstance> suffix,
 			Word<PSymbolInstance> u1,
 			Word<PSymbolInstance> u2,
 			RegisterValuation prefixValuation,
 			RegisterValuation u1Valuation,
 			RegisterValuation u2Valuation) {
-		Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = restrictSuffix(prefix, suffix, u1, prefixValuation, u1Valuation);
-		Map<SuffixValue, AbstractSuffixValueRestriction> restr2 = restrictSuffix(prefix, suffix, u2, prefixValuation, u2Valuation);
-		Map<SuffixValue, AbstractSuffixValueRestriction> restr = new LinkedHashMap<>();
-		for (SuffixValue s : restr1.keySet()) {
-			AbstractSuffixValueRestriction r1 = restr1.get(s);
-			AbstractSuffixValueRestriction r2 = restr2.get(s);
-			if (!r1.equals(r2)) {
-				restr.put(s, DisjunctionRestriction.create(s, r1, r2));
-			} else {
-				restr.put(s, r1);
-			}
-		}
-		return new SymbolicSuffix(DataWords.actsOf(suffix), restr);
-	}
+        Map<SuffixValue, AbstractSuffixValueRestriction> restr1 = restrictSuffix(prefix, suffix, u1, prefixValuation, u1Valuation);
+        Map<SuffixValue, AbstractSuffixValueRestriction> restr2 = restrictSuffix(prefix, suffix, u2, prefixValuation, u2Valuation);
+        Map<SuffixValue, AbstractSuffixValueRestriction> restr = new LinkedHashMap<>();
+        for (SuffixValue s : restr1.keySet()) {
+            AbstractSuffixValueRestriction r1 = restr1.get(s);
+            AbstractSuffixValueRestriction r2 = restr2.get(s);
+            if (!r1.equals(r2)) {
+                restr.put(s, DisjunctionRestriction.create(s, r1, r2));
+            } else {
+                restr.put(s, r1);
+            }
+        }
+        return new SymbolicSuffix(DataWords.actsOf(suffix), restr);
+    }
 
-	/**
-	 * Concretize the restrictions of {@code suffix} according to {@code valuations}. A concretized
-	 * restriction is constructed for a specific prefix, and will usually be expressed as
-	 * guard relations between suffix values and data values.
-	 *
-	 * @param suffix restricted symbolic suffix
-	 * @param valuations valuations of registers and prefix parameters
-	 * @return {@code suffix} with conretized restrictions
-	 */
-	@SafeVarargs
-	public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> ... valuations) {
-		Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
-		for (Mapping<? extends SymbolicDataValue, DataValue> m : valuations) {
-			mapping.putAll(m);
-		}
-		return concretize(suffix, mapping);
-	}
+    /**
+     * Concretize the restrictions of {@code suffix} according to {@code valuations}. A concretized
+     * restriction is constructed for a specific prefix, and will usually be expressed as
+     * guard relations between suffix values and data values.
+     *
+     * @param suffix restricted symbolic suffix
+     * @param valuations valuations of registers and prefix parameters
+     * @return {@code suffix} with conretized restrictions
+     */
+    @SafeVarargs
+    public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> ... valuations) {
+        Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
+        for (Mapping<? extends SymbolicDataValue, DataValue> m : valuations) {
+            mapping.putAll(m);
+        }
+        return concretize(suffix, mapping);
+    }
 
-	/**
-	 * Concretize the restrictions of {@code suffix} according to {@code mapping}. A concretized
-	 * restriction is constructed for a specific prefix, and will usually be expressed as
-	 * guard relations between suffix values and data values.
-	 *
-	 * @param suffix restricted symbolic suffix
-	 * @param mapping mapping of registers and prefix parameters
-	 * @return {@code suffix} with conretized restrictions
-	 */
-	public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> mapping) {
-		Map<SuffixValue, AbstractSuffixValueRestriction> newRestrs = new LinkedHashMap<>();
-		for (SuffixValue s : suffix.getValues()) {
-			AbstractSuffixValueRestriction restr = suffix.getRestriction(s);
-			AbstractSuffixValueRestriction concrRestr = restr.concretize(mapping);
-			newRestrs.put(s, concrRestr);
-		}
-		return new SymbolicSuffix(suffix.getActions(), newRestrs);
-	}
+    /**
+     * Concretize the restrictions of {@code suffix} according to {@code mapping}. A concretized
+     * restriction is constructed for a specific prefix, and will usually be expressed as
+     * guard relations between suffix values and data values.
+     *
+     * @param suffix restricted symbolic suffix
+     * @param mapping mapping of registers and prefix parameters
+     * @return {@code suffix} with conretized restrictions
+     */
+    public static SymbolicSuffix concretize(SymbolicSuffix suffix, Mapping<? extends SymbolicDataValue, DataValue> mapping) {
+        Map<SuffixValue, AbstractSuffixValueRestriction> newRestrs = new LinkedHashMap<>();
+        for (SuffixValue s : suffix.getValues()) {
+            AbstractSuffixValueRestriction restr = suffix.getRestriction(s);
+            AbstractSuffixValueRestriction concrRestr = restr.concretize(mapping);
+            newRestrs.put(s, concrRestr);
+        }
+        return new SymbolicSuffix(suffix.getActions(), newRestrs);
+    }
 
-	/**
-	 * Checks whether {@code av} has a restriction on an unmapped data value
-	 *
-	 * @param av
-	 * @param mem
-	 * @return {@code true} if and only if the restrictions of {@code av} contain any data values not in {@code mem}
-	 */
-	public boolean hasUnmappedRestrictionValue(SymbolicSuffix av, Set<DataValue> mem) {
-		Set<DataValue> restrVals = getDataValueElements(av.getRestrictions());
-		for (DataValue d : restrVals) {
-			if (teachers != null && teachers.get(d.getDataType()) instanceof EqualityTheory && !mem.contains(d)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Checks whether {@code av} has a restriction on an unmapped data value
+     *
+     * @param av
+     * @param mem
+     * @return {@code true} if and only if the restrictions of {@code av} contain any data values not in {@code mem}
+     */
+    public boolean hasUnmappedRestrictionValue(SymbolicSuffix av, Set<DataValue> mem) {
+        Set<DataValue> restrVals = getDataValueElements(av.getRestrictions());
+        for (DataValue d : restrVals) {
+           if (teachers != null && teachers.get(d.getDataType()) instanceof EqualityTheory && !mem.contains(d)) {
+               return true;
+           }
+        }
+        return false;
+    }
 
-	/**
-	 * Extend {@code suffix} by prepending it with the last symbol of {@code u1Extended} (hereafter
-	 * known as the action). Note that the last symbol of {@code u2Extended} must have the same
-	 * base symbol. The extended symbolic suffix will be restricted in such a way that the
-	 * restrictions of the action respect all possible relations between its data values and
-	 * data values in the prefix. Restrictions for the {@code suffix} part of the extended suffix
-	 * will be restricted such that the extended suffix will be able to separate {@code u1} and
-	 * {@code u2}. Any data values in the restrictions will be mapped to the representative
-	 * prefix of the leaf containing {@code u1} and {@code u2}.
-	 * <p>
-	 * This method assumes the following:
-	 * <ul>
-	 *     <li>{@code u1Extended} and {@code u2Extended} are one-symbol extensions of {@code u1}
-	 *     and {@code u2}, respectively, with the same base symbol</li>
-	 *     <li>{@code sdt1} and {@code sdt2} were constructed from a tree query with
-	 *     {@code u1Extended} and {@code u2Extended}, respectively, and {@code suffix}</li>
-	 *     <li>{@code sdt1} and {@code sdt2} are not equivalent under any bijection (thereby
-	 *     separating {@code u1Extended} and {@code u2Extended})</li>
-	 *     <li>{@code u1} and {@code u2} are in the same leaf</li>
-	 * </ul>
-	 * <p>
-	 * Note that restrictions are currently only implemented for the {@link EqualityTheory}.
-	 *
-	 * @param u1 a short prefix
-	 * @param u1Extended one-symbol extension of {@code u1}
-	 * @param u2 a different short prefix in the same leaf as {@code u1}
-	 * @param u2Extended one-symbol extension of {@code u2}
-	 * @param suffix restricted symbolic suffix separating {@code u1Extended} and {@code u2Extended}
-	 * @param sdt1 SDT from a tree query with {@code u1Extended} and {@code suffix}
-	 * @param sdt2 SDT from a tree query with {@code u2Extended} and {@code suffix}
-	 * @return restricted symbolic suffix separating {@code u1} and {@code u2}
-	 */
+    /**
+     * Extend {@code suffix} by prepending it with the last symbol of {@code u1Extended} (hereafter
+     * known as the action). Note that the last symbol of {@code u2Extended} must have the same
+     * base symbol. The extended symbolic suffix will be restricted in such a way that the
+     * restrictions of the action respect all possible relations between its data values and
+     * data values in the prefix. Restrictions for the {@code suffix} part of the extended suffix
+     * will be restricted such that the extended suffix will be able to separate {@code u1} and
+     * {@code u2}. Any data values in the restrictions will be mapped to the representative
+     * prefix of the leaf containing {@code u1} and {@code u2}.
+     * <p>
+     * This method assumes the following:
+     * <ul>
+     *     <li>{@code u1Extended} and {@code u2Extended} are one-symbol extensions of {@code u1}
+     *     and {@code u2}, respectively, with the same base symbol</li>
+     *     <li>{@code sdt1} and {@code sdt2} were constructed from a tree query with
+     *     {@code u1Extended} and {@code u2Extended}, respectively, and {@code suffix}</li>
+     *     <li>{@code sdt1} and {@code sdt2} are not equivalent under any bijection (thereby
+     *     separating {@code u1Extended} and {@code u2Extended})</li>
+     *     <li>{@code u1} and {@code u2} are in the same leaf</li>
+     * </ul>
+     * <p>
+     * Note that restrictions are currently only implemented for the {@link EqualityTheory}.
+     *
+     * @param u1 a short prefix
+     * @param u1Extended one-symbol extension of {@code u1}
+     * @param u2 a different short prefix in the same leaf as {@code u1}
+     * @param u2Extended one-symbol extension of {@code u2}
+     * @param suffix restricted symbolic suffix separating {@code u1Extended} and {@code u2Extended}
+     * @param sdt1 SDT from a tree query with {@code u1Extended} and {@code suffix}
+     * @param sdt2 SDT from a tree query with {@code u2Extended} and {@code suffix}
+     * @return restricted symbolic suffix separating {@code u1} and {@code u2}
+     */
     public SymbolicSuffix extendSuffix(Prefix u1, Prefix u1Extended, Prefix u2, Prefix u2Extended, SymbolicSuffix suffix, SDT sdt1, SDT sdt2) {
     	ParameterizedSymbol action = u1Extended.lastSymbol().getBaseSymbol();
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
@@ -300,32 +301,31 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 
     /**
      * Extend {@code suffix} by prepending it with the last symbol of {@code uIf} (hereafter
-	 * known as the action). Note that the last symbol of {@code uElse} must have the same
-	 * base symbol. The extended symbolic suffix will be restricted in such a way that the
-	 * restrictions of the action respect all possible relations between its data values and
-	 * data values in the prefix. Restrictions for the {@code suffix} part of the extended suffix
-	 * will be restricted such that the extended suffix will be able to separate {@code u1} and
-	 * {@code u2}. Any data values in the restrictions will be mapped to the representative
-	 * prefix of the leaf containing {@code u}.
-	 * <p>
-	 * This method assumes the following:
-	 * <ul>
-	 *
-	 *     <li>{@code uIf} and {@code uElse} are one-symbol extensions of {@code u}, specifically
-	 *         <ul>
-	 *             <li>{@code uIf} is the one-symbol extension of the "if-guard", i.e., an equality
-	 *                 guard on data values in {@code u}</li>
-	 *             <li>{@code uElse} is the one-symbol extension of the "else-guard", i.e., the guard
-	 *                 corresponding to a fresh data value</li>
-	 *         </ul>
-	 *     </li>
-	 *     <li>{@code sdtIf} and {@code sdtElse} were constructed from a tree query with
-	 *         {@code uIf} and {@code uElse}, respectively, and {@code suffix}</li>
-	 *     <li>{@code sdtIf} and {@code sdtElse} are not equivalent</li>
-	 * </ul>
-	 * <p>
-	 * Note that restrictions are currently only implemented for the {@link EqualityTheory}.
-	 *
+     * known as the action). Note that the last symbol of {@code uElse} must have the same
+     * base symbol. The extended symbolic suffix will be restricted in such a way that the
+     * restrictions of the action respect all possible relations between its data values and
+     * data values in the prefix. Restrictions for the {@code suffix} part of the extended suffix
+     * will be restricted such that the extended suffix will be able to separate {@code u1} and
+     * {@code u2}. Any data values in the restrictions will be mapped to the representative
+     * prefix of the leaf containing {@code u}.
+     * <p>
+     * This method assumes the following:
+     * <ul>
+     *     <li>{@code uIf} and {@code uElse} are one-symbol extensions of {@code u}, specifically
+     *         <ul>
+     *             <li>{@code uIf} is the one-symbol extension of the "if-guard", i.e., an equality
+     *                 guard on data values in {@code u}</li>
+     *             <li>{@code uElse} is the one-symbol extension of the "else-guard", i.e., the guard
+     *                 corresponding to a fresh data value</li>
+     *         </ul>
+     *     </li>
+     *     <li>{@code sdtIf} and {@code sdtElse} were constructed from a tree query with
+     *         {@code uIf} and {@code uElse}, respectively, and {@code suffix}</li>
+     *     <li>{@code sdtIf} and {@code sdtElse} are not equivalent</li>
+     * </ul>
+     * <p>
+     * Note that restrictions are currently only implemented for the {@link EqualityTheory}.
+     *
      * @param u a short prefix
      * @param uIf one-symbol extension of {@code u} corresponding to an if-guard
      * @param uElse one-symbol extension of {@code u} corresponding to an else-guard
@@ -341,13 +341,13 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
 
     	if (!isEqualityTheory(DataWords.typesOf(suffixActions))) {
-    		throw new IllegalArgumentException("Only supported for equality theory");
+            throw new IllegalArgumentException("Only supported for equality theory");
     	}
 
     	SuffixValueGenerator sgen = new SuffixValueGenerator();
 
     	if (teachers == null) {
-    		return unrestricted(action, suffix);
+            return unrestricted(action, suffix);
     	}
 
     	// compute restrictions for action
@@ -384,12 +384,12 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 
     /**
      * Extend {@code suffix} by prepending it with the last symbol of {@code uExtended} (hereafter
-	 * known as the action). The extended symbolic suffix will be restricted in such a way that the
-	 * restrictions of the action respect all possible relations between its data values and
-	 * data values in the prefix. Restrictions for the {@code suffix} part of the extended suffix
-	 * will be restricted such that the extended suffix reveals all data values in {@code sdt}
-	 * which are not memorable in {@code u}.
-	 *
+     * known as the action). The extended symbolic suffix will be restricted in such a way that the
+     * restrictions of the action respect all possible relations between its data values and
+     * data values in the prefix. Restrictions for the {@code suffix} part of the extended suffix
+     * will be restricted such that the extended suffix reveals all data values in {@code sdt}
+     * which are not memorable in {@code u}.
+     *
      * @param u a short prefix
      * @param uExtended a one-symbol extension of {@code u}
      * @param suffix a restricted symbolic suffix revealing data values in {@code uExtended} that are not memorable in {@code u}
