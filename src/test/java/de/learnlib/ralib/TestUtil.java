@@ -18,6 +18,7 @@ package de.learnlib.ralib;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,9 +94,22 @@ public class TestUtil {
         return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
     }
 
-    public static RegisterAutomatonImporter getLoader(String resName) {
-        return new RegisterAutomatonImporter(
-                TestUtil.class.getResourceAsStream(resName));
+    private static final Map<String, RegisterAutomatonImporter> LOADER_CACHE = new ConcurrentHashMap<String, RegisterAutomatonImporter>();
+
+    /**
+     * Imports an RA from an XML resource and returns a loader by which it can be accessed.
+     * Implements caching so that requests for the same resource are processed quickly.
+     * @param resName the path to the resource
+     * @return the loader
+     */
+    public static synchronized RegisterAutomatonImporter getLoader(String resName) {
+        RegisterAutomatonImporter loader = LOADER_CACHE.get(resName);
+        if (loader == null ) {
+            loader = new RegisterAutomatonImporter(
+                    TestUtil.class.getResourceAsStream(resName));
+            LOADER_CACHE.put(resName, loader);
+        }
+        return loader;
     }
 
     public static DataType getType(String name, Collection<DataType> dataTypes) {

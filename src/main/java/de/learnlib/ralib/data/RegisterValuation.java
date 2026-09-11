@@ -16,6 +16,14 @@
  */
 package de.learnlib.ralib.data;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.word.Word;
 
 /**
  * A valuation of registers.
@@ -30,6 +38,20 @@ public class RegisterValuation extends Mapping<SymbolicDataValue.Register, DataV
             copy.putAll(other);
         }
         return copy;
+    }
+
+    public static RegisterValuation fromMemorable(Word<PSymbolInstance> prefix, Set<DataValue> memorable) {
+		ArrayList<DataValue> vals = new ArrayList<>();
+		vals.addAll(Arrays.asList(DataWords.valsOf(prefix)));
+
+		RegisterValuation regs = new RegisterValuation();
+		for (DataValue d : memorable) {
+			int id = vals.indexOf(d) + 1;
+			assert id > 0 : "Memorable is not in prefix";
+			Register r = new Register(d.getDataType(), id);
+			regs.put(r, d);
+		}
+		return regs;
     }
 
 }

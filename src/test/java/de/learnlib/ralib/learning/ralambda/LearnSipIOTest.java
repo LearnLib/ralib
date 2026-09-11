@@ -60,7 +60,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
-            theory.setUseSuffixOpt(false);
+            theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
         });
 
@@ -78,7 +78,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
 
-        SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, actions);
+        SLLambda learner = new SLLambda(mto, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
@@ -88,8 +88,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            sllambda.learn();
-            Hypothesis hyp = sllambda.getHypothesis();
+            learner.learn();
+            Hypothesis hyp = learner.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
             if (ce == null) {
@@ -103,10 +103,86 @@ public class LearnSipIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            sllambda.addCounterexample(ce);
+            learner.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = sllambda.getHypothesis();
+        RegisterAutomaton hyp = learner.getHypothesis();
+        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
+        DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
+
+        Assert.assertNull(ce);
+    }
+
+    @Test
+    public void testLearnSipIOSLLambdaEq() {
+
+        long seed = -1386796323025681754L;
+        //long seed = (new Random()).nextLong();
+        logger.log(Level.FINE, "SEED={0}", seed);
+
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/sip.xml");
+
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+
+        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
+                new ParameterizedSymbol[]{});
+
+        ParameterizedSymbol[] actions = loader.getActions().toArray(
+                new ParameterizedSymbol[]{});
+
+        final Constants consts = loader.getConstants();
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
+            IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
+            theory.setUseSuffixOpt(true);
+            teachers.put(t, theory);
+        });
+
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+        IOOracle ioOracle = new SULOracle(sul, ERROR);
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+
+        teachers.values().stream().forEach((t) -> {
+            ((EqualityTheory)t).setFreshValues(true, ioCache);
+        });
+
+        ConstraintSolver solver = new ConstraintSolver();
+
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                ioFilter, teachers, consts, solver);
+
+        SLLambdaEq learner = new SLLambdaEq(mto, teachers, consts, true, solver, actions);
+
+        IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
+                    model, teachers, consts, true, actions);
+
+        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
+        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
+
+        for (int check = 0; check < 100; ++check) {
+            learner.learn();
+            Hypothesis hyp = learner.getHypothesis();
+
+            DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
+            if (ce == null) {
+                break;
+            }
+
+            ce = loops.optimizeCE(ce.getInput(), hyp);
+            ce = asrep.optimizeCE(ce.getInput(), hyp);
+            ce = pref.optimizeCE(ce.getInput(), hyp);
+
+            Assert.assertTrue(model.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
+
+            learner.addCounterexample(ce);
+        }
+
+        RegisterAutomaton hyp = learner.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 

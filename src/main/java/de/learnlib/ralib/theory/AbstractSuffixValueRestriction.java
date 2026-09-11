@@ -1,0 +1,270 @@
+package de.learnlib.ralib.theory;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.theory.equality.EqualRestriction;
+import de.learnlib.ralib.theory.equality.UnmappedEqualityRestriction;
+import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
+import net.automatalib.word.Word;
+
+public abstract class AbstractSuffixValueRestriction {
+	protected final SuffixValue parameter;
+
+	public AbstractSuffixValueRestriction(SuffixValue parameter) {
+		this.parameter = parameter;
+	}
+
+	public AbstractSuffixValueRestriction(AbstractSuffixValueRestriction other) {
+		parameter = new SuffixValue(other.parameter.getDataType(), other.parameter.getId());
+	}
+
+	public AbstractSuffixValueRestriction(AbstractSuffixValueRestriction other, int shift) {
+		parameter = new SuffixValue(other.parameter.getDataType(), other.parameter.getId()+shift);
+	}
+
+	public SuffixValue getParameter() {
+		return parameter;
+	}
+
+	public abstract AbstractSuffixValueRestriction shift(int shiftStep);
+
+	public abstract AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping);
+
+	public abstract Expression<Boolean> toGuardExpression(Set<SymbolicDataValue> vals);
+
+	public abstract AbstractSuffixValueRestriction merge(AbstractSuffixValueRestriction other, Map<SuffixValue, AbstractSuffixValueRestriction> prior);
+
+	public abstract boolean revealsRegister(SymbolicDataValue r);
+
+	public abstract <K extends TypedValue, V extends TypedValue> AbstractSuffixValueRestriction relabel(Mapping<K, V> renaming);
+
+	/**
+	 * Generate a generic restriction using Fresh, Unrestricted and Equal restriction types
+	 *
+	 * @param sv
+	 * @param prefix
+	 * @param suffix
+	 * @param consts
+	 * @return
+	 */
+	public static AbstractSuffixValueRestriction genericRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+		DataValue[] prefixVals = DataWords.valsOf(prefix);
+		DataValue[] suffixVals = DataWords.valsOf(suffix);
+		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
+		DataType[] suffixTypes = DataWords.typesOf(DataWords.actsOf(suffix));
+		DataValue val = suffixVals[sv.getId()-1];
+		int firstSymbolArity = suffix.length() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
+
+		boolean unrestricted = false;
+		for (int i = 0; i < prefixVals.length; i++) {
+			DataValue dv = prefixVals[i];
+			DataType dt = prefixTypes[i];
+            if (dt.equals(sv.getDataType()) && dv.equals(val)) {
+                unrestricted = true;
+                break;
+            }
+		}
+		if (consts.containsValue(val)) {
+			unrestricted = true;
+		}
+		boolean equalsSuffixValue = false;
+		int equalSV = -1;
+		for (int i = 0; i < sv.getId()-1 && !equalsSuffixValue; i++) {
+			DataType dt = suffixTypes[i];
+			if (dt.equals(sv.getDataType()) && suffixVals[i].equals(val)) {
+				if (sv.getId() <= firstSymbolArity) {
+					unrestricted = true;
+				} else {
+					equalsSuffixValue = true;
+					equalSV = i;
+				}
+			}
+		}
+
+		// case equal to previous suffix value
+		if (equalsSuffixValue && !unrestricted) {
+			AbstractSuffixValueRestriction restr = new EqualRestriction(sv, new SuffixValue(suffixVals[equalSV].getDataType(), equalSV+1));
+			return restr;
+		}
+		// case fresh
+		else if (!equalsSuffixValue && !unrestricted) {
+			return new FreshSuffixValue(sv);
+		}
+		// case unrestricted
+		else {
+			return new UnrestrictedSuffixValue(sv);
+		}
+	}
+
+	public abstract boolean isTrue();
+
+	public abstract boolean isFalse();
+
+	public abstract boolean containsFresh();
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(parameter);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractSuffixValueRestriction other = (AbstractSuffixValueRestriction) obj;
+		return Objects.equals(parameter, other.parameter);
+	}
+
+	public static AbstractSuffixValueRestriction genericRestriction(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
+    	SuffixValue suffixValue = guard.getParameter();
+    	// case fresh
+    	if (guard instanceof SDTGuard.SDTTrueGuard || guard instanceof SDTGuard.DisequalityGuard) {
+    		return new FreshSuffixValue(suffixValue);
+    	// case equal to previous suffix value
+    	} else if (guard instanceof SDTGuard.EqualityGuard equalityGuard) {
+    		SDTGuardElement param = equalityGuard.register();
+    		if (param instanceof SuffixValue suffixValueParam) {
+    			AbstractSuffixValueRestriction restr = prior.get(param);
+    			if (restr instanceof FreshSuffixValue) {
+    				return new EqualRestriction(suffixValue, suffixValueParam);
+    			} else if (restr instanceof EqualRestriction equalRestriction) {
+    				return new EqualRestriction(suffixValue, equalRestriction.getEqualParameter());
+    			} else {
+    				return new UnrestrictedSuffixValue(suffixValue);
+    			}
+    		} else {
+    			return new UnrestrictedSuffixValue(suffixValue);
+    		}
+    	// case unrestricted
+    	} else {
+    		return new UnrestrictedSuffixValue(suffixValue);
+    	}
+	}
+
+	/**
+	 * Shift suffix values in {@code restrictions} by {@code shift} steps. Applies to both the
+	 * suffix value of the restrictions themselves, and to any suffix value elements of the
+	 * restrictions. For example, an equality restriction {@code (s2 == s1)} that is
+	 * shifted by 2 will become {@code (s4 == s3)}.
+	 *
+	 * @param restrictions
+	 * @param shift
+	 * @return
+	 */
+	public static Map<SuffixValue, AbstractSuffixValueRestriction> shift(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, int shift) {
+		Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			SuffixValue s = new SuffixValue(e.getKey().getDataType(), e.getKey().getId() + shift);
+			AbstractSuffixValueRestriction r = e.getValue().shift(shift);
+			ret.put(s, r);
+		}
+		return ret;
+	}
+
+	public static Map<SuffixValue, AbstractSuffixValueRestriction> replaceRestriction(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, AbstractSuffixValueRestriction replace, AbstractSuffixValueRestriction by) {
+		SuffixValue param = replace.getParameter();
+		if (!by.getParameter().equals(param)) {
+			throw new IllegalArgumentException("Restriction parameters do not match");
+		}
+
+		Map<SuffixValue, AbstractSuffixValueRestriction> replaced = new LinkedHashMap<>();
+
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			AbstractSuffixValueRestriction r = e.getValue();
+			if (e.getKey().equals(param)) {
+				if (r.equals(replace)) {
+					replaced.put(e.getKey(), by);
+				} else if (r instanceof RestrictionContainer rc) {
+					replaced.put(e.getKey(), rc.replace(replace, by));
+				} else {
+					replaced.put(e.getKey(), r);
+				}
+			} else {
+				replaced.put(e.getKey(), r);
+			}
+		}
+
+		return replaced;
+	}
+
+	public static <K extends TypedValue, V extends TypedValue> Map<SuffixValue, AbstractSuffixValueRestriction> relabel(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Mapping<K, V> renaming) {
+		Map<SuffixValue, AbstractSuffixValueRestriction> renamed = new LinkedHashMap<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			renamed.put(e.getKey(), e.getValue().relabel(renaming));
+		}
+		return renamed;
+	}
+
+	/**
+	 * @param restrictions
+	 * @param element
+	 * @return {@code true} if and only if {@code restrictions} contains a restriction on {@code element}
+	 */
+	public static boolean containsElement(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
+		for (AbstractSuffixValueRestriction r : restrictions.values()) {
+			if (r instanceof ElementRestriction er && er.containsElement(element)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param restrictions
+	 * @return set of all variables in {@code restrictions}
+	 */
+	public static Set<Expression<BigDecimal>> getElements(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
+		Set<Expression<BigDecimal>> ret = new LinkedHashSet<>();
+		for (AbstractSuffixValueRestriction r : restrictions.values()) {
+			if (r instanceof ElementRestriction er) {
+				ret.addAll(er.getElements());
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * @param restrictions
+	 * @param element
+	 * @return list of all restrictions on {@code element} in {@code restrictions}
+	 */
+	public static List<ElementRestriction> getRestrictionsOnElement(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, Expression<BigDecimal> element) {
+		List<ElementRestriction> ret = new ArrayList<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			if (e.getValue() instanceof ElementRestriction er && er.containsElement(element)) {
+				ret.addAll(er.getRestrictions(element));
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * @param restrictions
+	 * @return set of all suffix values with an {@link UnmappedEqualityRestriction}
+	 */
+	public static Set<SuffixValue> unmappedSuffixValues(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions) {
+		Set<SuffixValue> ret = new LinkedHashSet<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			if (e.getValue() instanceof UnmappedEqualityRestriction ||
+					(e.getValue() instanceof RestrictionContainer rc && rc.containsUnmapped())) {
+				ret.add(e.getKey());
+			}
+		}
+		return ret;
+	}
+}

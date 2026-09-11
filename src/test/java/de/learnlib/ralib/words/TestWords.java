@@ -36,8 +36,8 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import net.automatalib.word.Word;
@@ -80,7 +80,7 @@ public class TestWords extends RaLibTestSuite {
         logger.log(Level.FINE, "Symbolic Suffix: {0}", sym);
         Collection<SuffixValue> symSVs = sym.getDataValues();
         SuffixValue[] symSVArr = symSVs.toArray(new SuffixValue[symSVs.size()]);
-        Map<SuffixValue, SuffixValueRestriction> expRestr = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> expRestr = new LinkedHashMap<>();
         expRestr.put(symSVArr[0], new UnrestrictedSuffixValue(symSVArr[0]));
         expRestr.put(symSVArr[1], new FreshSuffixValue(symSVArr[1]));
         expRestr.put(symSVArr[2], new EqualRestriction(symSVArr[2], symSVArr[1]));

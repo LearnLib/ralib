@@ -14,6 +14,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.ConcretizingTreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -32,7 +33,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	private final Set<ShortPrefix> shortPrefixes;
 	private final Set<Prefix> prefixes;
 
-	public CTLeaf(Prefix rp, CTNode parent) {
+	public CTLeaf(Prefix rp, CTInnerNode parent) {
 		super(parent);
 		if (parent == null) {
 			throw new IllegalArgumentException("A leaf must have a parent");
@@ -118,7 +119,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 * @return {@code this}
 	 */
 	@Override
-	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
+	protected CTLeaf sift(Prefix prefix, ConcretizingTreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		prefixes.add(prefix);
 		if (prefix instanceof ShortPrefix sp) {
 			shortPrefixes.add(sp);

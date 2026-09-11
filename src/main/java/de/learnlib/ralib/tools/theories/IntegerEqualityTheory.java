@@ -60,7 +60,7 @@ public class IntegerEqualityTheory  extends EqualityTheory implements TypedTheor
 
     @Override
     public void setUseSuffixOpt(boolean useit) {
-        this.useNonFreeOptimization = useit;
+        this.useSuffixOpt = useit;
     }
 
     @Override

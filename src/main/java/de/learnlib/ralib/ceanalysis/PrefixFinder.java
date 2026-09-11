@@ -1,9 +1,9 @@
 package de.learnlib.ralib.ceanalysis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +21,8 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.RegisterValuation;
+import de.learnlib.ralib.data.SDTGuardElement;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -34,6 +36,7 @@ import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -57,17 +60,17 @@ public class PrefixFinder {
 	 */
 	public record Result(Word<PSymbolInstance> prefix, ResultType result) {};
 
-	private final CTHypothesis hyp;
-	private final ClassificationTree ct;
+	protected final CTHypothesis hyp;
+	protected final ClassificationTree ct;
 
-	private final TreeOracle sulOracle;
-	private final Map<DataType, Theory> teachers;
+	protected final TreeOracle sulOracle;
+	protected final Map<DataType, Theory> teachers;
 
-	private final SymbolicSuffixRestrictionBuilder restrBuilder;
+	protected final SymbolicSuffixRestrictionBuilder restrBuilder;
 
-	private final ConstraintSolver solver;
+	protected final ConstraintSolver solver;
 
-	private final Constants consts;
+	protected final Constants consts;
 
 	public PrefixFinder(TreeOracle sulOracle, CTHypothesis hyp, ClassificationTree ct,
 			Map<DataType, Theory> teachers, SymbolicSuffixRestrictionBuilder restrBuilder,
@@ -83,7 +86,7 @@ public class PrefixFinder {
 
 	/**
 	 * Analyze counterexample {@code ce} from right to leaf to find a transition or
-	 * location discrepancy. If a discrepancy is found, returns the prefix which reveals
+	 * location discrepancy. If a discrepancy is found, return the prefix which reveals
 	 * the discrepancy, along with a {@code ResultType} indicating the type of discrepancy.
 	 *
 	 * @param ce
@@ -101,9 +104,8 @@ public class PrefixFinder {
 			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
 			SymbolicSuffix v = new SymbolicSuffix(ce.prefix(i-1), ce.suffix(ce.length() - i + 1), restrBuilder);
 
-			Expression<Boolean> gHyp = run.getGuard(i, consts);
-
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
+				Expression<Boolean> gHyp = getHypGuard(run, i, u);
 				SDT sdt = sulOracle.treeQuery(u, v);
 
 				Set<DataValue> uVals = hyp.getLeaf(loc).getPrefix(u).getRegisters();
@@ -188,7 +190,7 @@ public class PrefixFinder {
 		DataValue[] sdtValsArr = sdtVals.toArray(new DataValue[sdtVals.size()]);
 
 		// gather data values from prefix of run at index id
-		List<DataValue> runVals = new ArrayList<>();
+		ArrayList<DataValue> runVals = new ArrayList<>();
 		for (int i = 1; i <= id-1; i++) {
 			for (DataValue d : run.getTransitionSymbol(i).getParameterValues()) {
 				runVals.add(d);
@@ -196,8 +198,8 @@ public class PrefixFinder {
 		}
 
 		/* remove data values from valuation.
-		 * may have multiple copies of same data value, which may be mapped to different
-		 * data values in uSDT, so only remove one instance of data values in valuation
+		 * May have multiple copies of same data value, which may be mapped to different
+		 * data values in uSDT, so only remove one instance of data values in valuation.
 		 */
 		for (DataValue d : run.getValuation(id-1).values()) {
 			runVals = removeFirst(runVals, d);
@@ -231,7 +233,7 @@ public class PrefixFinder {
 	 * @param d
 	 * @return array containing data values of {@code list}, with one occurrence of {@code d} removed
 	 */
-	private List<DataValue> removeFirst(List<DataValue> list, DataValue d) {
+	private ArrayList<DataValue> removeFirst(ArrayList<DataValue> list, DataValue d) {
 		ArrayList<DataValue> ret = new ArrayList<>();
 		ret.addAll(list);
 		for (int i = 0; i < list.size(); i++) {
@@ -270,13 +272,15 @@ public class PrefixFinder {
         // instantiate a representative data value for the conjunction
         DataType[] types = action.getPtypes();
         DataValue[] reprDataVals = new DataValue[types.length];
+        ArrayList<DataValue> prior = new ArrayList<>();
         for (int i = 0; i < types.length; i++) {
-        	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, consts, solver);
+        	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, prior, consts, solver);
         	if (reprDataVal.isEmpty()) {
         		// guard unsat
         		return Optional.empty();
         	}
         	reprDataVals[i] = reprDataVal.get();
+        	prior.add(reprDataVals[i]);
         }
         PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
         Word<PSymbolInstance> uExtSUL = u.append(psi);
@@ -292,7 +296,7 @@ public class PrefixFinder {
 			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, v).toRegisterSDT(uExtHyp, consts);
 			SDT uExtSULSDT = sulOracle.treeQuery(uExtSUL, v).toRegisterSDT(uExtSUL, consts);
 
-			if (SDT.equivalentUnderId(uExtHypSDT, uExtSULSDT)) {
+			if (this.equivalentSDTsWithEqualityMapping(uExtSULSDT, uExtHypSDT, uExtSUL)) {
 				return Optional.empty();  // there is an equivalent extension, so no discrepancy
 			}
 		}
@@ -371,5 +375,56 @@ public class PrefixFinder {
 		mapping.putAll(consts);
 
 		return solver.isSatisfiable(guardRenamed, mapping);
+	}
+
+	/**
+	 * Get the guard in the hypothesis which the last symbol of {@code u} transitions through
+	 * in {@code run}.
+	 *
+	 * @param run
+	 * @param i
+	 * @param u
+	 * @return
+	 */
+	private Expression<Boolean> getHypGuard(RARun run, int i, Word<PSymbolInstance> u) {
+		RegisterValuation runVal = run.getValuation(i - 1);
+		RegisterValuation uVal = hyp.getRun(u).getValuation(u.size());
+		Mapping<DataValue, DataValue> renaming = new Mapping<>();
+		for (Map.Entry<Register, DataValue> runValEntry : runVal.entrySet()) {
+			DataValue replace = runValEntry.getValue();
+			DataValue by = uVal.get(runValEntry.getKey());
+			renaming.put(replace, by);
+		}
+
+        ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+        Expression<Boolean> guard = run.getGuard(i, consts);
+        return rvv.apply(guard, renaming);
+	}
+
+	/**
+	 * Check whether {@code sdtIf} and {@code sdtElse} are equivalent when taking into account registers
+	 * of {@code sdtIf} that, in {@code uIf}, have equal data values. The method does so by collapsing
+	 * registers in {@code sdtElse} that are equal in {@code uIf} into one before checking for equivalence.
+	 *
+	 * @param sdtIf
+	 * @param sdtElse
+	 * @param uIf
+	 * @return {@code true} if and only if {@code sdtIf} and {@code sdtElse} are equivalent when collapsing equivalent registers of {@code uIf}
+	 */
+	private boolean equivalentSDTsWithEqualityMapping(SDT sdtIf, SDT sdtElse, Word<PSymbolInstance> uIf) {
+		ArrayList<DataValue> uIfVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(uIf)));
+		Mapping<Register, Register> renaming = new Mapping<>();
+		for (SDTGuardElement elem : sdtElse.getVariables()) {
+			if (elem instanceof Register r && !sdtIf.getVariables().contains(r)) {
+				DataValue d = uIfVals.get(r.getId() - 1);
+				assert d != null : "Incompatible SDTs";
+				int index = uIfVals.indexOf(d);
+				if (index >= 0) {
+					Register rEq = new Register(d.getDataType(), index + 1);
+					renaming.put(r, rEq);
+				}
+			}
+		}
+		return sdtIf.isEquivalent(sdtElse, SDTRelabeling.fromMapping(renaming));
 	}
 }

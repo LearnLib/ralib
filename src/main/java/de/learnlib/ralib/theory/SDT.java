@@ -22,12 +22,15 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.Negation;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -125,6 +128,21 @@ public class SDT {
             }
         }
         return variables;
+    }
+
+    public Set<SDTGuard> getGuards(SuffixValue sv) {
+    	Set<SDTGuard> guards = new LinkedHashSet<>();
+    	if (children == null) {
+    		return guards;
+    	}
+    	for (Map.Entry<SDTGuard, SDT> child : children.entrySet()) {
+    		SDTGuard g = child.getKey();
+    		if (g.getParameter().equals(sv)) {
+    			guards.add(g);
+    		}
+    		guards.addAll(child.getValue().getGuards(sv));
+    	}
+    	return guards;
     }
 
     public Set<SymbolicDataValue.SuffixValue> getSuffixValues() {
@@ -413,6 +431,25 @@ public class SDT {
         return ret;
     }
 
+    /**
+     * Add {@code shift} to each suffix value id in SDT, including any potential guard elements
+     *
+     * @param shift
+     * @return
+     */
+    public SDT shift(int shift) {
+    	if (this.children == null) {
+    		return this;
+    	}
+    	Map<SDTGuard, SDT> children = new LinkedHashMap<>();
+    	for (Map.Entry<SDTGuard, SDT> child : this.children.entrySet()) {
+    		SDT sdt = child.getValue().shift(shift);
+    		SDTGuard guard = SDTGuard.shift(child.getKey(), shift);
+    		children.put(guard, sdt);
+    	}
+    	return new SDT(children);
+    }
+
     private static SDT findFinest(int i, List<SDT> sdts, SDT curr) {
         i++;
         if (sdts.size() == i) {
@@ -521,4 +558,56 @@ public class SDT {
 		return sdt1.isEquivalentUnderCondition(sdt2, ExpressionUtil.TRUE);
 	}
 
+	public static boolean equalUnderActionRemapping(SDT sdtIf, SDT sdtElse, Word<PSymbolInstance> uIf, Word<PSymbolInstance> uElse) {
+		assert DataWords.actsOf(uIf).equals(DataWords.actsOf(uElse)) : "Action mismatch";
+		Word<PSymbolInstance> u = uIf.prefix(uIf.length() - 1);
+		int arity = uIf.lastSymbol().getBaseSymbol().getArity();
+		int prefixArity = DataWords.paramValLength(uIf) - arity;
+		DataValue[] uIfVals = uIf.lastSymbol().getParameterValues();
+		ArrayList<DataValue> uVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(u)));
+
+		Mapping<Register, Register> renaming = new Mapping<>();
+		for (SDTGuardElement e : sdtElse.getVariables()) {
+			if (!SDTGuardElement.isRegister(e)) {
+				continue;
+			}
+			Register r = (Register) e;
+			if (r.getId() > prefixArity) {
+				int paramId = r.getId() - prefixArity;
+				DataValue d = uIfVals[paramId - 1];
+				int uId = uVals.indexOf(d);
+				if (uId < 0) {
+					continue;
+				}
+				Register nr = new Register(d.getDataType(), uId + 1);
+				renaming.put(r, nr);
+			}
+		}
+		return sdtIf.isEquivalent(sdtElse, SDTRelabeling.fromMapping(renaming));
+	}
+
+    public static SDT makeRejectingSDT(SymbolicSuffix suffix) {
+        Queue<DataType> types = new ArrayDeque<>();
+    	for (ParameterizedSymbol ps : suffix.getActions()) {
+    		for (DataType type : ps.getPtypes()) {
+    			types.offer(type);
+    		}
+    	}
+    	return makeRejectingSDT(1, types);
+    }
+
+    public static SDT makeRejectingSDT(int param, Queue<DataType> types) {
+    	if (types.isEmpty()) {
+    		return SDTLeaf.REJECTING;
+    	}
+
+    	DataType type = types.poll();
+    	SuffixValue sv = new SuffixValue(type, param);
+    	SDTGuard g = new SDTGuard.SDTTrueGuard(sv);
+
+    	Map<SDTGuard, SDT> child = new LinkedHashMap<>();
+    	child.put(g, makeRejectingSDT(param+1, types));
+
+    	return new SDT(child);
+    }
 }

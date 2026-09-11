@@ -7,6 +7,7 @@ import java.util.Map;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.ceanalysis.PrefixFinder.Result;
+import de.learnlib.ralib.ceanalysis.PrefixFinderFactory;
 import de.learnlib.ralib.ct.CTAutomatonBuilder;
 import de.learnlib.ralib.ct.CTHypothesis;
 import de.learnlib.ralib.ct.ClassificationTree;
@@ -27,20 +28,16 @@ import net.automatalib.word.Word;
 
 public class SLLambda implements RaLearningAlgorithm {
 
-    private final ClassificationTree ct;
+	private final ClassificationTree ct;
 
-    private final Constants consts;
+	private final Constants consts;
 
     private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples;
 
     private CTHypothesis hyp;
 
-    private final TreeOracle sulOracle;
-
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
-    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
-
-    private final Map<DataType, Theory> teachers;
+    private SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
     private QueryStatistics queryStats;
 
@@ -48,20 +45,28 @@ public class SLLambda implements RaLearningAlgorithm {
 
     private final ConstraintSolver solver;
 
+    protected final PrefixFinderFactory prefixFinderFactory;
+
     public SLLambda(TreeOracle sulOracle, Map<DataType, Theory> teachers,
     		Constants consts, boolean ioMode, ConstraintSolver solver,
+    		SymbolicSuffixRestrictionBuilder restrBuilder,
     		ParameterizedSymbol ... inputs) {
-    	this.sulOracle = sulOracle;
-    	this.teachers = teachers;
     	this.consts = consts;
     	this.ioMode = ioMode;
     	this.solver = solver;
-    	restrictionBuilder = sulOracle.getRestrictionBuilder();
+    	restrictionBuilder = restrBuilder;
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
-        counterexamples = new ArrayDeque<>();
+    	counterexamples = new ArrayDeque<>();
     	hyp = null;
-    	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
+    	prefixFinderFactory = new PrefixFinderFactory(sulOracle, teachers, restrictionBuilder, solver, consts);
+    	ct = new ClassificationTree(sulOracle, solver, restrBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.initialize();
+    }
+
+    public SLLambda(TreeOracle sulOracle, Map<DataType, Theory> teachers,
+    		Constants consts, boolean ioMode, ConstraintSolver solver,
+    		ParameterizedSymbol ... inputs) {
+    	this(sulOracle, teachers, consts, ioMode, solver, new SymbolicSuffixRestrictionBuilder(consts, teachers), inputs);
     }
 
 	@Override
@@ -112,6 +117,10 @@ public class SLLambda implements RaLearningAlgorithm {
 		hyp = ab.buildHypothesis();
 	}
 
+	protected PrefixFinder createPrefixFinder() {
+		return prefixFinderFactory.create(hyp, ct);
+	}
+
 	private boolean analyzeCounterExample() {
 		if (counterexamples.isEmpty()) {
 			return false;
@@ -135,13 +144,7 @@ public class SLLambda implements RaLearningAlgorithm {
         	queryStats.analyzeCE(ceWord);
         }
 
-        PrefixFinder prefixFinder = new PrefixFinder(sulOracle,
-        		hyp,
-        		ct,
-        		teachers,
-        		restrictionBuilder,
-        		solver,
-        		consts);
+        PrefixFinder prefixFinder = createPrefixFinder();
 
         Result res = prefixFinder.analyzeCounterExample(ceWord);
 
