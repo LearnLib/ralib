@@ -522,7 +522,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
 
     	// determine type of equality with data values in u
     	AbstractSuffixValueRestriction eq = uVals.contains(actionVals[index]) ?
-    			((memorable.contains(actionVals[index])) ?
+    			(memorable.contains(actionVals[index]) ?
     					SuffixValueRestriction.equalityRestriction(suffixValue, actionVals[index]) :
     						unmappedWithFreshRestr) :
     							null;

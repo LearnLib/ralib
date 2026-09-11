@@ -41,7 +41,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 			if (restr.isFalse()) {
 				hasFalse = true;
 				break;
-			} else if (!(restr.isTrue())) {
+			} else if (! restr.isTrue()) {
 				this.conjuncts.add(restr);
 			}
 		}
