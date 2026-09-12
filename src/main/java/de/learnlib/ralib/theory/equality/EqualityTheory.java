@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2025 The LearnLib Contributors
+ * Copyright (C) 2014-2026 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,11 +101,11 @@ public abstract class EqualityTheory implements Theory {
     	SuffixValue suffixValue = suffix.getSuffixValue(currentId);
 
     	Map<DataValue, SDTGuardElement> pot = getPotential(suffixValue.getDataType(), prefix, suffixValues, consts);
-    	List<DataValue> potVals = new ArrayList<>();
+        List<DataValue> potVals = new ArrayList<>();
     	pot.keySet().forEach(d -> potVals.add(d));
     	DataValue fresh = getFreshValue(potVals);
 
-    	List<DataValue> equivClasses = new ArrayList<>(potVals);
+        List<DataValue> equivClasses = new ArrayList<>(potVals);
     	equivClasses.add(fresh);
 	EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
 	List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
@@ -124,7 +123,7 @@ public abstract class EqualityTheory implements Theory {
 	                filteredEquivClasses = Arrays.asList(fresh);
 	            }
 	        } else {
-                    Queue<DataType> types = new LinkedList<>();
+                    Queue<DataType> types = new ArrayDeque<>();
 	            DataType[] suffixTypes = DataWords.typesOf(suffix.getActions());
 	            for (int i = currentId - 1; i < suffixTypes.length; i++) {
 	                types.offer(suffixTypes[i]);
@@ -199,7 +198,7 @@ public abstract class EqualityTheory implements Theory {
     		DataValue d = e.getKey();
     		SDT sdt = e.getValue();
 			SDTGuard.EqualityGuard eq = new SDTGuard.EqualityGuard(suffixValue, pot.get(d));
-			List<SDTGuard.EqualityGuard> eqList = new ArrayList<>();
+                        List<SDTGuard.EqualityGuard> eqList = new ArrayList<>();
 			eqList.add(eq);
     		if (!sdt.isEquivalentUnder(elseSdt, eqList)) {
     			ifGuards.put(eq, sdt);
@@ -216,7 +215,7 @@ public abstract class EqualityTheory implements Theory {
     		SDTGuard.EqualityGuard eq = eqGuards.iterator().next();
     		return new SDTGuard.DisequalityGuard(suffixValue, eq.register());
     	}
-    	List<SDTGuard> deqList = new ArrayList<>();
+        List<SDTGuard> deqList = new ArrayList<>();
     	eqGuards.forEach(eq -> deqList.add(new SDTGuard.DisequalityGuard(suffixValue, eq.register())));
     	return new SDTGuard.SDTAndGuard(suffixValue, deqList);
     }
@@ -319,7 +318,7 @@ public abstract class EqualityTheory implements Theory {
     			.collect(Collectors.toSet()));
     	vals.addAll(constants.values());
     	vals.addAll(prior);
-    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
+        DataValue fresh = getFreshValue(new ArrayList<>(vals));
 
     	if (isSatisfiableWithEquality(guard, p, fresh, prior, solver, constants)) {
     		return Optional.of(fresh);
