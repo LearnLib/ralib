@@ -288,7 +288,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = restrictionFromSDTs(sdt1, sdt2,
     			u1Extended, u2Extended,
     			u1.getRpBijection(), u2.getRpBijection(),
-    			false, consts, suffix, solver);
+                        false, suffix, solver);
     	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u1.getRpBijection().toVarMapping());
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
@@ -371,7 +371,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = restrictionFromSDTs(sdtIf, sdtElse,
     			uIf, uElse,
     			u.getRpBijection(), u.getRpBijection(),
-    			sameLeaf, consts, suffix, solver);
+                        sameLeaf, suffix, solver);
     	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u.getRpBijection().toVarMapping());
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
@@ -434,7 +434,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	actionRestrictions = AbstractSuffixValueRestriction.relabel(actionRestrictions, u.getRpBijection().toVarMapping());
 
     	// compute restrictions for the suffix part
-    	Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = restrictionFromSDT(sdt, u, uExtended, u.getRpBijection(), consts, suffix, solver, useImprovedRegClosedOpt);
+        Map<SuffixValue, AbstractSuffixValueRestriction> suffixRestrictions = restrictionFromSDT(sdt, u, uExtended, u.getRpBijection(), suffix, solver, useImprovedRegClosedOpt);
     	suffixRestrictions = AbstractSuffixValueRestriction.relabel(suffixRestrictions, u.getRpBijection().toVarMapping());
 
     	Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
@@ -854,12 +854,11 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
      * @param uExt2
      * @param u1RpBijection
      * @param u2RpBijection
-     * @param consts
      * @param suffix
      * @param solver
      * @return
      */
-    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDTs(SDT sdt1, SDT sdt2, Prefix uExt1, Prefix uExt2, Bijection<DataValue> u1RpBijection, Bijection<DataValue> u2RpBijection, boolean sameLeaf, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDTs(SDT sdt1, SDT sdt2, Prefix uExt1, Prefix uExt2, Bijection<DataValue> u1RpBijection, Bijection<DataValue> u2RpBijection, boolean sameLeaf, SymbolicSuffix suffix, ConstraintSolver solver) {
     	PSymbolInstance symb1 = uExt1.lastSymbol();
     	PSymbolInstance symb2 = uExt2.lastSymbol();
     	if (!symb1.getBaseSymbol().equals(symb2.getBaseSymbol())) {
@@ -926,12 +925,11 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
      * @param sdt
      * @param uExt
      * @param rp
-     * @param consts
      * @param suffix
      * @param solver
      * @return
      */
-    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix u, Prefix uExt, Bijection<DataValue> rp, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver, boolean useImprovedRegClosed) {
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> restrictionFromSDT(SDT sdt, Prefix u, Prefix uExt, Bijection<DataValue> rp, SymbolicSuffix suffix, ConstraintSolver solver, boolean useImprovedRegClosed) {
     	PSymbolInstance symb = uExt.lastSymbol();
     	int arity = symb.getBaseSymbol().getArity();
     	List<DataValue> actionVals = Arrays.asList(symb.getParameterValues());
@@ -940,7 +938,7 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     	missingRegs.removeAll(rp.keySet());
 
     	if (!Collections.disjoint(actionVals, missingRegs) || !useImprovedRegClosed) {
-    		return transferRestriction(sdt, u, uExt, rp, consts, suffix, solver);
+            return transferRestriction(sdt, u, uExt, rp, suffix);
     	}
 
     	Bijection<DataValue> ancestorRenaming = uExt.getBijection(uExt.getPath().getPrior(suffix)).inverse();
@@ -965,12 +963,10 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
      * @param u
      * @param uExt
      * @param rp
-     * @param consts
      * @param suffix
-     * @param solver
      * @return
      */
-    private static Map<SuffixValue, AbstractSuffixValueRestriction> transferRestriction(SDT sdt, Prefix u, Prefix uExt, Bijection<DataValue> rp, Constants consts, SymbolicSuffix suffix, ConstraintSolver solver) {
+    private static Map<SuffixValue, AbstractSuffixValueRestriction> transferRestriction(SDT sdt, Prefix u, Prefix uExt, Bijection<DataValue> rp, SymbolicSuffix suffix) {
     	PSymbolInstance symb = uExt.lastSymbol();
     	ArrayList<DataValue> symbVals = new ArrayList<>(Arrays.asList(symb.getParameterValues()));
 
