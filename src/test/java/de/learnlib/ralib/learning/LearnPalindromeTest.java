@@ -48,6 +48,11 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 	}
 
 	@Test(enabled = true)
+	public void testLearnPalindromeSLStar() {
+		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RASTAR);
+	}
+
+	@Test(enabled = true)
 	public void testLearnPalindromeSLLambda() {
 		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RALAMBDA);
 	}
@@ -55,11 +60,6 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 	@Test(enabled = true)
 	public void testLearnPalindromeSLLambdaEq() {
 		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RALAMBDAEQ);
-	}
-
-	@Test(enabled = true)
-	public void testLearnPalindromeSLStar() {
-		testLearnPalindrome(PALINDROME_SIZE, RaLearningAlgorithmName.RASTAR);
 	}
 
 	public void testLearnPalindrome(int size, RaLearningAlgorithmName name) {
@@ -73,7 +73,7 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		Map<DataType, Theory> teachers = new LinkedHashMap<>();
 		teachers.put(TYPE, new IntegerEqualityTheory(TYPE));
 		RAEquivalenceTest checker = new RAEquivalenceTest(model, teachers, new Constants(), true, IN);
-		learn(algorithm, checker, name);
+		learn(algorithm, checker);
 	}
 
 	private RaLearningAlgorithm makeLearner(RaLearningAlgorithmName name) {
@@ -109,7 +109,7 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		return learner;
 	}
 
-	private void learn(RaLearningAlgorithm learner, RAEquivalenceTest checker, RaLearningAlgorithmName name) {
+	private void learn(RaLearningAlgorithm learner, RAEquivalenceTest checker) {
 		learner.learn();
 		DefaultQuery<PSymbolInstance, Boolean> ce = checker.findCounterExample(learner.getHypothesis(), null);
 		while (ce != null) {

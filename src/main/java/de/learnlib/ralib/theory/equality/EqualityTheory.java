@@ -108,62 +108,62 @@ public abstract class EqualityTheory implements Theory {
 
     	List<DataValue> equivClasses = new ArrayList<>(potVals);
     	equivClasses.add(fresh);
-		EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
-		List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
+	EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useSuffixOpt);
+	List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values, consts);
 
-		if (freshValues) {
-			ParameterizedSymbol act = computeSymbol(suffix, currentId);
-			if (act.getArity() > 0 && act instanceof OutputSymbol) {
-		        int idx = computeLocalIndex(suffix, currentId);
-		        Word<PSymbolInstance> query = buildQuery(prefix, suffix, values);
-		        Word<PSymbolInstance> trace = ioOracle.trace(query);
+	if (freshValues) {
+            ParameterizedSymbol act = computeSymbol(suffix, currentId);
+            if (act.getArity() > 0 && act instanceof OutputSymbol) {
+	        int idx = computeLocalIndex(suffix, currentId);
+	        Word<PSymbolInstance> query = buildQuery(prefix, suffix, values);
+	        Word<PSymbolInstance> trace = ioOracle.trace(query);
 
-		        if (!trace.isEmpty() && trace.lastSymbol().getBaseSymbol().equals(act)) {
-		            DataValue d = trace.lastSymbol().getParameterValues()[idx];
-		            if (d instanceof FreshValue) {
-		            	filteredEquivClasses = Arrays.asList(fresh);
-		            }
-		        } else {
-		        	Queue<DataType> types = new LinkedList<>();
-		        	DataType[] suffixTypes = DataWords.typesOf(suffix.getActions());
-		        	for (int i = currentId - 1; i < suffixTypes.length; i++) {
-		        		types.offer(suffixTypes[i]);
-		        	}
-		        	return SDT.makeRejectingSDT(currentId, types);
-		        }
-			}
-		}
+	        if (!trace.isEmpty() && trace.lastSymbol().getBaseSymbol().equals(act)) {
+	            DataValue d = trace.lastSymbol().getParameterValues()[idx];
+	            if (d instanceof FreshValue) {
+	                filteredEquivClasses = Arrays.asList(fresh);
+	            }
+	        } else {
+                    Queue<DataType> types = new LinkedList<>();
+	            DataType[] suffixTypes = DataWords.typesOf(suffix.getActions());
+	            for (int i = currentId - 1; i < suffixTypes.length; i++) {
+	                types.offer(suffixTypes[i]);
+	            }
+	            return SDT.makeRejectingSDT(currentId, types);
+	        }
+            }
+	}
 
-		if (!filteredEquivClasses.contains(fresh)) {
-			fresh = Collections.max(filteredEquivClasses, (d1,d2) -> d1.compareTo(d2));
-		}
+	if (!filteredEquivClasses.contains(fresh)) {
+            fresh = Collections.max(filteredEquivClasses, (d1,d2) -> d1.compareTo(d2));
+	}
 
     	Map<DataValue, SDT> ifSdts = new LinkedHashMap<>();
     	SDT elseSdt = null;
     	for (DataValue d : filteredEquivClasses) {
-    		WordValuation nextValuation = new WordValuation();
-    		nextValuation.putAll(values);
-    		nextValuation.put(currentId, d);
-    		SuffixValuation nextSuffixValuation = new SuffixValuation();
-    		nextSuffixValuation.putAll(suffixValues);
-    		nextSuffixValuation.put(suffixValue, d);
+            WordValuation nextValuation = new WordValuation();
+            nextValuation.putAll(values);
+            nextValuation.put(currentId, d);
+            SuffixValuation nextSuffixValuation = new SuffixValuation();
+            nextSuffixValuation.putAll(suffixValues);
+            nextSuffixValuation.put(suffixValue, d);
 
-    		SDT sdt = oracle.treeQuery(prefix, suffix, nextValuation, consts, nextSuffixValuation);
+            SDT sdt = oracle.treeQuery(prefix, suffix, nextValuation, consts, nextSuffixValuation);
 
-    		if (d.equals(fresh)) {
-    			elseSdt = sdt;
-    		} else {
-    			ifSdts.put(d, sdt);
-    		}
-    	}
+            if (d.equals(fresh)) {
+                elseSdt = sdt;
+            } else {
+                ifSdts.put(d, sdt);
+            }
+        }
 
-    	Map<SDTGuard.EqualityGuard, SDT> eqChildren = getIfGuards(suffixValue, ifSdts, pot, elseSdt);
-    	SDTGuard elseGuard = getElseGuard(suffixValue, eqChildren.keySet());
+        Map<SDTGuard.EqualityGuard, SDT> eqChildren = getIfGuards(suffixValue, ifSdts, pot, elseSdt);
+        SDTGuard elseGuard = getElseGuard(suffixValue, eqChildren.keySet());
 
-    	Map<SDTGuard, SDT> children = new LinkedHashMap<>();
-    	children.putAll(eqChildren);
-    	children.put(elseGuard, elseSdt);
-    	return new SDT(children);
+        Map<SDTGuard, SDT> children = new LinkedHashMap<>();
+        children.putAll(eqChildren);
+        children.put(elseGuard, elseSdt);
+        return new SDT(children);
     }
 
     private Map<DataValue, SDTGuardElement> getPotential(DataType type, Word<PSymbolInstance> prefix, SuffixValuation suffixValues, Constants consts) {
@@ -265,7 +265,6 @@ public abstract class EqualityTheory implements Theory {
         DataValue fresh = this.getFreshValue(new ArrayList<DataValue>(potSet));
         LOGGER.trace("fresh = " + fresh.toString());
         return fresh;
-
     }
 
     private ParameterizedSymbol computeSymbol(SymbolicSuffix suffix, int pId) {
@@ -362,10 +361,10 @@ public abstract class EqualityTheory implements Theory {
     	BiMap<Integer, DataValue> pot = HashBiMap.create();
     	DataValue[] vals = DataWords.valsOf(u);
     	for (int i = 0; i < vals.length; i++) {
-    		if (vals[i].getDataType().equals(type) && !pot.values().contains(vals[i])) {
-    			pot.put(i+1, vals[i]);
-    		}
-    	}
+            if (vals[i].getDataType().equals(type) && !pot.values().contains(vals[i])) {
+                pot.put(i+1, vals[i]);
+            }
+        }
     	return pot;
     }
 
@@ -386,20 +385,20 @@ public abstract class EqualityTheory implements Theory {
     	BiMap<DataValue, Integer> pot = pot(u, type).inverse();
     	Map<Integer, DataValue> map = new LinkedHashMap<>();
     	for (Map.Entry<Register, DataValue> uEntry : uValuation.entrySet()) {
-    		DataValue wVal = wValuation.get(uEntry.getKey());
-    		if (wVal != null && wVal.getDataType().equals(type)) {
-    			int id = pot.get(uEntry.getValue());
-    			map.put(id, wVal);
-    		}
-    	}
+            DataValue wVal = wValuation.get(uEntry.getKey());
+            if (wVal != null && wVal.getDataType().equals(type)) {
+                int id = pot.get(uEntry.getValue());
+                map.put(id, wVal);
+            }
+        }
     	return map;
     }
 
     /**
-     * The indices {@code l} of {@code u} such that if a hypothesis reaches {@code wValuation}
+     * Return the indices of {@code u} such that if a hypothesis reaches a valuation
      * after a run over {@code w}, then there is a position-injective extension of
-     * {@code uValuation} under which a data value {@code d} at index {@code l} of {@code u} will
-     * satisfy an equality guard {@code (s == d)}.
+     * {@code uValuation} under which a data value {@code d} at that index of {@code u}
+     * will satisfy an equality guard with {@code d}.
      *
      * @param w
      * @param d
@@ -414,18 +413,17 @@ public abstract class EqualityTheory implements Theory {
 
     	// add indices for each mapped occurrence of d
     	for (Map.Entry<Integer, DataValue> potmapEntry : potmap.entrySet()) {
-    		if (potmapEntry.getValue().equals(d)) {
-    			indices.add(potmapEntry.getKey());
-    			wVals.remove(d);
-    		}
+            if (potmapEntry.getValue().equals(d)) {
+                indices.add(potmapEntry.getKey());
+                wVals.remove(d);
+            }
     	}
 
     	// if there are more occurrences of d than the unmapped, add all indices of unmapped data values
     	if (wVals.contains(d)) {
-    		BiMap<Integer, DataValue> pot = pot(u, d.getDataType());
-        	pot.forEach((i,dv) -> {if (!uValuation.containsValue(dv)) indices.add(i);});
+            BiMap<Integer, DataValue> pot = pot(u, d.getDataType());
+            pot.forEach((i,dv) -> {if (!uValuation.containsValue(dv)) indices.add(i);});
     	}
-
     	return indices;
     }
 
@@ -452,7 +450,7 @@ public abstract class EqualityTheory implements Theory {
     	List<SuffixValue> suffixEqList = new ArrayList<>();
     	List<SuffixValue> priorSuffixes = new ArrayList<>();
     	for (int i = 0; i < index; i++) {
-			SuffixValue s = new SuffixValue(d.getDataType(), i+1);
+		SuffixValue s = new SuffixValue(d.getDataType(), i+1);
     		priorSuffixes.add(s);
     		if (suffixVals[i].equals(d)) {
     			suffixEqList.add(s);

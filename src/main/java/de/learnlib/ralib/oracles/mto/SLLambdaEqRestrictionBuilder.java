@@ -719,7 +719,6 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
      *
      * @param sdt1
      * @param sdt2
-     * @param restrictions
      * @param solver
      * @return {@code Optional} containing a "common" path in {@code sdt1} and {@code sdt2}, if such a path exists
      */
