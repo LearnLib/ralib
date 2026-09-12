@@ -97,13 +97,12 @@ public class LearnPalindromeTest extends RaLibTestSuite {
 		Measurements mes = new Measurements();
 		QueryStatistics queryStats = new QueryStatistics(mes, cacheOracle);
 
-		RaLearningAlgorithm learner = null;
-		switch (name) {
-		case RALAMBDA -> learner = new SLLambda(mto, teachers, consts, false, solver, IN);
-		case RALAMBDAEQ -> learner = new SLLambdaEq(mto, teachers, consts, false, solver, IN);
-		case RASTAR -> learner = new RaStar(mto, hypFactory, slo, consts, false, IN);
+		RaLearningAlgorithm learner = switch (name) {
+		case RALAMBDA -> new SLLambda(mto, teachers, consts, false, solver, IN);
+		case RALAMBDAEQ -> new SLLambdaEq(mto, teachers, consts, false, solver, IN);
+		case RASTAR -> new RaStar(mto, hypFactory, slo, consts, false, IN);
 		default -> throw new RuntimeException("Unsupported algorithm %s".formatted(name.name()));
-		}
+		};
 		learner.setStatisticCounter(queryStats);
 
 		return learner;
