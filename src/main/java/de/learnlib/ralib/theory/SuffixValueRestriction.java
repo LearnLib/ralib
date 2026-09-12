@@ -45,7 +45,7 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 		}
 	};
 
-	protected class DummyDataValue extends Variable<BigDecimal> {
+	protected static class DummyDataValue extends Variable<BigDecimal> {
 		int id;
 		DataType type;
 
