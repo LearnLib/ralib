@@ -28,8 +28,8 @@ import net.automatalib.word.Word;
 
 public class TestSuffixValueRestriction extends RaLibTestSuite {
 
-	private static final DataType T = new DataType("t");
-	private static final InputSymbol A = new InputSymbol("α", T);
+    private static final DataType T = new DataType("t");
+    private static final InputSymbol A = new InputSymbol("α", T);
 
     @Test
     public void testCEAnalysisRestrictions() {
@@ -164,9 +164,7 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
 
     @Test
     public void testConcretize() {
-    	Theory theory = new IntegerEqualityTheory(T);
-    	Map<DataType, Theory> teachers = new LinkedHashMap<>();
-    	teachers.put(T, theory);
+        new IntegerEqualityTheory(T);
 
     	final DataValue dv1 = new DataValue(T, BigDecimal.ONE);
     	final DataValue dv2 = new DataValue(T, BigDecimal.valueOf(2));
