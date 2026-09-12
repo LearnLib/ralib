@@ -647,11 +647,11 @@ public class ClassificationTree {
 	}
 
 	/**
-	 * Perform a tree query for the representative prefix of {@code leaf} with {@code av} to check
+	 * Perform a tree query for the short prefix {@code u} with {@code av} to check
 	 * whether {@code av} reveals additional guards.
 	 *
-	 * @param av
-	 * @param leaf
+	 * @param  av
+	 * @param  u
 	 * @return {@code true} if {@code av} reveals additional guards
 	 */
 	private boolean suffixRevealsNewGuard(SymbolicSuffix av, ShortPrefix u) {
@@ -671,12 +671,12 @@ public class ClassificationTree {
 	}
 
 	/**
-	 * Form a {@code SymbolicSuffix} by prepending {@code v} by the last symbol of {@code u1} and {@code u2}.
-	 * The new suffix will be optimized for separating {@code u1} and {@code u2}.
-	 * Note that {@code u1} and {@code u2} must have the same last symbol.
+	 * Form a {@code SymbolicSuffix} by prepending {@code v} by the last symbol of {@code u1Ext} and {@code u2Ext}.
+	 * The new suffix will be optimized for separating {@code u1Ext} and {@code u2Ext}.
+	 * Note that {@code u1Ext} and {@code u2Ext} must have the same last symbol.
 	 *
-	 * @param u1
-	 * @param u2
+	 * @param u1Ext
+	 * @param u2Ext
 	 * @param v
 	 * @return
 	 */
@@ -687,14 +687,13 @@ public class ClassificationTree {
 			Word<PSymbolInstance> u1 = u1Ext.prefix(u1Ext.size() - 1);
 			Word<PSymbolInstance> u2 = u2Ext.prefix(u2Ext.size() - 1);
 			CTLeaf leaf = getLeaf(u1);
-			assert leaf == getLeaf(u2);
+			assert leaf.equals(getLeaf(u2));
 			Prefix u1Pref = leaf.getPrefix(u1);
 			Prefix u2Pref = leaf.getPrefix(u2);
 			Prefix u1ExtPref = getLeaf(u1Ext).getPrefix(u1Ext);
 			Prefix u2ExtPref = getLeaf(u2Ext).getPrefix(u2Ext);
 			return sllambdaRestrBuilder.extendSuffix(u1Pref, u1ExtPref, u2Pref, u2ExtPref, v, sdt1, sdt2);
 		}
-
 		return suffixBuilder.extendDistinguishingSuffix(u1Ext, sdt1, u2Ext, sdt2, v);
 	}
 
@@ -719,7 +718,7 @@ public class ClassificationTree {
 			Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
 			CTLeaf uLeaf = getLeaf(u);
 			Prefix uPref = uLeaf.getPrefix(u);
-			boolean sameLeaf = (leafIf == leafElse);
+			boolean sameLeaf = leafIf.equals(leafElse);
 			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, v, sdtIf, sdtElse, sameLeaf);
 		}
 

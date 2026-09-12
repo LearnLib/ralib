@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -190,7 +191,7 @@ public class PrefixFinder {
 		DataValue[] sdtValsArr = sdtVals.toArray(new DataValue[sdtVals.size()]);
 
 		// gather data values from prefix of run at index id
-		ArrayList<DataValue> runVals = new ArrayList<>();
+		List<DataValue> runVals = new ArrayList<>();
 		for (int i = 1; i <= id-1; i++) {
 			for (DataValue d : run.getTransitionSymbol(i).getParameterValues()) {
 				runVals.add(d);
@@ -233,8 +234,8 @@ public class PrefixFinder {
 	 * @param d
 	 * @return array containing data values of {@code list}, with one occurrence of {@code d} removed
 	 */
-	private ArrayList<DataValue> removeFirst(ArrayList<DataValue> list, DataValue d) {
-		ArrayList<DataValue> ret = new ArrayList<>();
+	private List<DataValue> removeFirst(List<DataValue> list, DataValue d) {
+		List<DataValue> ret = new ArrayList<DataValue>();
 		ret.addAll(list);
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i).equals(d)) {

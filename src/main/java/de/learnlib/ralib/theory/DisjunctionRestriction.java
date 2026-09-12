@@ -41,7 +41,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 			if (restr.isTrue()) {
 				hasTrue = true;
 				break;
-			} else if (!(restr.isFalse())) {
+			} else if (! restr.isFalse()) {
 				this.disjuncts.add(restr);
 			}
 		}

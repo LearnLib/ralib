@@ -146,13 +146,13 @@ public class EqualityRestriction extends AbstractSuffixValueRestriction implemen
 
 	@Override
 	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
-		if (!(by instanceof SDTGuardElement)) {
+		if (!(by instanceof SDTGuardElement sdtGuardElement)) {
 			throw new IllegalArgumentException("Not a valid type for this restriction");
 		}
 		Set<SDTGuardElement> nregs = new LinkedHashSet<>();
 		for (SDTGuardElement e : regs) {
 			if (e.asExpression().equals(replace)) {
-				nregs.add((SDTGuardElement) by);
+				nregs.add(sdtGuardElement);
 			}
 		}
 		return new EqualityRestriction(getParameter(), nregs);

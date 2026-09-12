@@ -66,7 +66,7 @@ public class CTInnerNode extends CTNode {
 			}
 		}
 
-        // no child with equivalent SDTs, create a new leaf
+                // no child with equivalent SDTs, create a new leaf
 		prefix = new Prefix(prefix, path);
 		prefix.putBijection(suffix);
 		CTLeaf leaf = new CTLeaf(prefix, this);
@@ -93,7 +93,7 @@ public class CTInnerNode extends CTNode {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
 		List<SymbolicSuffix> suffixes = getSuffixes();
-		assert !getSuffixes().contains(suffix) : "Duplicate suffix: " + suffix;
+		assert !suffixes.contains(suffix) : "Duplicate suffix: " + suffix;
 
 		Set<ShortPrefix> shorts = leaf.getShortPrefixes();
 
