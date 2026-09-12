@@ -409,8 +409,9 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     		return unrestricted(action, suffix);
     	}
 
-    	Set<DataValue> missingRegisters = new LinkedHashSet<>(sdt.getDataValues());
-    	missingRegisters.removeAll(u.getRegisters());
+        //XXX: Why was this code here?
+        //Set<DataValue> missingRegisters = new LinkedHashSet<>(sdt.getDataValues());
+        //missingRegisters.removeAll(u.getRegisters());
 
     	SuffixValueGenerator sgen = new SuffixValueGenerator();
 
@@ -590,21 +591,19 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     private static List<SDTGuard> pathConjunction(List<Map.Entry<SDTGuard, SDTGuard>> paths) {
     	List<SDTGuard> path = new ArrayList<>();
     	for (Map.Entry<SDTGuard, SDTGuard> pair : paths) {
-    		SDTGuard left = pair.getKey();
-    		SDTGuard right = pair.getValue();
-    		assert left.getParameter().equals(right.getParameter()) : "Non-matching guards";
-    		SDTGuard.EqualityGuard eg = left instanceof SDTGuard.EqualityGuard ?
-    				(SDTGuard.EqualityGuard) left : (
-    						right instanceof SDTGuard.EqualityGuard ?
-    								(SDTGuard.EqualityGuard) right :
-    									null);
-    		if (eg != null) {
-    			path.add(eg);
-    		} else {
-    			path.add(new SDTGuard.SDTTrueGuard(left.getParameter()));
-    		}
-    	}
-    	return path;
+             SDTGuard left = pair.getKey();
+             SDTGuard right = pair.getValue();
+             assert left.getParameter().equals(right.getParameter()) : "Non-matching guards";
+             SDTGuard.EqualityGuard eg = left instanceof SDTGuard.EqualityGuard equalityGuard ?
+                 equalityGuard : (right instanceof SDTGuard.EqualityGuard equalityGuard ?
+                                     equalityGuard : null);
+             if (eg != null) {
+                 path.add(eg);
+             } else {
+                 path.add(new SDTGuard.SDTTrueGuard(left.getParameter()));
+             }
+        }
+        return path;
     }
 
     /**

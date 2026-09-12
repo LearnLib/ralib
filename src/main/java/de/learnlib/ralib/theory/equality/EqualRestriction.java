@@ -85,12 +85,12 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 
 	@Override
 	public AbstractSuffixValueRestriction replaceElement(Expression<BigDecimal> replace, Expression<BigDecimal> by) {
-		if (!(by instanceof SuffixValue)) {
+		if (!(by instanceof SuffixValue suffixValue)) {
 			throw new IllegalArgumentException("Not a valid type for this restriction");
 		}
 
 		if (equalParam.asExpression().equals(replace)) {
-			return new EqualRestriction(getParameter(), (SuffixValue) by);
+			return new EqualRestriction(getParameter(), suffixValue);
 		}
 		return this;
 	}
