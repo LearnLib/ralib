@@ -687,7 +687,7 @@ public class ClassificationTree {
 			Word<PSymbolInstance> u1 = u1Ext.prefix(u1Ext.size() - 1);
 			Word<PSymbolInstance> u2 = u2Ext.prefix(u2Ext.size() - 1);
 			CTLeaf leaf = getLeaf(u1);
-			assert leaf == getLeaf(u2);
+			assert leaf.equals(getLeaf(u2));
 			Prefix u1Pref = leaf.getPrefix(u1);
 			Prefix u2Pref = leaf.getPrefix(u2);
 			Prefix u1ExtPref = getLeaf(u1Ext).getPrefix(u1Ext);
@@ -718,7 +718,7 @@ public class ClassificationTree {
 			Word<PSymbolInstance> u = uIf.prefix(uIf.size() - 1);
 			CTLeaf uLeaf = getLeaf(u);
 			Prefix uPref = uLeaf.getPrefix(u);
-			boolean sameLeaf = (leafIf == leafElse);
+			boolean sameLeaf = leafIf.equals(leafElse);
 			return sllambdaRestrBuilder.extendSuffix(uPref, uIfPref, uElsePref, v, sdtIf, sdtElse, sameLeaf);
 		}
 
