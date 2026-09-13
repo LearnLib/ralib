@@ -3,12 +3,11 @@
 learners=("slstar" "sllambda" "sllambdaeq")
 
 cd scripts
-
 for learner in "${learners[@]}"; do
   ./run_series.sh -s dtls -i 1 -l "$learner"
 done
 
-./generate-summary-dtls.sh > plots/dtls-summary-generated.csv
+./generate_summary_dtls.sh > plots/dtls-summary-generated.csv
 
 head -n 1 plots/dtls-summary-generated.csv > plots/dtls-models-mc.csv
 less plots/dtls-summary-generated.csv | grep "dtls" >> plots/dtls-models-mc.csv

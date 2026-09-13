@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-./generate-summary-dtls.sh > plots/dtls-summary-generated.csv
+./generate_summary_dtls.sh > plots/dtls-summary-generated.csv
 
 head -n 1 plots/dtls-summary-generated.csv > plots/dtls-models-mc.csv
 less plots/dtls-summary-generated.csv | grep "dtls" >> plots/dtls-models-mc.csv

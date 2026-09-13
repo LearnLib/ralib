@@ -5,7 +5,6 @@ RALIB_DIR=$SCRIPT_DIR/ralib
 # Configurable options
 mem="default"
 out="${SCRIPT_DIR}/results/palindrome"
-#algs=("SLStar" "SLLambda" "SLLEq")
 
 declare -A algs=(
     [slstar]="SLStar"
@@ -111,4 +110,4 @@ done
 echo "Benchmark executed, results (logs) stored in $out"
 echo "Analyzing logs and storing statistics in $csv"
 
-python3 scripts/extract_stats-palindrome.py --log-dir $out --output-csv $csv
+python3 scripts/extract_stats_palindrome.py --log-dir $out --output-csv $csv
