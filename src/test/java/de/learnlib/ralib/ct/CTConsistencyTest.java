@@ -254,7 +254,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
 
         DataValue dv0 = new DataValue(T_INT, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(T_INT, BigDecimal.ONE);
-        DataValue dv2 = new DataValue(T_INT, BigDecimal.valueOf(2));
 
         SuffixValue s1 = new SuffixValue(T_INT, 1);
         SuffixValue s2 = new SuffixValue(T_INT, 2);
