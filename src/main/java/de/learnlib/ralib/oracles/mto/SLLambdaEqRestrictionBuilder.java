@@ -409,10 +409,6 @@ public class SLLambdaEqRestrictionBuilder extends SymbolicSuffixRestrictionBuild
     		return unrestricted(action, suffix);
     	}
 
-        //XXX: Why was this code here?
-        //Set<DataValue> missingRegisters = new LinkedHashSet<>(sdt.getDataValues());
-        //missingRegisters.removeAll(u.getRegisters());
-
     	SuffixValueGenerator sgen = new SuffixValueGenerator();
 
     	// compute restrictions for action
