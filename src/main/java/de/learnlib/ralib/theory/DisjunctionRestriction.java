@@ -41,7 +41,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
 			if (restr.isTrue()) {
 				hasTrue = true;
 				break;
-			} else if (!(restr.isFalse())) {
+			} else if (! restr.isFalse()) {
 				this.disjuncts.add(restr);
 			}
 		}
@@ -241,7 +241,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
             return false;
         }
 		DisjunctionRestriction other = (DisjunctionRestriction) obj;
-		return other.disjuncts.equals(disjuncts);
+		return ConjunctionRestriction.collectionsEqual(other.disjuncts, disjuncts);
 	}
 
 	@Override

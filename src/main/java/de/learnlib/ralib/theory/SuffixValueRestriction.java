@@ -45,7 +45,7 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 		}
 	};
 
-	protected class DummyDataValue extends Variable<BigDecimal> {
+	protected static class DummyDataValue extends Variable<BigDecimal> {
 		int id;
 		DataType type;
 
@@ -81,7 +81,7 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 	    @Override
 	    public int hashCode() {
 	        int hash = 7;
-	        hash = 97 * hash + Objects.hashCode(this.id);
+	        hash = 97 * hash + Integer.hashCode(this.id);
 	        hash = 97 * hash + Objects.hashCode(this.type);
 	        hash = 97 * hash + Objects.hashCode(this.getClass());
 	        return hash;

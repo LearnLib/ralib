@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,7 +60,7 @@ public class PalindromeGenerator {
 
 		public List<Integer> getPrefix() {
 			Node parent = this.parent, child = this;
-			List<Integer> prefix = new LinkedList<Integer>();
+			List<Integer> prefix = new ArrayList<Integer>();
 			while (parent != null) {
 				Integer trans = parent.children.inverse().get(child);
 				prefix.addFirst(trans);
@@ -107,6 +106,7 @@ public class PalindromeGenerator {
 			return maxMemV;
 		}
 
+		@Override
 		public String toString() {
 			return toString(0, 2);
 		}
