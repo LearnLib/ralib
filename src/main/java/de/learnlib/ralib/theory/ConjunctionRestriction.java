@@ -241,7 +241,7 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
             return false;
         }
 		ConjunctionRestriction other = (ConjunctionRestriction) obj;
-		return other.conjuncts.equals(conjuncts);
+		return collectionsEqual(other.conjuncts, conjuncts);
 	}
 
 	@Override
@@ -285,5 +285,21 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction imple
 			}
 		}
 		return dis;
+	}
+
+	public static boolean collectionsEqual(Collection<AbstractSuffixValueRestriction> collection1, Collection<AbstractSuffixValueRestriction> collection2) {
+	    if (collection1.size() != collection2.size()) {
+	        return false;
+	    }
+
+	    Iterator<AbstractSuffixValueRestriction> col2it = collection2.iterator();
+	    for (AbstractSuffixValueRestriction r1 : collection1) {
+	        AbstractSuffixValueRestriction r2 = col2it.next();
+	        if (!r1.equals(r2)) {
+	            return false;
+	        }
+	    }
+
+	    return true;
 	}
 }

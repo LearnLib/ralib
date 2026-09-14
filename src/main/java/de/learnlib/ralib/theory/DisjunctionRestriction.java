@@ -241,7 +241,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction imple
             return false;
         }
 		DisjunctionRestriction other = (DisjunctionRestriction) obj;
-		return other.disjuncts.equals(disjuncts);
+		return ConjunctionRestriction.collectionsEqual(other.disjuncts, disjuncts);
 	}
 
 	@Override
