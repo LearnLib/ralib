@@ -271,9 +271,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
         		new PSymbolInstance(ALPHA, dv0),
         		new PSymbolInstance(ALPHA, dv1),
         		new PSymbolInstance(ALPHA, dv0));
-        Word<PSymbolInstance> unused = Word.fromSymbols(
-        		new PSymbolInstance(BETA, dv2),
-        		new PSymbolInstance(BETA, dv1));
 
         Map<SuffixValue, AbstractSuffixValueRestriction> sbbRestr = new LinkedHashMap<>();
         sbbRestr.put(s1, new TrueRestriction(s1));
