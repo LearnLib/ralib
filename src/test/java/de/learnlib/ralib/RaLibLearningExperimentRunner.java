@@ -18,10 +18,10 @@ import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
-import de.learnlib.ralib.learning.ralambda.SLCT;
-import de.learnlib.ralib.learning.ralambda.SLLambda;
-import de.learnlib.ralib.learning.ralambda.SLLambdaEq;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.sllambda.SLCT;
+import de.learnlib.ralib.learning.sllambda.SLLambda;
+import de.learnlib.ralib.learning.sllambda.SLLambdaEq;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -115,13 +115,13 @@ public class RaLibLearningExperimentRunner {
 
 			RaLearningAlgorithm learner;
 			learner = switch (algorithmName) {
-			case RASTAR ->
-			    new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
-			case RALAMBDA ->
+			case SLSTAR ->
+			    new SLStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
+			case SLLAMBDA ->
 			    new SLLambda(mto, teachers, consts, ioMode, solver, actionSymbols);
-			case RALAMBDAEQ ->
+			case SLLAMBDAEQ ->
 			    new SLLambdaEq(mto, teachers, consts, ioMode, solver, actionSymbols);
-			case RADT ->
+			case SLCT ->
 			    new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
 			default ->
 			    throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));

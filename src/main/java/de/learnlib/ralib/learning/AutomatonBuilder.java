@@ -30,7 +30,7 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
 import de.learnlib.ralib.smt.SMTUtil;
@@ -71,14 +71,14 @@ public class AutomatonBuilder {
     }
 
     private void computeLocations() {
-    	LocationComponent c = components.get(RaStar.EMPTY_PREFIX);
+    	LocationComponent c = components.get(SLStar.EMPTY_PREFIX);
         LOGGER.debug(Category.EVENT, "{0}", c);
         RALocation loc = this.automaton.addInitialState(c.isAccepting());
-        this.locations.put(RaStar.EMPTY_PREFIX, loc);
-        this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
+        this.locations.put(SLStar.EMPTY_PREFIX, loc);
+        this.automaton.setAccessSequence(loc, SLStar.EMPTY_PREFIX);
 
         for (Entry<Word<PSymbolInstance>, LocationComponent> e : this.components.entrySet()) {
-            if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
+            if (!e.getKey().equals(SLStar.EMPTY_PREFIX)) {
                 LOGGER.debug(Category.EVENT, "{0}", e.getValue());
                 loc = this.automaton.addState(e.getValue().isAccepting());
                 this.locations.put(e.getKey(), loc);

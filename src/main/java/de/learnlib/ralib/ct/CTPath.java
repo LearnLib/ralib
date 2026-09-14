@@ -12,7 +12,7 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.slstar.SLStar;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.ConcretizingTreeOracle;
@@ -24,11 +24,11 @@ import gov.nasa.jpf.constraints.api.Expression;
 /**
  * This data structure stores the SDTs from tree queries for a prefix along a path
  * in a {@link ClassificationTree}. It contains much of the same functionality as
- * {@link de.learnlib.ralib.learning.rastar.Row}, but adapted for use with classification trees.
+ * {@link de.learnlib.ralib.learning.slstar.Row}, but adapted for use with classification trees.
  *
  * @author fredrik
  * @author falk
- * @see de.learnlib.ralib.learning.rastar.Row
+ * @see de.learnlib.ralib.learning.slstar.Row
  */
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;
@@ -73,13 +73,13 @@ public class CTPath {
 			throw new IllegalArgumentException("No occurrence of " + suffix);
 		}
 		if (index == 0) {
-			return RaStar.EMPTY_SUFFIX;
+			return SLStar.EMPTY_SUFFIX;
 		}
 		return suffixes.get(index - 1);
 	}
 
 	public boolean isAccepting() {
-		SDT s = sdts.get(RaStar.EMPTY_SUFFIX);
+		SDT s = sdts.get(SLStar.EMPTY_SUFFIX);
 		return s.isAccepting();
 	}
 
@@ -161,12 +161,12 @@ public class CTPath {
 	 */
 	public static CTPath computePath(ConcretizingTreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
 		CTPath r = new CTPath(ioMode);
-		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
-		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
-		r.putSDT(RaStar.EMPTY_SUFFIX, sdt);
-		SymbolicSuffix prevSuffix = RaStar.EMPTY_SUFFIX;
+		SDT sdt = prefix.getSDT(SLStar.EMPTY_SUFFIX);
+		sdt = sdt == null ? oracle.treeQuery(prefix, SLStar.EMPTY_SUFFIX) : sdt;
+		r.putSDT(SLStar.EMPTY_SUFFIX, sdt);
+		SymbolicSuffix prevSuffix = SLStar.EMPTY_SUFFIX;
 		for (SymbolicSuffix s : suffixes) {
-			if (s.equals(RaStar.EMPTY_SUFFIX)) {
+			if (s.equals(SLStar.EMPTY_SUFFIX)) {
 				continue;
 			}
 			// relabel restrictions in symbolic suffix

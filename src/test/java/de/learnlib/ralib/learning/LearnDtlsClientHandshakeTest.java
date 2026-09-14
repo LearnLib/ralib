@@ -41,20 +41,20 @@ public class LearnDtlsClientHandshakeTest extends RaLibTestSuite {
 
     @Test
     public void testLearnMbedTLSClientHandshake() {
-        for (RaLearningAlgorithmName alg : Arrays.asList(RaLearningAlgorithmName.RALAMBDA, RaLearningAlgorithmName.RALAMBDAEQ, RaLearningAlgorithmName.RASTAR)) {
+        for (RaLearningAlgorithmName alg : Arrays.asList(RaLearningAlgorithmName.SLLAMBDA, RaLearningAlgorithmName.SLLAMBDAEQ, RaLearningAlgorithmName.SLSTAR)) {
             testLearnDTLSClientHandshake(alg, "/de/learnlib/ralib/automata/xml/dtls/mbedtls-client-handshake.xml", clientHandshakeTests());
         }    }
 
     @Test
     public void testLearnWolfSSLClientHandshake() {
-        for (RaLearningAlgorithmName alg : Arrays.asList(RaLearningAlgorithmName.RALAMBDA, RaLearningAlgorithmName.RALAMBDAEQ, RaLearningAlgorithmName.RASTAR)) {
+        for (RaLearningAlgorithmName alg : Arrays.asList(RaLearningAlgorithmName.SLLAMBDA, RaLearningAlgorithmName.SLLAMBDAEQ, RaLearningAlgorithmName.SLSTAR)) {
             testLearnDTLSClientHandshake(alg, "/de/learnlib/ralib/automata/xml/dtls/wolfssl-client-handshake.xml", clientHandshakeTests());
         }
     }
 
     @Test
     public void testLearnWolfSSLClientHandshakeSLLEq() {
-        testLearnDTLSClientHandshake(RaLearningAlgorithmName.RALAMBDAEQ, "/de/learnlib/ralib/automata/xml/dtls/wolfssl-client-handshake.xml",
+        testLearnDTLSClientHandshake(RaLearningAlgorithmName.SLLAMBDAEQ, "/de/learnlib/ralib/automata/xml/dtls/wolfssl-client-handshake.xml",
                 slleqTests());
     }
 

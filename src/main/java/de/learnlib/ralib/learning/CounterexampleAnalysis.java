@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
+import de.learnlib.ralib.learning.slstar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
