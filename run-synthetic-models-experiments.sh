@@ -12,5 +12,5 @@ done
 
 cd ..
 
-mv scripts/synthetic.csv synthetic-models.csv
+mv scripts/synthetic.csv results/synthetic-models.csv
 

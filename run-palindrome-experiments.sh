@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-RALIB_DIR=$SCRIPT_DIR/ralib
-
+RALIB_DIR=ralib
+readonly RALIB_DIR
+# Folder to store the experimental results
+RESULTS_DIR=results/palindrome
+readonly RESULTS_DIR
+# Folder to store tables
+OUTPUT_DIR=results
+readonly OUTPUT_DIR
 # Configurable options
 mem="default"
-out="${SCRIPT_DIR}/results/palindrome"
+out="${RESULTS_DIR}"
 
 declare -A algs=(
     [slstar]="SLStar"
@@ -28,7 +33,7 @@ print_usage() {
   echo " out is the output directory where to store the results;"
   echo " -h|--help prints usage instructions and exits gracefully."
 }
-while [[ "$1" =~ ^- ]]; do case $1 in
+while [[ $# -gt 0 && "$1" =~ ^- ]]; do case $1 in
     -a | --alg )
         shift;
         alg=$1
@@ -64,9 +69,6 @@ if [[ $# > 0 ]]; then
   exit 0
 fi
 
-# creating output folder if it does not exist, removing any existing files
-mkdir -p $out
-
 sel_algs=""
 if [[ -n ${alg} ]]; then
   if [[ " ${!algs[*]} " == *" $alg "* ]]; then
@@ -87,7 +89,11 @@ if [[ ${mem} != "default" ]]; then
   maven_opts="-Xms$mem -Xmx$mem"
 fi
 
-echo "Running benchmark using memory setting $mem and output folder $out"
+
+# creating result folder if it does not exist
+mkdir -p $out
+
+echo "Running benchmark using memory setting $mem and result folder $out"
 
 # run palindrome benchmark for each algorithm
 for alg in "${sel_algs[@]}"; do
@@ -107,7 +113,9 @@ for alg in "${sel_algs[@]}"; do
   fi
 done
 
-echo "Benchmark executed, results (logs) stored in $out"
-echo "Analyzing logs and storing statistics in $csv"
+echo "Benchmark executed, results (logs) stored in ${out}"
+echo "Analyzing logs and storing statistics in ${OUTPUT_DIR}/${csv}"
 
-python3 scripts/extract_stats_palindrome.py --log-dir $out --output-csv $csv
+mkdir -p ${OUTPUT_DIR}
+
+python3 scripts/extract_stats_palindrome.py --log-dir "${out}" --output-csv "${OUTPUT_DIR}"/"${csv}"

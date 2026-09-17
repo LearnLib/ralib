@@ -21,7 +21,7 @@ latexmk -pdf plot-dtls-counterexamples-withstar.tex
 
 cd ../..
 
-mv scripts/plots/plot-dtls-resets.pdf plot-dtls-resets.pdf
-mv scripts/plots/plot-dtls-resets-withstar.pdf plot-dtls-resets-withstar.pdf
-mv scripts/plots/plot-dtls-counterexamples.pdf plot-dtls-counterexamples.pdf
-mv scripts/plots/plot-dtls-counterexamples-withstar.pdf plot-dtls-counterexamples-withstar.pdf
+mv scripts/plots/plot-dtls-resets.pdf results/plot-dtls-resets.pdf
+mv scripts/plots/plot-dtls-resets-withstar.pdf results/plot-dtls-resets-withstar.pdf
+mv scripts/plots/plot-dtls-counterexamples.pdf results/plot-dtls-counterexamples.pdf
+mv scripts/plots/plot-dtls-counterexamples-withstar.pdf results/plot-dtls-counterexamples-withstar.pdf
