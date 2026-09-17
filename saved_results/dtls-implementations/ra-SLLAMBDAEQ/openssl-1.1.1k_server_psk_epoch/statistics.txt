@@ -1,0 +1,115 @@
+=== RUN DESCRIPTION ===
+Alphabet: [?PSK_CLIENT_HELLO[epoch_i], ?PSK_CLIENT_KEY_EXCHANGE[epoch_i], ?CHANGE_CIPHER_SPEC[epoch_i], ?FINISHED[epoch_i], ?APPLICATION[epoch_i], ?Alert(WARNING,CLOSE_NOTIFY)[epoch_i], ?Alert(FATAL,UNEXPECTED_MESSAGE)[epoch_i], !APPLICATION[], !APPLICATION|Alert(WARNING,CLOSE_NOTIFY)[], !APPLICATION|CHANGE_CIPHER_SPEC|FINISHED[], !Alert(FATAL,BAD_CERTIFICATE)[], !Alert(FATAL,BAD_RECORD_MAC)[], !Alert(FATAL,CLOSE_NOTIFY)[], !Alert(FATAL,DECODE_ERROR)[], !Alert(FATAL,DECRYPT_ERROR)[], !Alert(FATAL,HANDSHAKE_FAILURE)[], !Alert(FATAL,ILLEGAL_PARAMETER)[], !Alert(FATAL,INTERNAL_ERROR)[], !Alert(FATAL,UNEXPECTED_MESSAGE)[], !Alert(FATAL,UNEXPECTED_MESSAGE)|APPLICATION[], !Alert(FATAL,UNKNOWN_PSK_IDENTITY)[], !Alert(WARNING,CLOSE_NOTIFY)[], !Alert(WARNING,NO_RENEGOTIATION)[], !CHANGE_CIPHER_SPEC|FINISHED[], !CHANGE_CIPHER_SPEC|FINISHED|APPLICATION[], !CLIENT_HELLO[], !CLIENT_HELLO|Alert(FATAL,CLOSE_NOTIFY)[], !CLIENT_HELLO|Alert(FATAL,DECODE_ERROR)[], !CLIENT_HELLO|Alert(FATAL,INTERNAL_ERROR)[], !CLIENT_HELLO|Alert(FATAL,UNEXPECTED_MESSAGE)[], !CLIENT_HELLO|Alert(WARNING,CLOSE_NOTIFY)[], !DH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !DISABLED[], !ECDH_CLIENT_KEY_EXCHANGE[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,INTERNAL_ERROR)[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,UNEXPECTED_MESSAGE)[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|UNKNOWN_MESSAGE[], !ECDSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE[], !ECDSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !EMPTY_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !HELLO_VERIFY_REQUEST[], !HELLO_VERIFY_REQUEST+[], !PSK_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !PSK_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|UNKNOWN_MESSAGE[], !RAW_EC_PUBLIC_KEY_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CERTIFICATE|DH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,INTERNAL_ERROR)[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,UNEXPECTED_MESSAGE)[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|UNKNOWN_MESSAGE[], !RSA_CERTIFICATE|RSA_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !SERVER_HELLO[], !SERVER_HELLO|ECDSA_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|PSK_SERVER_KEY_EXCHANGE|SERVER_HELLO_DONE[], !SERVER_HELLO|RAW_EC_PUBLIC_KEY_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|RAW_EC_PUBLIC_KEY_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|SERVER_HELLO_DONE[], !SERVER_HELLO|RSA_CERTIFICATE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|RSA_CERTIFICATE|DHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|RSA_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|SERVER_HELLO_DONE[], !SOCKET_CLOSED[], !TIMEOUT[]]
+
+### StateFuzzerConfigStandard Parameters
+# -help
+# -debug
+# -quiet
+-output
+results/dtls-implementations/ra-SLLAMBDAEQ/openssl-1.1.1k_server_psk_epoch
+
+### LearnerConfigStandard Parameters
+-alphabet
+configs/dtls-implementations/alphabets/psk_aes128_cbc_sha256_epoch.xml
+-learningAlgorithm
+SLLAMBDAEQ
+-equivalenceAlgorithms
+SAMPLED_TESTS_RA
+-depth
+1
+-minLength
+5
+-maxLength
+15
+-randLength
+5
+-eqvQueries
+1000
+-memQueryRuns
+1
+-memQueryRetries
+3
+# -logQueries
+-probReset
+0.0
+-testFile
+configs/dtls-implementations/tests/psk_epoch
+-seed
+0
+# -cacheTests
+# -ceSanitizationDisable
+# -skipNonDetTests
+-ceReruns
+3
+# -probabilisticSanitizationDisable
+# -timeLimit
+# -testLimit
+# -roundLimit
+-eqvThreads
+1
+
+### LearnerConfigRA Parameters
+# -disableIOMode
+-probNewDataValue
+0.5
+-maxRuns
+10000
+-maxDepthRA
+10
+# -resetRuns
+-seedTransitions
+# -drawSymbolsUniformly
+
+### SULConfigStandard Parameters
+-responseWait
+50
+# -inputResponseTimeout
+-command
+dtls-fuzzer/suts/openssl-1.1.1k/apps/openssl s_server -psk 1234 -key dtls-fuzzer/experiments/keystore/rsa2048_key.pem -cert dtls-fuzzer/experiments/keystore/rsa2048_cert.pem -CAfile dtls-fuzzer/experiments/keystore/rsa2048_cert.pem -Verify 1 -accept 16362 -dtls1_2 -mtu 5000
+# -terminateCommand
+# -processDir
+# -redirectOutputStreams
+-processTrigger
+NEW_TEST
+-startWait
+200
+
+### SULServerConfigStandard Parameters
+-connect
+localhost:16362
+
+### MapperConfigStandard Parameters
+# -mapperConnectionConfig
+# -repeatingOutputs
+# -socketClosedAsTimeout
+# -disabledAsTimeout
+# -dontMergeRepeating
+
+### SULAdapterConfigStandard Parameters
+# -adapterPort
+-adapterAddress
+localhost
+
+=== STATISTICS ===
+Learning finished: true
+Size of the input alphabet: 64
+Number of states: 15
+Number of hypotheses: 5
+Number of inputs: 2685
+Number of tests: 653
+Number of learning inputs: 2655
+Number of learning tests: 648
+Number of inputs up to last hypothesis: 2679
+Number of tests up to last hypothesis: 652
+Time (ms) to learn model: 440957
+Counterexamples:
+CE 1:Query[ε|PSK_CLIENT_HELLO[0[epoch_i]] HELLO_VERIFY_REQUEST[] / true]
+CE 2:Query[ε|PSK_CLIENT_HELLO[0[epoch_i]] HELLO_VERIFY_REQUEST[] PSK_CLIENT_HELLO[0[epoch_i]] SERVER_HELLO|SERVER_HELLO_DONE[] / true]
+CE 3:Query[ε|PSK_CLIENT_HELLO[0[epoch_i]] HELLO_VERIFY_REQUEST[] PSK_CLIENT_HELLO[0[epoch_i]] SERVER_HELLO|SERVER_HELLO_DONE[] PSK_CLIENT_KEY_EXCHANGE[0[epoch_i]] TIMEOUT[] CHANGE_CIPHER_SPEC[0[epoch_i]] TIMEOUT[] FINISHED[1[epoch_i]] CHANGE_CIPHER_SPEC|FINISHED[] / true]
+CE 4:Query[ε|PSK_CLIENT_HELLO[0[epoch_i]] HELLO_VERIFY_REQUEST[] PSK_CLIENT_HELLO[0[epoch_i]] SERVER_HELLO|SERVER_HELLO_DONE[] PSK_CLIENT_KEY_EXCHANGE[0[epoch_i]] TIMEOUT[] CHANGE_CIPHER_SPEC[0[epoch_i]] TIMEOUT[] FINISHED[1[epoch_i]] CHANGE_CIPHER_SPEC|FINISHED[] APPLICATION[1[epoch_i]] APPLICATION[] / true]
+Number of inputs when hypothesis was generated: [21, 90, 171, 2088, 2679]
+Number of tests when hypothesis was generated: [21, 55, 92, 552, 652]
+Time (ms) when hypothesis was generated: [13339, 33149, 54776, 363125, 440208]
+Number of inputs when counterexample was found: [27, 96, 177, 2094]
+Number of tests when counterexample was found: [22, 56, 93, 553]
+Time (ms) when counterexample was found: [14143, 33921, 55535, 363872]

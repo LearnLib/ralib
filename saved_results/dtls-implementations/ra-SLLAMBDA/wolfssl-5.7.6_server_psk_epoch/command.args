@@ -1,0 +1,32 @@
+state-fuzzer-server
+
+# SUT config
+-connect
+localhost:${sul.port}
+-startWait
+200
+-responseWait
+200
+-protocol
+DTLS12
+-cmd
+examples/server/server  -i -x -p ${sul.port} -s -u -l PSK-AES128-CBC-SHA256
+-processDir
+dtls-fuzzer/suts/wolfssl-${wolfssl.version}/
+
+# learning config
+-alphabet
+configs/dtls-implementations/alphabets/psk_aes128_cbc_sha256_epoch.xml
+-output
+${output.ra}/wolfssl-${wolfssl.version}_server_psk_epoch
+-learningAlgorithm
+SLSTAR
+-equivalenceAlgorithms
+SAMPLED_TESTS_RA
+-testFile
+configs/dtls-implementations/tests/psk_epoch
+-ceReruns
+3
+-Doutput.ra=results/dtls-implementations/ra-SLLAMBDA
+-learningAlgorithm
+SLLAMBDA

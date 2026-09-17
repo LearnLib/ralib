@@ -1,0 +1,116 @@
+=== RUN DESCRIPTION ===
+Alphabet: [?PSK_CLIENT_HELLO[epoch_i], ?PSK_CLIENT_KEY_EXCHANGE[epoch_i], ?CHANGE_CIPHER_SPEC[epoch_i], ?FINISHED[epoch_i], ?APPLICATION[epoch_i], ?Alert(WARNING,CLOSE_NOTIFY)[epoch_i], ?Alert(FATAL,UNEXPECTED_MESSAGE)[epoch_i], !APPLICATION[], !APPLICATION|Alert(WARNING,CLOSE_NOTIFY)[], !APPLICATION|CHANGE_CIPHER_SPEC|FINISHED[], !Alert(FATAL,BAD_CERTIFICATE)[], !Alert(FATAL,BAD_RECORD_MAC)[], !Alert(FATAL,CLOSE_NOTIFY)[], !Alert(FATAL,DECODE_ERROR)[], !Alert(FATAL,DECRYPT_ERROR)[], !Alert(FATAL,HANDSHAKE_FAILURE)[], !Alert(FATAL,ILLEGAL_PARAMETER)[], !Alert(FATAL,INTERNAL_ERROR)[], !Alert(FATAL,UNEXPECTED_MESSAGE)[], !Alert(FATAL,UNEXPECTED_MESSAGE)|APPLICATION[], !Alert(FATAL,UNKNOWN_PSK_IDENTITY)[], !Alert(WARNING,CLOSE_NOTIFY)[], !Alert(WARNING,NO_RENEGOTIATION)[], !CHANGE_CIPHER_SPEC|FINISHED[], !CHANGE_CIPHER_SPEC|FINISHED|APPLICATION[], !CLIENT_HELLO[], !CLIENT_HELLO|Alert(FATAL,CLOSE_NOTIFY)[], !CLIENT_HELLO|Alert(FATAL,DECODE_ERROR)[], !CLIENT_HELLO|Alert(FATAL,INTERNAL_ERROR)[], !CLIENT_HELLO|Alert(FATAL,UNEXPECTED_MESSAGE)[], !CLIENT_HELLO|Alert(WARNING,CLOSE_NOTIFY)[], !DH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !DISABLED[], !ECDH_CLIENT_KEY_EXCHANGE[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,INTERNAL_ERROR)[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,UNEXPECTED_MESSAGE)[], !ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|UNKNOWN_MESSAGE[], !ECDSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE[], !ECDSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !EMPTY_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !HELLO_VERIFY_REQUEST[], !HELLO_VERIFY_REQUEST+[], !PSK_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !PSK_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|UNKNOWN_MESSAGE[], !RAW_EC_PUBLIC_KEY_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CERTIFICATE|DH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,INTERNAL_ERROR)[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED|Alert(FATAL,UNEXPECTED_MESSAGE)[], !RSA_CERTIFICATE|ECDH_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|UNKNOWN_MESSAGE[], !RSA_CERTIFICATE|RSA_CLIENT_KEY_EXCHANGE|CERTIFICATE_VERIFY|CHANGE_CIPHER_SPEC|FINISHED[], !RSA_CLIENT_KEY_EXCHANGE|CHANGE_CIPHER_SPEC|FINISHED[], !SERVER_HELLO[], !SERVER_HELLO|ECDSA_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|PSK_SERVER_KEY_EXCHANGE|SERVER_HELLO_DONE[], !SERVER_HELLO|RAW_EC_PUBLIC_KEY_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|RAW_EC_PUBLIC_KEY_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|SERVER_HELLO_DONE[], !SERVER_HELLO|RSA_CERTIFICATE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|RSA_CERTIFICATE|DHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|RSA_CERTIFICATE|ECDHE_SERVER_KEY_EXCHANGE|CERTIFICATE_REQUEST|SERVER_HELLO_DONE[], !SERVER_HELLO|SERVER_HELLO_DONE[], !SOCKET_CLOSED[], !TIMEOUT[]]
+
+### StateFuzzerConfigStandard Parameters
+# -help
+# -debug
+# -quiet
+-output
+results/dtls-implementations/ra-SLLAMBDAEQ/scandium-2.6.2_server_psk_epoch
+
+### LearnerConfigStandard Parameters
+-alphabet
+configs/dtls-implementations/alphabets/psk_aes128_ccm8_epoch.xml
+-learningAlgorithm
+SLLAMBDAEQ
+-equivalenceAlgorithms
+SAMPLED_TESTS_RA
+-depth
+1
+-minLength
+5
+-maxLength
+15
+-randLength
+5
+-eqvQueries
+1000
+-memQueryRuns
+1
+-memQueryRetries
+3
+# -logQueries
+-probReset
+0.0
+-testFile
+configs/dtls-implementations/tests/psk_epoch
+-seed
+0
+# -cacheTests
+# -ceSanitizationDisable
+-skipNonDetTests
+-ceReruns
+3
+# -probabilisticSanitizationDisable
+# -timeLimit
+# -testLimit
+# -roundLimit
+-eqvThreads
+1
+
+### LearnerConfigRA Parameters
+# -disableIOMode
+-probNewDataValue
+0.5
+-maxRuns
+10000
+-maxDepthRA
+10
+# -resetRuns
+-seedTransitions
+# -drawSymbolsUniformly
+
+### SULConfigStandard Parameters
+-responseWait
+100
+-inputResponseTimeout
+PSK_CLIENT_HELLO:150,FINISHED:150
+-command
+java -jar dtls-fuzzer/suts/scandium-2.6.2-dtls-clientserver.jar -port 38382 -trustLocation dtls-fuzzer/experiments/keystore/ec_secp256r1.jks -trustPassword password -trustAlias dtls-fuzzer -keyLocation dtls-fuzzer/experiments/keystore/ec_secp256r1.jks -keyPassword password -keyAlias dtls-fuzzer -timeout 20000000 -cipherSuites TLS_PSK_WITH_AES_128_CCM_8,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 -starterAddress localhost:48894
+# -terminateCommand
+# -processDir
+# -redirectOutputStreams
+-processTrigger
+START
+-startWait
+1000
+
+### SULServerConfigStandard Parameters
+-connect
+localhost:38382
+
+### MapperConfigStandard Parameters
+# -mapperConnectionConfig
+# -repeatingOutputs
+# -socketClosedAsTimeout
+# -disabledAsTimeout
+# -dontMergeRepeating
+
+### SULAdapterConfigStandard Parameters
+-adapterPort
+48894
+-adapterAddress
+localhost
+
+=== STATISTICS ===
+Learning finished: true
+Size of the input alphabet: 64
+Number of states: 12
+Number of hypotheses: 4
+Number of inputs: 1713
+Number of tests: 457
+Number of learning inputs: 1689
+Number of learning tests: 453
+Number of inputs up to last hypothesis: 1707
+Number of tests up to last hypothesis: 456
+Time (ms) to learn model: 717446
+Counterexamples:
+CE 1:Query[ε|PSK_CLIENT_HELLO[0[epoch_i]] HELLO_VERIFY_REQUEST[] / true]
+CE 2:Query[ε|PSK_CLIENT_HELLO[0[epoch_i]] HELLO_VERIFY_REQUEST[] PSK_CLIENT_HELLO[0[epoch_i]] SERVER_HELLO|SERVER_HELLO_DONE[] / true]
+CE 3:Query[ε|PSK_CLIENT_HELLO[0[epoch_i]] HELLO_VERIFY_REQUEST[] PSK_CLIENT_HELLO[0[epoch_i]] SERVER_HELLO|SERVER_HELLO_DONE[] PSK_CLIENT_KEY_EXCHANGE[0[epoch_i]] TIMEOUT[] CHANGE_CIPHER_SPEC[0[epoch_i]] TIMEOUT[] FINISHED[1[epoch_i]] CHANGE_CIPHER_SPEC|FINISHED[] / true]
+Number of inputs when hypothesis was generated: [21, 90, 171, 1707]
+Number of tests when hypothesis was generated: [21, 55, 83, 456]
+Time (ms) when hypothesis was generated: [27176, 73633, 115166, 715645]
+Number of inputs when counterexample was found: [27, 96, 177]
+Number of tests when counterexample was found: [22, 56, 84]
+Time (ms) when counterexample was found: [29100, 75461, 116983]

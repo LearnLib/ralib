@@ -1,0 +1,7 @@
+,,,SLLAMBDA,,,,,SLLAMBDAEQ,,,,,,,SLSTAR,,
+SUTs,Finished,States,Transitions,Tests,Time,Finished,States,Transitions,Tests,Ratio Tests,Time,Ratio Time,Finished,States,Transitions,Tests,Time
+mbedtls-2.26.0_server,true,13,55,1406,16,true,13,55,560,39,6,37,true,13,56,3302,42
+openssl-1.1.1k_server,true,14,63,3257,36,true,14,63,653,20,7,19,true,14,64,3728,44
+piondtls-2.0.9_server,true,14,62,3680,45,true,14,62,683,18,8,17,true,15,64,3662,46
+scandium-2.6.2_server,true,11,45,1192,31,true,11,45,457,38,11,35,true,13,55,3061,86
+wolfssl-5.7.6_server,true,13,54,1418,31,true,13,54,557,39,12,38,true,14,57,3320,83

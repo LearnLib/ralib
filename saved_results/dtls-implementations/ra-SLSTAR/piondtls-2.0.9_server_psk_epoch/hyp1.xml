@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="Alert(WARNING,CLOSE_NOTIFY)">
+                <param type="epoch_i" name="p1"/>
+            </symbol>
+            <symbol name="FINISHED">
+                <param type="epoch_i" name="p1"/>
+            </symbol>
+            <symbol name="PSK_CLIENT_HELLO">
+                <param type="epoch_i" name="p1"/>
+            </symbol>
+            <symbol name="PSK_CLIENT_KEY_EXCHANGE">
+                <param type="epoch_i" name="p1"/>
+            </symbol>
+            <symbol name="APPLICATION">
+                <param type="epoch_i" name="p1"/>
+            </symbol>
+            <symbol name="CHANGE_CIPHER_SPEC">
+                <param type="epoch_i" name="p1"/>
+            </symbol>
+            <symbol name="Alert(FATAL,UNEXPECTED_MESSAGE)">
+                <param type="epoch_i" name="p1"/>
+            </symbol>
+        </inputs>
+        <outputs>
+            <symbol name="TIMEOUT"/>
+        </outputs>
+    </alphabet>
+    <constants>
+        <constant type="epoch_i" name="c1">0</constant>
+        <constant type="epoch_i" name="c2">1</constant>
+        <constant type="epoch_o" name="c1">0</constant>
+        <constant type="epoch_o" name="c2">1</constant>
+    </constants>
+    <globals/>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l1" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="Alert(WARNING,CLOSE_NOTIFY)">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="Alert(FATAL,UNEXPECTED_MESSAGE)">
+            <assignments/>
+        </transition>
+        <transition from="l1" to="l0" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+    </transitions>
+</register-automaton>

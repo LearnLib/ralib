@@ -1,0 +1,37 @@
+state-fuzzer-server
+
+# SUT config
+-protocol
+DTLS12
+-connect
+localhost:${sul.port}
+-startWait
+100
+-responseWait
+100
+-cmd
+dtls-fuzzer/suts/mbedtls-${mbedtls.version}/programs/ssl/ssl_server2 dtls=1 psk=1234 mtu=5000 key_file=dtls-fuzzer/experiments/keystore/rsa2048_key.pem crt_file=dtls-fuzzer/experiments/keystore/rsa2048_cert.pem server_port=${sul.port} exchanges=100 hs_timeout=20000-120000 ca_file=dtls-fuzzer/experiments/keystore/rsa2048_cert.pem auth_mode=required renegotiation=1
+-key
+dtls-fuzzer/experiments/keystore/rsa2048_key.pem
+-cert
+dtls-fuzzer/experiments/keystore/rsa2048_cert.pem
+-psk
+1234
+-identity
+Client_identity
+
+
+# learner config
+-alphabet
+configs/dtls-implementations/alphabets/psk_aes128_cbc_sha256_epoch.xml
+-learningAlgorithm
+SLSTAR
+-equivalenceAlgorithms
+SAMPLED_TESTS_RA
+-testFile
+configs/dtls-implementations/tests/psk_epoch
+-output
+${output.ra}/mbedtls-${mbedtls.version}_server_psk_epoch
+-Doutput.ra=results/dtls-implementations/ra-SLSTAR
+-learningAlgorithm
+SLSTAR
