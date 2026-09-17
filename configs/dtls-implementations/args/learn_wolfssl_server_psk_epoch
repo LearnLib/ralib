@@ -24,6 +24,6 @@ SLSTAR
 -equivalenceAlgorithms
 SAMPLED_TESTS_RA
 -testFile
-configs/dtls-black-box/tests/psk_epoch 
+configs/dtls-implementations/tests/psk_epoch 
 -ceReruns
 3

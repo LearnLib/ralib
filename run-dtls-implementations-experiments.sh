@@ -3,13 +3,13 @@
 # shellcheck disable=SC2034,SC2154
 
 # Folder to save results
-RESULTS_DIR="results/dtls-black-box"
+RESULTS_DIR="results/dtls-implementations"
 readonly RESULTS_DIR
 # Folder to store the table
 OUTPUT_DIR="results"
 readonly OUTPUT_DIR
 # DTLS-Fuzzer argument (configuration) files
-ARGS_DIR="configs/dtls-black-box/args"
+ARGS_DIR="configs/dtls-implementations/args"
 readonly ARGS_DIR
 # Location of DTLS-Fuzzer JAR
 DTLSFUZZER_JAR="dtls-fuzzer/target/dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar"
@@ -32,7 +32,7 @@ algs=(
 # Number of simultaneous experiments
 no_sim=2
 # Name of result CSV file
-csv="dtls-black-box.csv"
+csv="dtls-implementations.csv"
 alg=""
 sut=""
 
@@ -114,4 +114,4 @@ run_experiments "${no_sim}"
 
 mkdir -p ${OUTPUT_DIR}
 
-python3 scripts/extract_stats_dtls-black-box.py -o ${OUTPUT_DIR}/"${csv}" "${RESULTS_DIR}"
+python3 scripts/extract_stats_dtls-implementations.py -o ${OUTPUT_DIR}/"${csv}" "${RESULTS_DIR}"

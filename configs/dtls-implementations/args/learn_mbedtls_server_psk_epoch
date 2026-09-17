@@ -23,12 +23,12 @@ Client_identity
 
 # learner config
 -alphabet
-configs/dtls-black-box/alphabets/psk_aes128_cbc_sha256_epoch.xml
+configs/dtls-implementations/alphabets/psk_aes128_cbc_sha256_epoch.xml
 -learningAlgorithm
 SLSTAR
 -equivalenceAlgorithms
 SAMPLED_TESTS_RA
 -testFile
-configs/dtls-black-box/tests/psk_epoch
+configs/dtls-implementations/tests/psk_epoch
 -output
 ${output.ra}/mbedtls-${mbedtls.version}_server_psk_epoch

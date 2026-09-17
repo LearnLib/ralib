@@ -24,8 +24,8 @@ SLSTAR
 -equivalenceAlgorithms
 SAMPLED_TESTS_RA
 -testFile
-configs/dtls-black-box/tests/psk_epoch 
+configs/dtls-implementations/tests/psk_epoch 
 -output
 ${output.ra}/piondtls-${piondtls.version}_server_psk_epoch
 -alphabet
-configs/dtls-black-box/alphabets/psk_aes128_ccm8_epoch.xml
+configs/dtls-implementations/alphabets/psk_aes128_ccm8_epoch.xml
