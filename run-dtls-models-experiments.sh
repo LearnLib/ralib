@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-learners=("slstar" "sllambda" "sllambdaeq")
+#learners=("slstar" "sllambda" "sllambdaeq")
+learners=("sllambda" "sllambdaeq")
 
 cd scripts
 for learner in "${learners[@]}"; do
