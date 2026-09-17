@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+build_ralib=0
 build_dtlsfuzzer=0
 build_dtlssuts=0
 
 print_usage() {
-  echo "Usage $0 [--dtlsfuzzer][--dtlssuts][-h|--help]"
+  echo "Usage $0 [--ralib][--dtlsfuzzer][--dtlssuts][-h|--help]"
   echo "Where:"
-  echo " --dtlsfuzzer also (re-)builds DTLS-Fuzzer;"
-  echo " --dtlssuts also (re-)builds DTLS SUTs;"
+  echo " --ralib builds RALib;"
+  echo " --dtlsfuzzer builds DTLS-Fuzzer;"
+  echo " --dtlssuts builds DTLS SUTs;"
   echo " -h|--help prints usage instructions and exits gracefully."
 }
 while [[ $# -gt 0 && "$1" =~ ^- ]]; do case $1 in
+    --ralib )
+        build_ralib=1
+        ;;
     --dtlsfuzzer )
         build_dtlsfuzzer=1
         ;;
-    -dtlssuts )
+    --dtlssuts )
         build_dtlssuts=1
         ;;
     -h | --help )
@@ -27,14 +32,16 @@ while [[ $# -gt 0 && "$1" =~ ^- ]]; do case $1 in
         ;;
     esac; shift; done
 
-# Build RALib
-(
-    cd ralib 
-    mvn install assembly:single -DskipTests
-) || {
-    echo "RALib build failed" >&2
-    exit 1
-}
+if (( build_ralib )); then 
+    # Build RALib
+    (
+        cd ralib 
+        mvn install assembly:single -DskipTests
+    ) || {
+        echo "RALib build failed" >&2
+        exit 1
+    }
+fi
 
 if (( build_dtlsfuzzer )); then 
     # Build DTLS-Fuzzer
