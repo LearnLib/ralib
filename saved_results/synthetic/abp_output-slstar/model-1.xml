@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="IIn">
+                <param type="int" name="p1"/>
+            </symbol>
+            <symbol name="IAck">
+                <param type="int" name="p1"/>
+            </symbol>
+            <symbol name="ISendFrame"/>
+        </inputs>
+        <outputs>
+            <symbol name="OOK"/>
+            <symbol name="OFrame">
+                <param type="int" name="p1"/>
+                <param type="int" name="p2"/>
+            </symbol>
+            <symbol name="ONOK"/>
+        </outputs>
+    </alphabet>
+    <constants>
+        <constant type="int" name="c1">0</constant>
+        <constant type="int" name="c2">1</constant>
+    </constants>
+    <globals>
+        <variable type="int" name="r1">0</variable>
+        <variable type="int" name="tmp_int_1">0</variable>
+    </globals>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+        <location name="l4"/>
+        <location name="l5"/>
+        <location name="l6"/>
+        <location name="l7"/>
+        <location name="l8"/>
+        <location name="l9"/>
+        <location name="l10"/>
+        <location name="l11"/>
+        <location name="l12"/>
+        <location name="l13"/>
+        <location name="l14"/>
+        <location name="l15"/>
+        <location name="l16"/>
+        <location name="l17"/>
+        <location name="l18"/>
+        <location name="l19"/>
+        <location name="l20"/>
+        <location name="l21"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l1" symbol="ISendFrame">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="IAck">
+            <guard>'c1' == 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l4" symbol="IAck">
+            <guard>'c1' != 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l5" symbol="IIn">
+            <assignments>
+                <assign to="r1">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l1" to="l0" symbol="ONOK">
+            <assignments/>
+        </transition>
+        <transition from="l4" to="l0" symbol="OOK">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l6" symbol="OOK">
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l5" symbol="IAck">
+            <guard>'c1' != 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l9" symbol="IAck">
+            <guard>'c1' == 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l7" symbol="ISendFrame">
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l10" symbol="IIn">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l8" symbol="OFrame" params="tmp_int_1,c1">
+            <assignments>
+                <assign to="tmp_int_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l8" to="l7" symbol="ISendFrame">
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l10" symbol="IIn">
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l12" symbol="IAck">
+            <guard>'c1' == 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l13" symbol="IAck">
+            <guard>'c1' != 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l9" to="l6" symbol="ONOK">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l11" symbol="ONOK">
+            <assignments/>
+        </transition>
+        <transition from="l11" to="l10" symbol="ISendFrame">
+            <assignments/>
+        </transition>
+        <transition from="l11" to="l10" symbol="IAck">
+            <assignments/>
+        </transition>
+        <transition from="l11" to="l10" symbol="IIn">
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l14" symbol="OOK">
+            <assignments/>
+        </transition>
+        <transition from="l13" to="l8" symbol="OOK">
+            <assignments/>
+        </transition>
+        <transition from="l14" to="l12" symbol="IAck">
+            <guard>'c1' == 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l14" to="l15" symbol="IAck">
+            <guard>'c1' != 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l14" to="l15" symbol="ISendFrame">
+            <assignments/>
+        </transition>
+        <transition from="l14" to="l16" symbol="IIn">
+            <assignments>
+                <assign to="r1">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l15" to="l14" symbol="ONOK">
+            <assignments/>
+        </transition>
+        <transition from="l16" to="l17" symbol="OOK">
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l10" symbol="IIn">
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l16" symbol="IAck">
+            <guard>'c1' == 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l19" symbol="IAck">
+            <guard>'c1' != 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l18" symbol="ISendFrame">
+            <assignments/>
+        </transition>
+        <transition from="l18" to="l20" symbol="OFrame" params="tmp_int_1,c2">
+            <assignments>
+                <assign to="tmp_int_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l19" to="l17" symbol="ONOK">
+            <assignments/>
+        </transition>
+        <transition from="l20" to="l4" symbol="IAck">
+            <guard>'c1' != 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l20" to="l21" symbol="IAck">
+            <guard>'c1' == 'p1'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l20" to="l10" symbol="IIn">
+            <assignments/>
+        </transition>
+        <transition from="l20" to="l18" symbol="ISendFrame">
+            <assignments/>
+        </transition>
+        <transition from="l21" to="l20" symbol="OOK">
+            <assignments/>
+        </transition>
+    </transitions>
+</register-automaton>

@@ -1,0 +1,36 @@
+ABP_OUTPUT;Locations;Transitions;Registers;Constants;CE Analysis Resets;Hyp Construction Resets;Total Resets
+slstar;22;40;1;2;41;255;299
+sllambda;21;40;1;2;25;148;176
+sllambdaeq;21;40;1;2;35;68;106
+
+
+ABP_RECEIVER3;Locations;Transitions;Registers;Constants;CE Analysis Resets;Hyp Construction Resets;Total Resets
+slstar;14;18;1;2;48;253;303
+sllambda;13;18;1;2;7;61;70
+sllambdaeq;13;18;1;2;23;25;50
+
+
+CHANNEL_FRAME;Locations;Transitions;Registers;Constants;CE Analysis Resets;Hyp Construction Resets;Total Resets
+slstar;8;10;2;2;1;7;11
+sllambda;7;10;2;2;1;7;11
+sllambdaeq;7;10;2;2;1;7;11
+
+
+FIFO7;Locations;Transitions;Registers;Constants;CE Analysis Resets;Hyp Construction Resets;Total Resets
+slstar;26;32;7;0;2591;713;3306
+sllambda;25;32;7;0;11;44;57
+sllambdaeq;25;32;7;0;11;44;57
+
+
+LOGIN;Locations;Transitions;Registers;Constants;CE Analysis Resets;Hyp Construction Resets;Total Resets
+slstar;10;16;2;0;30;369;402
+sllambda;9;16;2;0;13;222;238
+sllambdaeq;9;16;2;0;6;216;225
+
+
+SIP;Locations;Transitions;Registers;Constants;CE Analysis Resets;Hyp Construction Resets;Total Resets
+slstar;26;58;2;0;30;478;512
+sllambda;25;58;2;0;14;210;228
+sllambdaeq;25;58;2;0;13;194;211
+
+

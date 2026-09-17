@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="ILogin">
+                <param type="int" name="p1"/>
+                <param type="int" name="p2"/>
+            </symbol>
+            <symbol name="IRegister">
+                <param type="int" name="p1"/>
+                <param type="int" name="p2"/>
+            </symbol>
+            <symbol name="ILogout"/>
+        </inputs>
+        <outputs>
+            <symbol name="OOK"/>
+            <symbol name="ONOK"/>
+        </outputs>
+    </alphabet>
+    <constants/>
+    <globals>
+        <variable type="int" name="r1">0</variable>
+        <variable type="int" name="r2">0</variable>
+    </globals>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+        <location name="l4"/>
+        <location name="l5"/>
+        <location name="l6"/>
+        <location name="l7"/>
+        <location name="l8"/>
+        <location name="l9"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l1" symbol="ILogout">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="ILogin">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l4" symbol="IRegister">
+            <assignments>
+                <assign to="r1">p2</assign>
+                <assign to="r2">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l1" to="l0" symbol="ONOK">
+            <assignments/>
+        </transition>
+        <transition from="l4" to="l5" symbol="OOK">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l6" symbol="ILogin">
+            <guard>'r2' == 'p1' &amp;&amp; 'r1' == 'p2'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="ILogin">
+            <guard>'r2' != 'p1' </guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="ILogin">
+            <guard>'r2' == 'p1' &amp;&amp; 'r1' != 'p2'</guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="ILogout">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="IRegister">
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l7" symbol="OOK">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l4" symbol="ILogout">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l9" symbol="IRegister">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l9" symbol="ILogin">
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l5" symbol="ONOK">
+            <assignments/>
+        </transition>
+        <transition from="l9" to="l7" symbol="ONOK">
+            <assignments/>
+        </transition>
+    </transitions>
+</register-automaton>
