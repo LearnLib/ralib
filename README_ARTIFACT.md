@@ -8,15 +8,12 @@ Claimed badges: Available + Functional + Reusable
 *Availability.* Our artifact is available under the DOI ().
 Our algorithm (SLLAMBDAEQ) is implemented in [RALib](https://github.com/LearnLib/ralib), an open-source library which also implements the other algorithms we compared ours with (SLLAMBDA, SLSTAR).
 The scripts and any other tooling needed to reproduce our experiments are also open sourced, and included in the artifact.
-In particular, we include our extension of [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer) which was used to perform the experiments on DTLS implementations (we will hencefortfth call these "DTLS-Fuzzer experiments").
+In particular, we include our extension of [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer) which was used to perform the DTLS implementation experiments.
 We plan to incorporate this extension into the next release of the tool.
 Information regarding the versions of RALib and DTLS-Fuzzer used is available in #dependencies.
 
 *Functional.* In our repeated testing, we were able to consistently reproduce the non-timing results reported in the evaluation.
 Timing measurements exhibited only minor variations, but can vary substantially depending on the computation available, though this should not affect the outcome, such as which algorithm finish the fastest.
-We note that reproducing the results for the DTLS-Fuzzer experiments requires appropriately setting timing parameters for each SUT, such as the time to wait for each response.
-Not doing so might cause learning with any of the compared algorithms to fail due to apparent non-determinism.
-The parameters chosen have worked on our machine, but might not work on a substantially weaker machine.
 
 *Reusable.* RALib, based on which we implemented our algorithm, has been recently incorporated in [ProtocolState-Fuzzer](https://github.com/protocol-fuzzing/protocol-state-fuzzer/), a framework for building protocol state fuzzers, to provide support for learning register automata.
 ProtocolState-Fuzzer is the backbone of fuzzers for an increasing number of protocols including DTLS (see DTLS-Fuzzer), SSH (see SSH-Fuzzer) and EDHOC (see EDHOC-Fuzzer).
@@ -27,12 +24,11 @@ RALib has also been used in areas such as specification extraction, which will a
 
 Requirements:
 
-
 External connectivity: yes
 
 Maven needs to download possibly missing components from its repository,
 Spotless downloads some metadata from maven's central repository.
-Re-installing DTLS-Fuzzer downloads sources for its 
+
 
 ## Smoke test
 
@@ -99,7 +95,7 @@ Test: PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_KEY_E
 1 times outputs: HELLO_VERIFY_REQUEST[] SERVER_HELLO|SERVER_HELLO_DONE[] TIMEOUT[] TIMEOUT[] CHANGE_CIPHER_SPEC|FINISHED[] APPLICATION[]
 ```
 
-6. Exit container, restart it.
+6. Exit container, restart it
 
 In the container, run `exit` to exit.
 Then restart it.
@@ -151,205 +147,53 @@ For each experiment type, we provide a script that can run all or a selected sub
 Results are stored in `results`, and can be compared to the ones saved (`saved_results`), or to the ones reported in the paper.
 
 
-1. Run the synthetic models experiments with
+1. Run the synthetic models (? minutes)
 
 ```bash
 ./run-synthetic-models-experiments.sh
 ```
 
-A table containing the results will be found in ```synthetic-models.csv``` in the project root directory.
-Results (logs and models) can be found in ```results/```.
-
-2. Run the DTLS experiments with
+2. Run palindrome experiments for size up to `max_n`
 
 ```bash
-./run-dtls-experiments.sh
-```
-    
-    After the experiments have run, plots will be output to the project
-    root directory. Results (logs and models) can be found in ```results/```.
-
-3. Run palindrome experiments for sizes up to max_n
-
-    ```
-    ./run-palindrome-experiments.sh --max-n max_n
-    ```
-    A table containing the results will be found in ```palindrome.csv```
-    in the project root directory. Results (logs) can be found in
-    ```results/```.
-    If successful, the print-out of the learned model is included in the log.
-
-
-
-
-## Overview
-
-The artifact contains the scripts for running the experiments.
-The experiments themselves are run using [RALib](https://github.com/LearnLib/ralib).
-Experiments on DTLS implementations additionally use [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer).
-See [Dependencies](#dependencies) for the exact versions of the libraries.
-The artifact is organized as follows:
-
-1. **benchmarks** are located in ```experiments/```. These
-    consist of benchmark problems collected from papers on
-    RALib, from the [automata wiki](https://automata.cs.ru.nl),
-    located in ```experiments/synthetic```, and hypotheses
-    of increasing complexity of the DTLS server of Mbed TLS
-    2.26.0, located in ```experiments/dtls```.
-2. **configurations** of RALib are located in ```configs/```.
-    The different configurations are used in different 
-    series of experiments and specify aspects of the 
-    learning experiments (how counterexamples are found,
-    how counterexamples are preprocessed, max. runtimes, 
-    teachers/theories for types, etc.).
-3. **scripts** for running experiments and generating plots
-    and tables are located in ```scripts/```.
-4. **results** from running experiments will be stored in 
-    ```results/```. Results include logs and models from 
-    individual learning experiments. Some scripts will 
-    use the results to compute plots and tables. 
-    Templates and generated documents ce be found 
-    in ```scripts/plots```.
-5. **RALib** is a git submodule in ```ralib/```, which implements learning algorithms for register automata including SLLAMBDAEQ.
-6. **DTLS-Fuzzer** is a git submodule in ```dtls-fuzzer/```, which is the RALib-based learning tool used in our black-box DTLS experiments.
-
-
-
-## Installation
-
-Installing RALib and DTLS-Fuzzer, you have to initialize their respective submodule and build the tools,
-which require a JDK 21 and Maven to be installed.
-
-```
-git submodule init
-git submodule update
-./build.sh --dtlsfuzzer --dtlssuts
+./run-palindrome-experiments.sh --max-n max_n
 ```
 
-`--dtlsfuzzer` and `--dtlssuts` enable building also DTLS-Fuzzer and the DTLS SUTs, respectively.
+We suggest using `max_n` of 8, which should reduce experiment time to under 10 minutes.
 
-## Smoke test
-
-
-## Running experiments
-
-### Running with Docker
-
-The image builds RALib using `build.sh` with JDK 21 and Maven 3.9.16.
-It includes Python and LaTeX for experiment summaries and plots.
-Initialize the RALib submodule before building:
+3. Run DTLS model experiments
 
 ```bash
-git submodule update --init --recursive
-docker build -t ralib-benchmark .
-mkdir -p results
+./run-dtls-model-experiments.sh
 ```
 
-Choose a script after the image name. Additional arguments are passed
-unchanged to that script:
+4. Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, piondtls, scandium, wolfssl)
 
 ```bash
-docker run --rm --mount type=bind,source="$(pwd)/results",target=/benchmark/results \
-  ralib-benchmark run-palindrome-experiments.sh --max-n 2
-
-docker run --rm --mount type=bind,source="$(pwd)/results",target=/benchmark/results \
-  ralib-benchmark run-synthetic-models-experiments.sh
-
-docker run --rm --mount type=bind,source="$(pwd)/results",target=/benchmark/results \
-  ralib-benchmark run-dtls-experiments.sh
+./run-dtls-experiments.sh [-a algorithm][-s sut]
 ```
 
-Logs and models are written to the host's `results/` directory. On script
-exit, generated summary CSVs and DTLS PDFs are also copied there. Existing
-host results are excluded from the image build. The scripts may overwrite
-results from earlier runs; use a separate host directory to keep runs apart.
-Files created by the container use its default root user.
-
-Run `docker run --rm ralib-benchmark` for the script list, or
-`docker run --rm ralib-benchmark run-palindrome-experiments.sh --help`
-for palindrome options. The synthetic and DTLS scripts currently have no
-command-line options. When using palindrome's `--out` option, choose a path
-under `/benchmark/results` to keep its logs on the host.
-
-Generally, experiments are organized in series.
-Shell scripts exist for running individual experiments and series,
-and for generating plots and tables.
-Palindrome experiments are treated separately due to the more limited support in RALib for acceptor RAs.
-
-### Experiments for the evaluation of *SLLambdaEq* (ATVA'26)
-
-This section describes how one can run the experiments 
-that are reported in the ATVA 2026 submission.
-
-1. Run the synthetic models experiments with
-
-    ```
-    ./run-synthetic-models-experiments.sh
-    ```
-
-    A table containing the results will be found in ```synthetic-models.csv```
-    in the project root directory. Results (logs and models) can be found in
-    ```results/```.
-
-2. Run the DTLS experiments with
-
-    ```
-    ./run-dtls-experiments.sh
-    ```
-    
-    After the experiments have run, plots will be output to the project
-    root directory. Results (logs and models) can be found in ```results/```.
-
-3. Run palindrome experiments for sizes up to max_n
-
-    ```
-    ./run-palindrome-experiments.sh --max-n max_n
-    ```
-    A table containing the results will be found in ```palindrome.csv```
-    in the project root directory. Results (logs) can be found in
-    ```results/```.
-    If successful, the print-out of the learned model is included in the log.
-
-### Running individual experiments
-
+Without aguments, the script runs all the experiments which can take over six hours.
+For the sake of time, we suggest restricting experiments to one algorithm and/or one implementation.
+The resulting table (in `results/dtls-implementations.csv`) will contain non-blank/zero numbers only for the experiments run.
+For example,
+```bash
+./run-dtls-experiments.sh -s mbedtls
 ```
-scripts/run_experiment.sh [-h] -s series -e experiment -i iterations -l learner
+performs learning with each algorithm of the Mbed TLS server implementations.
+
+Similarly,
+```bash
+./run-dtls-experiments.sh -a SLLAMBDAEQ
 ```
+performs learning with SLLAMBDAEQ of every DTLS server implementations.
 
-Learn model of `experiments/[series]/[experiment].xml` with config
-`configs/[series]/[learner]'.
+The time estimate can be drawn from Table 3 in the paper.
+Learning Mbed TLS using all algorithms should take around one hour.
 
-### Running a series
-
-```
-scripts/run_series.sh [-h] -s series -i iterations -l learner
-```
-
-Run the series of experiments specified in folder
-`experiments/[series]` with specified learner.
-
-
-### Searching in logs
-
-```
-scripts/search_logs.sh series experiment learner search_term
-```
-
-Searches for `search_term` in the logs from all iterations.
-
-### Running custom palindrome experiments
-```
-./run-palindrome-experiments.sh -n n -a alg
-```
-
-Runs experiments for palindrome languages of size n, using the provided algorithm.
-
-Larger sizes (10 or more) may require allocating more heap space to ensure learning does not run out of memory.
-This can be done using the `-m` option, e.g., the command below allocates 10 GB of heap space to learn using SLLambdaEq, a palindrome language of size 10.
-
-
-```
-./run-palindrome-experiments.sh -n 10 -a sllambda -m 10g
-```
+Experiment succed is logged in a separate column in `results/dtls-implementations.csv`.
+DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
+This can result in the implementation exhibiting non-determinism, which none of the algorithms can handle.
+On such an occurrence, a different SUT can be chosen.
 
 ## Dependencies
