@@ -20,6 +20,6 @@ SLSTAR
 -equivalenceAlgorithms
 SAMPLED_TESTS_RA
 -testFile
-configs/dtls-implementations/tests/psk_epoch 
+configs/dtls-implementations/tests/psk_epoch
 -alphabet
 configs/dtls-implementations/alphabets/psk_aes128_cbc_sha256_epoch.xml

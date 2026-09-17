@@ -10,7 +10,7 @@ localhost:${sul.port}
 -protocol
 DTLS12
 -cmd
-${suts.dir}/piondtls-${piondtls.version}/dtls-clientserver -role server -port ${sul.port} -cipherSuite TLS_PSK_WITH_AES_128_CCM_8
+dtls-fuzzer/suts/piondtls-${piondtls.version}/dtls-clientserver -role server -port ${sul.port} -cipherSuite TLS_PSK_WITH_AES_128_CCM_8
 -termCmd
 /bin/bash dtls-fuzzer/experiments/scripts/stop_proc_at_port.sh ${sul.port} server
 
@@ -24,7 +24,7 @@ SLSTAR
 -equivalenceAlgorithms
 SAMPLED_TESTS_RA
 -testFile
-configs/dtls-implementations/tests/psk_epoch 
+configs/dtls-implementations/tests/psk_epoch
 -output
 ${output.ra}/piondtls-${piondtls.version}_server_psk_epoch
 -alphabet
