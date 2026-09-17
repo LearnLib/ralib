@@ -177,7 +177,7 @@ We suggest using `max_n` of 8, which should reduce experiment time to under 10 m
 
 Without aguments, the script runs all the experiments which can take over six hours.
 For the sake of time, we suggest restricting experiments to one algorithm and/or one implementation.
-The resulting table (in `results/dtls-implementations.csv`) will contain non-blank/zero numbers only for the experiments run.
+The resulting table (in `results/dtls-implementations.csv`) will contain results only for the experiments run.
 For example,
 ```bash
 ./run-dtls-experiments.sh -s mbedtls
@@ -190,12 +190,13 @@ Similarly,
 ```
 performs learning with SLLAMBDAEQ of every DTLS server implementations.
 
+Providing both the algorithm and SUT will restrict execution to one experiment.
 The time estimate can be drawn from Table 3 in the paper.
 Learning Mbed TLS using all algorithms should take around one hour.
 
 Experiment success is logged in a separate column in `results/dtls-implementations.csv`.
 DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
-This can result in the implementation exhibiting non-determinism, which none of the algorithms can handle.
+This can result in the implementation exhibiting timing-ralted non-determinism, which none of the algorithms can handle.
 On such an occurrence, a different SUT can be chosen.
 
 ## Dependencies
