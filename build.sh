@@ -9,10 +9,16 @@ print_usage() {
   echo "Usage $0 [--ralib][--dtlsfuzzer][--dtlssuts][-h|--help]"
   echo "Where:"
   echo " --ralib builds RALib;"
-  echo " --dtlsfuzzer builds DTLS-Fuzzer;"
+  echo " --dtlsfuzzer builds DTLS-Fuzzer and all its dependencies;"
   echo " --dtlssuts builds DTLS SUTs;"
   echo " -h|--help prints usage instructions and exits gracefully."
 }
+
+if [[ $# -eq 0 ]]; then
+    print_usage
+    exit 0
+fi
+
 while [[ $# -gt 0 && "$1" =~ ^- ]]; do case $1 in
     --ralib )
         build_ralib=1
@@ -47,9 +53,22 @@ if (( build_dtlsfuzzer )); then
     # Build DTLS-Fuzzer
     (
         cd dtls-fuzzer 
-        # Deleting PSF and TLS-Attacker folders to force DTLS-Fuzzer to skip tests
-        rm -rf ProtocolState-Fuzzer TLS-Attacker  
-        ./install.sh
+        if [[ -f ProtocolState-Fuzzer/pom.xml && -f TLS-Attacker/pom.xml ]]; then
+            # Are both dependencies available locally? Then skip downloading them, and directly install them.
+            (cd ProtocolState-Fuzzer; mvn clean install -DskipTests) || {
+                echo "ProtocolState-Fuzzer build failed"
+                exit 1
+            }
+            (cd TLS-Attacker; mvn clean install -DskipTests) || {
+                echo "TLS-Attacker build failed"
+                exit 1
+            }
+            mvn install -DskipTests
+        else
+            # Otherwise delete any locally stored dependencies to force the install script to re-download and install them
+            rm -rf ProtocolState-Fuzzer TLS-Attacker
+            ./install.sh
+        fi
     ) || {
         echo "DTLS-Fuzzer build failed" >&2
         exit 1
@@ -68,3 +87,5 @@ if (( build_dtlssuts )); then
         exit 1
     }
 fi
+
+echo "BUILD SUCCESS"

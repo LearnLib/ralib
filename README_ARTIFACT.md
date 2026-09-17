@@ -59,34 +59,22 @@ docker run -it --name sllambdaeq-vmcai27 sllambdaeq:vmcai27
 Steps 3 and 4 re-install RALib and DTLS-Fuzzer, which are already installed.
 These steps can be ommitted when performing the evaluation.
 
-3. Inside the container install RALib
+3. Install RALib and DTLS-Fuzzer
 
 RALib is included in the `ralib` folder and is already built in the image.
-Go to that directory, cleanly install RALib, executing its test suite (~ 2-3 min), and assembling a JAR including all of RALib's dependencies.
+DTLS-Fuzzer is included in the `dtls-fuzzer` folder and is already built in the image, along its dependencies (TLS-Attacker and ProtocolState-Fuzzer, provided as separate sub-folders) and the five SUTs considered in our benchmarks, which are deployed in the `suts` subfolder.
+
+We install RALib and DTLS-Fuzzer using the provided `build.sh` script.
 
 ```bash
-cd ralib
-mvn clean install assembly:single
+./build.sh
 ```
 
-This should result in a `BUILD SUCCESS` message and RALib's `target` directory should contain  `ralib-0.2.jar` and `ralib-0.2-jar-with-dependencies.jar`.
-`cd ..` before proceeding to the next step.
+The script should finish successfully, echoing `BUILD SUCCESS`.
+`ralib/target` should exist and should contain  `ralib-0.2-jar-with-dependencies.jar`, which is the executable JAR we use to run RALib.
+`dtls-fuzzer/target` should exist and should contain `dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar`, which is the executable JAR we use to run DTLS-Fuzzer extended to use RALib.
 
-4. Inside the container clean install DTLS-Fuzzer and its dependencies.
-
-DTLS-Fuzzer is included in the `dtls-fuzzer` folder and is already built in the image, along its dependencies (TLS-Attacker and ProtocolState-Fuzzer, provided as separate sub-folders) and the five SUTs considered in our benchmarks, included in the `suts` subfolder.
-Cleanly install DTLS-Fuzzer and its dependencies.
-
-```bash
-cd dtls-fuzzer 
-(cd ProtocolState-Fuzzer; mvn clean install)
-(cd TLS-Attacker; mvn clean install)
-mvn clean install
-```
-
-All Maven installations should output `BUILD SUCCESS`.
-
-5. Execute a test with DTLS-Fuzzer
+4. Execute a test with DTLS-Fuzzer
 
 We now check that DTLS-Fuzzer with RALib support works by executing a handshake on Mbed TLS using input actions parametric on epoch.
 
@@ -101,7 +89,7 @@ Test: PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_KEY_E
 1 times outputs: HELLO_VERIFY_REQUEST[] SERVER_HELLO|SERVER_HELLO_DONE[] TIMEOUT[] TIMEOUT[] CHANGE_CIPHER_SPEC|FINISHED[] APPLICATION[]
 ```
 
-6. Exit container, restart it
+5. Exit container, restart it
 
 In the container, run `exit` to exit.
 Then restart it.
@@ -192,7 +180,7 @@ We excluded SLSTAR for these experiments to reduce execution time.
 
 Without aguments, the script runs all the experiments which can take over six hours.
 For the sake of time, we suggest restricting experiments to one algorithm and/or one implementation.
-The resulting table (in `results/dtls-implementations.csv`) will contain results only for the experiments run.
+The resulting table (in `results/dtls-implementations.csv`) will contain results only for the experiment(s) run.
 For example,
 ```bash
 ./run-dtls-experiments.sh -s mbedtls -a SLLAMBDAEQ
@@ -204,7 +192,7 @@ Learning Mbed TLS with SLLAMBDAEQ should take under 10 minutes.
 
 Experiment success is logged in a separate column in `results/dtls-implementations.csv`.
 DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
-This can result in the implementation exhibiting timing-ralted non-determinism, which none of the algorithms can handle.
+This can result in the implementation exhibiting timing-related non-determinism, which none of the algorithms can handle.
 On such an occurrence, a different SUT can be chosen.
 
 ## Dependencies
