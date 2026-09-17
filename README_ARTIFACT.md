@@ -1,16 +1,17 @@
 # VMCAI 2027 Artifact
-=======================================
+
 Paper title: Efficient Active Learning of Register Automata with Equalities
 
 Claimed badges: Available + Functional + Reusable
 
 **Badge Justification**
+
 *Availability.* Our artifact is available under the DOI ().
 Our algorithm (SLLAMBDAEQ) is implemented in [RALib](https://github.com/LearnLib/ralib), an open-source library which also implements the other algorithms we compared ours with (SLLAMBDA, SLSTAR).
 The scripts and any other tooling needed to reproduce our experiments are also open sourced, and included in the artifact.
 In particular, we include our extension of [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer) which was used to perform the DTLS implementation experiments.
 We plan to incorporate this extension into the next release of the tool.
-Information regarding the versions of RALib and DTLS-Fuzzer used is available in #dependencies.
+Information regarding the versions of RALib and DTLS-Fuzzer used is available in the Dependencies section at the end of the page.
 
 *Functional.* In our repeated testing, we were able to consistently reproduce the non-timing results reported in the evaluation.
 Timing measurements exhibited only minor variations, but can vary substantially depending on the computation available, though this should not affect the outcome, such as which algorithm finish the fastest.
@@ -78,7 +79,7 @@ cd dtls-fuzzer
 mvn clean install
 ```
 
-All Maven installations should result in `BUILD SUCCESS`.
+All Maven installations should output `BUILD SUCCESS`.
 
 5. Execute a test with DTLS-Fuzzer
 
@@ -111,6 +112,7 @@ docker container rm sllambdaeq-vmcai27
 ```
 
 *Troubleshooting.*
+
 In case container does not work, check that it is still there (look for `sllambdaeq-vmcai27`), and if not, go to step 2.
 ```bash
 docker container ls -a
@@ -136,7 +138,7 @@ a summary is stored in `synthentic-models.csv`;
 a summary is stored in `palindrome.csv`;
 - `dtls-models` contains results (logs and models) for the experiments on DTLS models,
 the resulting plot is stored in `plot-dtls-models-resets.pdf`;
-- `dtls-implementations` contains results (logs and models) for the experiments on DTLS experiments, 
+- `dtls-implementations` contains results (logs and models) for the experiments on DTLS implementations, 
 a summary is included in `dtls-implementations.csv`.
 
 The tables and the plot can be checked for consistency with those in the paper.
@@ -191,9 +193,21 @@ performs learning with SLLAMBDAEQ of every DTLS server implementations.
 The time estimate can be drawn from Table 3 in the paper.
 Learning Mbed TLS using all algorithms should take around one hour.
 
-Experiment succed is logged in a separate column in `results/dtls-implementations.csv`.
+Experiment success is logged in a separate column in `results/dtls-implementations.csv`.
 DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
 This can result in the implementation exhibiting non-determinism, which none of the algorithms can handle.
 On such an occurrence, a different SUT can be chosen.
 
 ## Dependencies
+
+We record the used repositories/commits for RALib and its dependencies. We forked the original repositories and made minor edits to ease setup.
+
+- name: dtls-fuzzer
+   url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/dtls-fuzzer.git
+   commit: 1509d5a2b39011118bd2ecdd7820eea545a947a9
+- name: ralib
+   url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/ralib.git
+   commit: 91965b283d2b8e4c692d12dec6e028026dba72cc
+- name: protocol-state-fuzzer
+   url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/protocol-state-fuzzer.git
+   commit: "f9f8f146c9725e98a819c0f79555df56994f5d06"
