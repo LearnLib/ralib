@@ -115,9 +115,9 @@ If needed, the container can be removed (step 7), and then possibly re-created (
 
 ## Full review
 
-### Setup Docker
+We assume the image has been downloaded, and that container has been created.
+Start the container.
 
-Assuming the image has been downloaded and
 ```bash
 docker start --interactive  sllambdaeq-vmcai27
 ```
@@ -172,7 +172,8 @@ We suggest using `max_n` of 8 or smaller, which should reduce experiment time to
 ```
 
 We excluded SLSTAR for these experiments to reduce execution time.
-4. Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, piondtls, scandium, wolfssl)
+
+4. Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, openssl, piondtls, scandium, wolfssl)
 
 ```bash
 ./run-dtls-experiments.sh [-a algorithm][-s sut]
@@ -190,7 +191,7 @@ performs learning with SLLAMBDAEQ of the Mbed TLS server implementations.
 The time estimate can be drawn from Table 3 in the paper.
 Learning Mbed TLS with SLLAMBDAEQ should take under 10 minutes.
 
-Experiment success is logged in a separate column in `results/dtls-implementations.csv`.
+Experiment success is indicated in the "Finished" column in `results/dtls-implementations.csv`.
 DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
 This can result in the implementation exhibiting timing-related non-determinism, which none of the algorithms can handle.
 On such an occurrence, a different SUT can be chosen.
