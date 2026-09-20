@@ -1,7 +1,7 @@
 [submodule "ralib"]
 	path = ralib
-	url = git@github.com:LearnLib/ralib.git
+	url = git@github.com:artifact-sllambdaeq/ralib.git
 	branch = rattt-dt
 [submodule "dtls-fuzzer"]
 	path = dtls-fuzzer
-	url = git@github.com:assist-project/dtls-fuzzer.git
+	url = git@github.com:artifact-sllambdaeq/dtls-fuzzer.git
