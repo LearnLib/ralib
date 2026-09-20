@@ -202,7 +202,7 @@ We record the used repositories/commits for RALib and its dependencies. We forke
 
 - name: dtls-fuzzer
    url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/dtls-fuzzer.git
-   commit: 1509d5a2b39011118bd2ecdd7820eea545a947a9
+   commit: 4a8e49130f8a6096e63e7f516713c32808ff9d83
 - name: ralib
    url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/ralib.git
    commit: 91965b283d2b8e4c692d12dec6e028026dba72cc

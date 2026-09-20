@@ -12,9 +12,9 @@ done
 
 cd plots
 
-latexmk -pdf plot-dtls-models-resets.tex
+latexmk -pdf plot-dtls-models-tests.tex
 
 cd ../..
 
 mv scripts/plots/dtls-models.csv results/dtls-models.csv
-mv scripts/plots/plot-dtls-models-resets.pdf results/plot-dtls-models-resets.pdf
+mv scripts/plots/plot-dtls-models-tests.pdf results/plot-dtls-models-tests.pdf
