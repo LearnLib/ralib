@@ -41,19 +41,19 @@ Spotless downloads some metadata from maven's central repository.
 1. Download docker image
 
 ```bash
-docker load < sllambdaeq-vmcai27-image.tar.gz
+docker load < sllambdaeq-image.tar.gz
 ```
 
-Inspect that  the image was created (look for `sllambdaeq:vmcai27`)
+Inspect that  the image was created (look for `sllambdaeq:latest`)
 ```bash
 docker image  ls -a
 ```
 
 2. Create and run the container
 
-This creates a container named `sllambdaeq-vmcai27` and starts an interactive shell inside the container.
+This creates a container named `sllambdaeq` and starts an interactive shell inside the container.
 ```bash
-docker run -it --name sllambdaeq-vmcai27 sllambdaeq:vmcai27
+docker run -it --name sllambdaeq sllambdaeq:latest
 ```
 
 Steps 3 and 4 re-install RALib and DTLS-Fuzzer, which are already installed.
@@ -94,19 +94,19 @@ Test: PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_KEY_E
 In the container, run `exit` to exit.
 Then restart it.
 ```bash
-docker start --interactive  sllambdaeq-vmcai27 
+docker start --interactive  sllambdaeq
 ```
 
 7. Remove container (after evaluation)
 
 Once evaluation is done and the artifact is no longer needed, remove the container.
 ```bash
-docker container rm sllambdaeq-vmcai27
+docker container rm sllambdaeq
 ```
 
 *Troubleshooting.*
 
-In case container does not work, check that it is still there (look for `sllambdaeq-vmcai27`), and if not, go to step 2.
+In case container does not work, check that it is still there (look for `sllambdaeq`), and if not, go to step 2.
 ```bash
 docker container ls -a
 ```
@@ -119,7 +119,7 @@ We assume the image has been downloaded, and that container has been created.
 Start the container.
 
 ```bash
-docker start --interactive  sllambdaeq-vmcai27
+docker start --interactive  sllambdaeq
 ```
 
 ### Analyzing saved results
@@ -145,7 +145,7 @@ After each experiment, results can be copied to the host for easier analysis.
 This is done using the command below:
 
 ```bash
-docker cp sllambdaeq-vmcai27:/results ${results}
+docker cp sllambdaeq:/results ${results}
 ```
 
 where `${results}` is replaced by a directory on the host machine.
