@@ -15,6 +15,7 @@ import csv
 from pathlib import Path
 import re
 import sys
+from decimal import *
 
 
 FIELDS = {
@@ -22,6 +23,7 @@ FIELDS = {
     "Tests": "\\s*Number\\sof\\stests:\\s(\\d*)",
     "Time": "\\s*Time\\s\\(ms\\)\\sto\\slearn\\smodel:\\s(\\d*)$"}
 
+DECIMALS_AFTER_COMMA = 1
 
 def read_statistics(path):
     """Read exact statistic labels, preferring the first supported alias."""
@@ -34,8 +36,10 @@ def read_statistics(path):
             if field == "Finished":
                 values[field] = strval
             else:
-                intvalue = int(strval)
-                values[field] = int(intvalue / 60000) if field == "Time" else intvalue
+                if field == "Time":
+                    values[field] = round(Decimal(int(strval)) / Decimal(60000), DECIMALS_AFTER_COMMA)
+                else:
+                    values[field] = int(strval)
         else:
             values[field] = ""
             print(f"Warning: {path}: missing value to fill field {field}", file=sys.stderr)
@@ -55,7 +59,7 @@ def read_model_statistics(path):
 
 
 def percentage(value, baseline):
-    return value * 100 // baseline if value != "" and baseline not in ("", 0) else ""
+    return int(value) * 100 // int(baseline) if value != "" and baseline not in ("", 0) else ""
 
 
 def create_csv(input_folder, output_file):
@@ -114,6 +118,7 @@ def create_csv(input_folder, output_file):
 
 
 def main():
+    #getcontext().prec = TIME_DECIMAL_PLACES
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input_folder", type=Path, help="Folder containing ra-<algorithm> folders")
     parser.add_argument(

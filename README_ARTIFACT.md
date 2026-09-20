@@ -1,4 +1,4 @@
-# VMCAI 2027 Artifact
+# SLLAMBDAEQ Artifact
 
 Paper title: Efficient Active Learning of Register Automata with Equalities
 
@@ -18,10 +18,10 @@ Timing measurements exhibited only minor variations, but can vary substantially 
 
 *Reusable.* RALib, based on which we implemented our algorithm, has been recently incorporated in [ProtocolState-Fuzzer](https://github.com/protocol-fuzzing/protocol-state-fuzzer/), a framework for building protocol state fuzzers, to provide support for learning register automata.
 ProtocolState-Fuzzer is the backbone of fuzzers for an increasing number of protocols including DTLS (see [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer)), EDHOC (see [EDHOC-Fuzzer](https://github.com/protocol-fuzzing/edhoc-fuzzer)) and SSH (see [SSH-Fuzzer](https://github.com/assist-project/ssh-fuzzer)).
-Recent works have used the fuzzers mentioned (on DTLS [1], SSH [2] and EDHOC [3]), and the RALib-based extension in particular, to generate infer register automata of implementations of these protocols.
+Recent works have used the fuzzers mentioned (on DTLS [1], SSH [2] and EDHOC [3]), and the RALib-based extension in particular, to infer register automata of implementations of these protocols.
 Effort is underway to port ProtocolState-Fuzzer to use the most recent RALib which implements SLLAMBDAEQ, with a prototype already being available and used by DTLS-Fuzzer.
 Once porting is complete, all fuzzers will be able to use SLLAMBDAEQ.
-RALib has also been used in areas such as specification extraction [4], which might also benefit from the performance of SLLAMBDAEQ.
+RALib has also been used in areas such as specification extraction [4], which might also benefit from the improved performance of SLLAMBDAEQ.
 
 Requirements:
 
