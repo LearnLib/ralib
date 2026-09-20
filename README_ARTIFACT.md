@@ -67,7 +67,7 @@ DTLS-Fuzzer is included in the `dtls-fuzzer` folder and is already built in the 
 We install RALib and DTLS-Fuzzer using the provided `build.sh` script.
 
 ```bash
-./build.sh
+./build.sh --ralib --dtlsfuzzer 
 ```
 
 The script should finish successfully, echoing `BUILD SUCCESS`.
@@ -79,7 +79,7 @@ The script should finish successfully, echoing `BUILD SUCCESS`.
 We now check that DTLS-Fuzzer with RALib support works by executing a handshake on Mbed TLS using input actions parametric on epoch.
 
 ```bash
-java -jar dtls-fuzzer/target/dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar configs/dtls-black-box/args/learn_mbedtls_server_psk_epoch -test configs/dtls-black-box/tests/psk_epoch
+java -jar dtls-fuzzer/target/dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar configs/dtls-implementations/args/learn_mbedtls_server_psk_epoch -test configs/dtls-implementations/tests/psk_epoch
 ```
 
 The expected result should contain:
