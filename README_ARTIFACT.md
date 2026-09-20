@@ -201,13 +201,13 @@ On such an occurrence, a different SUT can be chosen.
 We record the used repositories/commits for RALib and its dependencies. We forked the original repositories and made minor edits to ease setup.
 
 - name: dtls-fuzzer
-   url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/dtls-fuzzer.git
-   commit: 4a8e49130f8a6096e63e7f516713c32808ff9d83
+   url: https://github.com/artifact-sllambdaeq/dtls-fuzzer.git
+   commit: 2393e995e22796398ae1121575301d10cd9cddb5
 - name: ralib
-   url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/ralib.git
+   url: https://github.com/artifact-sllambdaeq/ralib.git
    commit: 91965b283d2b8e4c692d12dec6e028026dba72cc
 - name: protocol-state-fuzzer
-   url: https://github.com/artifact-ralib-slambdaeq-vmcai2027/protocol-state-fuzzer.git
+   url: https://github.com/artifact-sllambdaeq/protocol-state-fuzzer.git
    commit: "f9f8f146c9725e98a819c0f79555df56994f5d06"
 
 ## References
