@@ -202,11 +202,14 @@ We record the used repositories/commits for RALib and its dependencies. We forke
    commit: 91965b283d2b8e4c692d12dec6e028026dba72cc
 - name: protocol-state-fuzzer
    url: https://github.com/artifact-sllambdaeq/protocol-state-fuzzer.git
-   commit: "f9f8f146c9725e98a819c0f79555df56994f5d06"
+   commit: f9f8f146c9725e98a819c0f79555df56994f5d06
 
 ## References
 
 [1] Oskar Pettersson Löfstedt. *Protocol State Fuzzing of DTLS Using Register Automata Learning*. Master's Thesis, Uppsala University, 2026.
+
 [2] Linus Olofsson. *Protocol State Fuzzing of EDHOC Implementations Using Register Automata Learning*. Master's Thesis, Uppsala University, 2024.
+
 [3] Hasan Syed Muhammad. *Extending State Fuzzing of SSH Implementations Using Model Learning for Register Automata*. Master's Thesis, Uppsala University, 2026.
+
 [4] S. Ghosal, B. Jonsson, and P. Rümmer, "An Active Learning Approach to Synthesizing Program Contracts," in *Software Engineering and Formal Methods (SEFM 2023)*, pp. 126-144, 2023. 【1-54d1ca】【2-f19281】
