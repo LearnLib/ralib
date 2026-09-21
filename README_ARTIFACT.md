@@ -126,6 +126,7 @@ Our paper conducted four types of experiments (or benchmarks).
 For each, we provide a script that can automatically run the experiments and summarize their results in tables or plots.
 Results are stored under the `results` folder, in separate subfolders for each experiment type.
 Results can be compared with the those reported in the paper, which are stored in `saved_results`.
+Note that re-running benchmark will overwrite old results/summaries connected to the benchmark, while not touching the others.
 
 To facilitate analysis, after running each benchmark, results can be copied to the host, e.g., using the command below:
 
@@ -136,24 +137,27 @@ docker cp sllambdaeq:/results ${results}
 where `${results}` is replaced by a directory on the host machine.
 
 
+
 1. Run learning experiments on the synthetic models from the [Automata Wiki](https://automata.cs.ru.nl) website
 
 ```bash
 ./run-synthetic-models-experiments.sh
 ```
 
-Experiments take around 5-10 minutes to fubusg.
+Experiments take around 5-10 minutes to finish.
 Results (logs and models) are stored in `synthetic`.
 A summary is stored in `synthentic-models.csv`.
 
-2. Run palindrome experiments for size up to `max_n`
+2. Run palindrome experiments for even numbers of `n` (size) up to `max_n`
 
 ```bash
-./run-palindrome-experiments.sh --max-n max_n
+./run-palindrome-experiments.sh --even --max-n max_n [--mem mem]
 ```
 
-We suggest using `max_n` of 8 or smaller, which should reduce experiment time to under 10 minutes.
-Running with size over 10 requires additional memory and takes hours to finish.
+We suggest using `max_n` of 10 or smaller, which should reduce experiment time to under 5 minutes.
+Running with size over 10 requires more memory and takes considerably longer to finish.
+These experiments might need a (much) larger heap than the default.
+Such a heap can be configured via `--mem`, e.g., `--mem 10g` configures a 10 Gigabyte heap.
 Results (logs) are stored in `palindrome`.
 A summary is stored in `palindrome.csv`.
 
