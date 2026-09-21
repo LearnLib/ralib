@@ -1,0 +1,257 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m----------------------< [0;36mde.learnlib.ralib:ralib[0;1m >-----------------------[m
+[[1;34mINFO[m] [1mBuilding RALib 0.2[m
+[[1;34mINFO[m]   from pom.xml
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:resources[m [1m(default-resources)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/pfg666/GitHub/artifacts/ralib-vmcai2027-benchmarking/ralib/src/main/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.16.0:compile[m [1m(default-compile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:testResources[m [1m(default-testResources)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Copying 17 resources from src/test/resources to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.16.0:testCompile[m [1m(default-testCompile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32msurefire:3.6.0:test[m [1m(default-test)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[[1;34mINFO[m] TestNG is present. Adding per default org.junit.support:testng-engine:1.1.0
+[[1;34mINFO[m] 
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m]  T E S T S
+[[1;34mINFO[m] -------------------------------------------------------
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+[[1;34mINFO[m] Running de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+Test name: testLearnPalindromeSLLambdaEq
+=======================
+========== 8 ==========
+=======================
+l0 (+) (initial):
+  (l0 (+), ?in[int], true, [r1:=p1,], l1 (+))
+
+l1 (+):
+  (l1 (+), ?in[int], ('r1' != 'p1'), [r1:=r1,r2:=p1,], l2 (-))
+  (l1 (+), ?in[int], ('r1' == 'p1'), [r1:=r1,], l4 (+))
+
+l2 (-):
+  (l2 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [r1:=r2,r2:=r1,r3:=p1,], l3 (-))
+  (l2 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r1,], l5 (+))
+  (l2 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l10 (-))
+
+l3 (-):
+  (l3 (-), ?in[int], (('r1' != 'p1') && ('r3' != 'p1')), [r1:=r3,r2:=r1,r3:=r2,r4:=p1,], l7 (-))
+  (l3 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r3,r3:=r1,], l11 (-))
+  (l3 (-), ?in[int], ('r3' == 'p1'), [r1:=r1,r2:=r2,r3:=r3,], l24 (-))
+
+l4 (+):
+  (l4 (+), ?in[int], ('r1' == 'p1'), [r1:=r1,], l8 (+))
+  (l4 (+), ?in[int], ('r1' != 'p1'), [r1:=r1,r2:=p1,], l9 (-))
+
+l5 (+):
+  (l5 (+), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [r1:=r1,r2:=r2,r3:=p1,], l6 (-))
+  (l5 (+), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r1,], l16 (-))
+  (l5 (+), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l20 (-))
+
+l6 (-):
+  (l6 (-), ?in[int], (('r2' != 'p1') && ('r3' != 'p1')), [], l13 (-))
+  (l6 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l26 (-))
+  (l6 (-), ?in[int], ('r3' == 'p1'), [r1:=r1,r2:=r2,], l35 (-))
+
+l7 (-):
+  (l7 (-), ?in[int], (('r1' != 'p1') && ('r4' != 'p1')), [], l13 (-))
+  (l7 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r3,], l26 (-))
+  (l7 (-), ?in[int], ('r4' == 'p1'), [r1:=r1,r2:=r2,r3:=r3,], l38 (-))
+
+l8 (+):
+  (l8 (+), ?in[int], ('r1' == 'p1'), [r1:=r1,], l17 (+))
+  (l8 (+), ?in[int], ('r1' != 'p1'), [r1:=r1,r2:=p1,], l18 (-))
+
+l9 (-):
+  (l9 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,r2:=r2,], l14 (-))
+  (l9 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [r1:=r2,r2:=r1,r3:=p1,], l15 (-))
+  (l9 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l19 (-))
+
+l10 (-):
+  (l10 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r1,], l21 (+))
+  (l10 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l22 (-))
+  (l10 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [r1:=r2,r2:=r1,r3:=p1,], l23 (-))
+
+l11 (-):
+  (l11 (-), ?in[int], ('r1' == 'p1'), [], l12 (+))
+  (l11 (-), ?in[int], ((('r1' != 'p1') && ('r2' != 'p1')) && ('r3' != 'p1')), [], l13 (-))
+  (l11 (-), ?in[int], ('r2' == 'p1'), [r1:=r3,r2:=r1,], l26 (-))
+  (l11 (-), ?in[int], ('r3' == 'p1'), [r1:=r2,r2:=r3,r3:=r1,], l38 (-))
+
+l12 (+):
+  (l12 (+), ?in[int], true, [], l13 (-))
+
+l13 (-):
+  (l13 (-), ?in[int], true, [], l13 (-))
+
+l14 (-):
+  (l14 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l14 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,], l27 (-))
+  (l14 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r1,], l28 (+))
+
+l15 (-):
+  (l15 (-), ?in[int], (('r1' != 'p1') && ('r3' != 'p1')), [], l13 (-))
+  (l15 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,], l27 (-))
+  (l15 (-), ?in[int], ('r3' == 'p1'), [r1:=r1,r2:=r2,], l34 (-))
+
+l16 (-):
+  (l16 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l16 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r1,], l29 (+))
+  (l16 (-), ?in[int], ('r2' == 'p1'), [r1:=r2,r2:=r1,], l35 (-))
+
+l17 (+):
+  (l17 (+), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l17 (+), ?in[int], ('r1' == 'p1'), [r1:=r1,], l31 (+))
+
+l18 (-):
+  (l18 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l18 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,], l27 (-))
+  (l18 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,], l32 (-))
+
+l19 (-):
+  (l19 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l19 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,], l25 (-))
+  (l19 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l33 (-))
+
+l20 (-):
+  (l20 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l20 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,], l25 (-))
+  (l20 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l30 (-))
+
+l21 (+):
+  (l21 (+), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l21 (+), ?in[int], ('r1' == 'p1'), [r1:=r1,r2:=r2,], l26 (-))
+  (l21 (+), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l36 (-))
+
+l22 (-):
+  (l22 (-), ?in[int], ('r1' == 'p1'), [], l12 (+))
+  (l22 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l22 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l37 (-))
+
+l23 (-):
+  (l23 (-), ?in[int], (('r1' != 'p1') && ('r3' != 'p1')), [], l13 (-))
+  (l23 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,r2:=r2,], l26 (-))
+  (l23 (-), ?in[int], ('r3' == 'p1'), [r1:=r1,r2:=r2,], l36 (-))
+
+l24 (-):
+  (l24 (-), ?in[int], (('r1' != 'p1') && ('r3' != 'p1')), [], l13 (-))
+  (l24 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,], l25 (-))
+  (l24 (-), ?in[int], ('r3' == 'p1'), [r1:=r1,r2:=r2,r3:=r3,], l39 (-))
+
+l25 (-):
+  (l25 (-), ?in[int], ('r1' == 'p1'), [], l12 (+))
+  (l25 (-), ?in[int], ('r1' != 'p1'), [], l13 (-))
+
+l26 (-):
+  (l26 (-), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l26 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,], l25 (-))
+
+l27 (-):
+  (l27 (-), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l27 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,], l25 (-))
+
+l28 (+):
+  (l28 (+), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l28 (+), ?in[int], ('r1' == 'p1'), [r1:=r2,], l27 (-))
+
+l29 (+):
+  (l29 (+), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l29 (+), ?in[int], ('r1' == 'p1'), [r1:=r2,], l25 (-))
+
+l30 (-):
+  (l30 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l30 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,], l25 (-))
+  (l30 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l26 (-))
+
+l31 (+):
+  (l31 (+), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l31 (+), ?in[int], ('r1' == 'p1'), [r1:=r1,], l40 (+))
+
+l32 (-):
+  (l32 (-), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l32 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,], l27 (-))
+
+l33 (-):
+  (l33 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l33 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,], l25 (-))
+  (l33 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,], l27 (-))
+
+l34 (-):
+  (l34 (-), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l34 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,], l27 (-))
+
+l35 (-):
+  (l35 (-), ?in[int], ('r2' != 'p1'), [], l13 (-))
+  (l35 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l26 (-))
+
+l36 (-):
+  (l36 (-), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l36 (-), ?in[int], ('r1' == 'p1'), [r1:=r1,r2:=r2,], l26 (-))
+
+l37 (-):
+  (l37 (-), ?in[int], ('r1' == 'p1'), [], l12 (+))
+  (l37 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l37 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,r2:=r2,], l42 (-))
+
+l38 (-):
+  (l38 (-), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l38 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,r2:=r3,], l26 (-))
+
+l39 (-):
+  (l39 (-), ?in[int], (('r1' != 'p1') && ('r3' != 'p1')), [], l13 (-))
+  (l39 (-), ?in[int], ('r1' == 'p1'), [r1:=r2,], l25 (-))
+  (l39 (-), ?in[int], ('r3' == 'p1'), [r1:=r1,r2:=r2,], l26 (-))
+
+l40 (+):
+  (l40 (+), ?in[int], ('r1' != 'p1'), [], l13 (-))
+  (l40 (+), ?in[int], ('r1' == 'p1'), [r1:=r1,], l41 (+))
+
+l41 (+):
+  (l41 (+), ?in[int], ('r1' == 'p1'), [], l12 (+))
+  (l41 (+), ?in[int], ('r1' != 'p1'), [], l13 (-))
+
+l42 (-):
+  (l42 (-), ?in[int], ('r1' == 'p1'), [], l12 (+))
+  (l42 (-), ?in[int], (('r1' != 'p1') && ('r2' != 'p1')), [], l13 (-))
+  (l42 (-), ?in[int], ('r2' == 'p1'), [r1:=r1,], l25 (-))
+
+Init:[]
+
+--- Statistics ---
+Counterexamples: 33
+CE max length: 9
+CE avg length: 6
+Testing: {TQ: 0, Resets: 0, Inputs: 0}
+CE Optimization: {TQ: 0, Resets: 0, Inputs: 0}
+CE Analysis: {TQ: 0, Resets: 214, Inputs: 0}
+Processing / Refinement: {TQ: 0, Resets: 5344, Inputs: 0}
+Other: {TQ: 0, Resets: 2, Inputs: 0}
+Total excl testing: {TQ: 0, Resets: 5560, Inputs: 0}
+Total: {TQ: 0, Resets: 5560, Inputs: 0}
+Hyp. Locations: 43
+Hyp. Transitions: 107
+Hyp. Input Locations: 43
+Hyp. Input Transitions: 107
+Hyp. Registers: 4
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.040 s -- in de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] Results:
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1;32mTests run: 1, Failures: 0, Errors: 0, Skipped: 0[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;32mBUILD SUCCESS[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  7.104 s
+[[1;34mINFO[m] Finished at: 2026-09-18T15:35:37+02:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m

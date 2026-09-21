@@ -1,0 +1,94 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m----------------------< [0;36mde.learnlib.ralib:ralib[0;1m >-----------------------[m
+[[1;34mINFO[m] [1mBuilding RALib 0.2-SNAPSHOT[m
+[[1;34mINFO[m]   from pom.xml
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:resources[m [1m(default-resources)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/pfg666/GitHub/artifacts/ralib-vmcai2027-benchmarking/ralib/src/main/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:compile[m [1m(default-compile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:testResources[m [1m(default-testResources)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Copying 17 resources from src/test/resources to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:testCompile[m [1m(default-testCompile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32msurefire:3.5.6:test[m [1m(default-test)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.testng.TestNGProvider
+[[1;34mINFO[m] 
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m]  T E S T S
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m] Running de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+Test name: testLearnPalindromeSLLambda
+=======================
+========== 14 ==========
+=======================
+[[1;31mERROR[m] [1;31mTests [0;1mrun: [0;1m1[m, [1;31mFailures: [0;1;31m1[m, Errors: 0, Skipped: 0, Time elapsed: 9664 s[1;31m <<< FAILURE![m -- in de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+[[1;31mERROR[m] de.learnlib.ralib.learning.LearnPalindromeTest.testLearnPalindromeSLLambda -- Time elapsed: 9664 s <<< FAILURE!
+java.lang.OutOfMemoryError: Java heap space
+	at de.learnlib.ralib.words.DataWords.instantiate(DataWords.java:184)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:106)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:95)
+	at de.learnlib.ralib.ceanalysis.PrefixFinder.analyzeCounterExample(PrefixFinder.java:109)
+	at de.learnlib.ralib.learning.ralambda.SLLambda.analyzeCounterExample(SLLambda.java:149)
+	at de.learnlib.ralib.learning.ralambda.SLLambda.learn(SLLambda.java:79)
+	at de.learnlib.ralib.learning.LearnPalindromeTest.learn(LearnPalindromeTest.java:117)
+	at de.learnlib.ralib.learning.LearnPalindromeTest.testLearnPalindrome(LearnPalindromeTest.java:76)
+	at de.learnlib.ralib.learning.LearnPalindromeTest.testLearnPalindromeSLLambda(LearnPalindromeTest.java:52)
+	at java.base/java.lang.invoke.LambdaForm$DMH/0x00007f17e80bdc00.invokeVirtual(LambdaForm$DMH)
+	at java.base/java.lang.invoke.LambdaForm$MH/0x00007f17e8100400.invoke(LambdaForm$MH)
+	at java.base/java.lang.invoke.Invokers$Holder.invokeExact_MT(Invokers$Holder)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invokeImpl(DirectMethodHandleAccessor.java:153)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.testng.internal.invokers.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:141)
+
+[[1;34mINFO[m] 
+[[1;34mINFO[m] Results:
+[[1;34mINFO[m] 
+[[1;31mERROR[m] [1;31mFailures: [m
+[[1;31mERROR[m] [1;31m  LearnPalindromeTest.testLearnPalindromeSLLambda:52->testLearnPalindrome:76->learn:117 » OutOfMemory Java heap space[m
+[[1;34mINFO[m] 
+[[1;31mERROR[m] [1;31mTests run: 1, Failures: 1, Errors: 0, Skipped: 0[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;31mBUILD FAILURE[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  02:41 h
+[[1;34mINFO[m] Finished at: 2026-09-09T17:36:09+02:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;31mERROR[m] Failed to execute goal [32morg.apache.maven.plugins:maven-surefire-plugin:3.5.6:test[m [1m(default-test)[m on project [36mralib[m: [1;31mThere are test failures.[m
+[[1;31mERROR[m] [1;31m[m
+[[1;31mERROR[m] [1;31mSee /home/pfg666/GitHub/artifacts/ralib-vmcai2027-benchmarking/ralib/target/surefire-reports for the individual test results.[m
+[[1;31mERROR[m] [1;31mSee dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.[m
+[[1;31mERROR[m] -> [1m[Help 1][m
+[[1;31mERROR[m] 
+[[1;31mERROR[m] To see the full stack trace of the errors, re-run Maven with the [1m-e[m switch.
+[[1;31mERROR[m] Re-run Maven using the [1m-X[m switch to enable full debug logging.
+[[1;31mERROR[m] 
+[[1;31mERROR[m] For more information about the errors and possible solutions, please read the following articles:
+[[1;31mERROR[m] [1m[Help 1][m http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

@@ -1,0 +1,76 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m----------------------< [0;36mde.learnlib.ralib:ralib[0;1m >-----------------------[m
+[[1;34mINFO[m] [1mBuilding RALib 0.2-SNAPSHOT[m
+[[1;34mINFO[m]   from pom.xml
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:resources[m [1m(default-resources)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/pfg666/GitHub/artifacts/ralib-vmcai2027-benchmarking/ralib/src/main/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:compile[m [1m(default-compile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:testResources[m [1m(default-testResources)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Copying 17 resources from src/test/resources to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:testCompile[m [1m(default-testCompile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32msurefire:3.5.6:test[m [1m(default-test)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.testng.TestNGProvider
+[[1;34mINFO[m] 
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m]  T E S T S
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m] Running de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+Test name: testLearnPalindromeSLLambdaEq
+=======================
+========== 2 ==========
+=======================
+l0 (+) (initial):
+  (l0 (+), ?in[int], true, [r1:=p1,], l1 (+))
+
+l1 (+):
+  (l1 (+), ?in[int], ('r1' != 'p1'), [], l2 (-))
+  (l1 (+), ?in[int], ('r1' == 'p1'), [], l3 (+))
+
+l2 (-):
+  (l2 (-), ?in[int], true, [], l2 (-))
+
+l3 (+):
+  (l3 (+), ?in[int], true, [], l2 (-))
+
+Init:[]
+
+--- Statistics ---
+Counterexamples: 2
+CE max length: 2
+CE avg length: 2
+Testing: {TQ: 0, Resets: 0, Inputs: 0}
+CE Optimization: {TQ: 0, Resets: 0, Inputs: 0}
+CE Analysis: {TQ: 0, Resets: 2, Inputs: 0}
+Processing / Refinement: {TQ: 0, Resets: 3, Inputs: 0}
+Other: {TQ: 0, Resets: 2, Inputs: 0}
+Total excl testing: {TQ: 0, Resets: 7, Inputs: 0}
+Total: {TQ: 0, Resets: 7, Inputs: 0}
+Hyp. Locations: 4
+Hyp. Transitions: 5
+Hyp. Input Locations: 4
+Hyp. Input Transitions: 5
+Hyp. Registers: 1
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.923 s -- in de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] Results:
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1;32mTests run: 1, Failures: 0, Errors: 0, Skipped: 0[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;32mBUILD SUCCESS[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  2.437 s
+[[1;34mINFO[m] Finished at: 2026-09-09T17:36:16+02:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
