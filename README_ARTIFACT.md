@@ -23,9 +23,9 @@ Effort is underway to port ProtocolState-Fuzzer to use the most recent RALib whi
 Once porting is complete, all fuzzers will be able to use SLLAMBDAEQ.
 RALib has also been used in areas such as specification extraction [4], which might also benefit from the improved performance of SLLAMBDAEQ.
 
-Requirements:
+Requirements (recommended):
 
-  * RAM: 8 GB
+  * RAM: 16 GB
   * CPU cores: 1
   * Time (smoke test): 1 to 2 minutes
   * Time (full review): 1 to 2 minutes
@@ -97,7 +97,7 @@ Then restart it.
 docker start --interactive  sllambdaeq
 ```
 
-7. Remove container (after evaluation)
+6. Remove container (after evaluation)
 
 Once evaluation is done and the artifact is no longer needed, remove the container.
 ```bash
@@ -111,7 +111,7 @@ In case the container does not work, check that it is still there (look for `sll
 docker container ls -a
 ```
 
-If needed, the container can be removed (step 7), and then possibly re-created (step 2).
+If needed, the container can be removed (step 6), and then possibly re-created (step 2).
 
 ## Full review
 
@@ -142,6 +142,7 @@ where `${results}` is replaced by a directory on the host machine.
 ./run-synthetic-models-experiments.sh
 ```
 
+Experiments take around 5-10 minutes to fubusg.
 Results (logs and models) are stored in `synthetic`.
 A summary is stored in `synthentic-models.csv`.
 
@@ -152,22 +153,24 @@ A summary is stored in `synthentic-models.csv`.
 ```
 
 We suggest using `max_n` of 8 or smaller, which should reduce experiment time to under 10 minutes.
+Running with size over 10 requires additional memory and takes hours to finish.
 Results (logs) are stored in `palindrome`.
 A summary is stored in `palindrome.csv`.
 
 3. Run DTLS model experiments
 
 ```bash
-./run-dtls-model-experiments.sh
+./run-dtls-models-experiments.sh
 ```
 
+To save time, SLSTAR is ommitted from these experiments, which take around 20 minutes to finish.
 Results (logs and models) are stored in `dtls-models`.
-A summary is stored in `dtls-models.csv`, and a plot in `plot-dtls-models-tests.pdf`;
+A summary is stored in `dtls-models.csv`, and a plot in `plot-dtls-models-tests.pdf`.
 
 4. Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, openssl, piondtls, scandium, wolfssl)
 
 ```bash
-./run-dtls-experiments.sh [-a algorithm][-s sut]
+./run-dtls-implementations-experiments.sh [-a algorithm][-s sut]
 ```
 
 Results (statistics files and models) are stored in `dtls-implementations`.
@@ -178,10 +181,9 @@ For the sake of time, we suggest restricting experiments to one algorithm and/or
 The resulting table (in `results/dtls-implementations.csv`) will contain results only for the experiment(s) run.
 For example,
 ```bash
-./run-dtls-experiments.sh -s mbedtls -a SLLAMBDAEQ
+./run-dtls-implementations-experiments.sh -s mbedtls -a SLLAMBDAEQ
 ```
 performs learning with SLLAMBDAEQ of the Mbed TLS server implementation.
-
 The time estimate can be drawn from Table 3 in the paper.
 Learning Mbed TLS with SLLAMBDAEQ should take under 10 minutes.
 
@@ -197,12 +199,12 @@ We record the used repositories/commits for RALib and its dependencies. We forke
 - name: dtls-fuzzer
    url: https://github.com/artifact-sllambdaeq/dtls-fuzzer.git
    commit: 2393e995e22796398ae1121575301d10cd9cddb5
-- name: ralib
-   url: https://github.com/artifact-sllambdaeq/ralib.git
-   commit: 91965b283d2b8e4c692d12dec6e028026dba72cc
 - name: protocol-state-fuzzer
    url: https://github.com/artifact-sllambdaeq/protocol-state-fuzzer.git
    commit: f9f8f146c9725e98a819c0f79555df56994f5d06
+- name: ralib
+   url: https://github.com/artifact-sllambdaeq/ralib.git
+   commit: 91965b283d2b8e4c692d12dec6e028026dba72cc
 
 ## References
 
