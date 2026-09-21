@@ -6,9 +6,9 @@ Claimed badges: Available + Functional + Reusable
 
 **Badge Justification**
 
-*Availability.* Our artifact is available under the DOI ().
+*Availability.* Our artifact is available under the DOI.
 Our algorithm (SLLAMBDAEQ) is implemented in [RALib](https://github.com/LearnLib/ralib), an open-source library which also implements the other algorithms we compared ours with (SLLAMBDA, SLSTAR).
-The scripts and any other tooling needed to reproduce our experiments are also open sourced, and included in the artifact.
+The scripts and any other tooling needed to reproduce our experiments are also open source, and included in the artifact.
 In particular, we include our extension of [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer) which was used to perform the DTLS implementation experiments.
 We plan to incorporate this extension into the next release of the tool.
 Information regarding the versions of RALib and DTLS-Fuzzer used is available in the Dependencies section at the end of the page.
@@ -18,7 +18,7 @@ Timing measurements exhibited only minor variations, but can vary substantially 
 
 *Reusable.* RALib, based on which we implemented our algorithm, has been recently incorporated in [ProtocolState-Fuzzer](https://github.com/protocol-fuzzing/protocol-state-fuzzer/), a framework for building protocol state fuzzers, to provide support for learning register automata.
 ProtocolState-Fuzzer is the backbone of fuzzers for an increasing number of protocols including DTLS (see [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer)), EDHOC (see [EDHOC-Fuzzer](https://github.com/protocol-fuzzing/edhoc-fuzzer)) and SSH (see [SSH-Fuzzer](https://github.com/assist-project/ssh-fuzzer)).
-Recent works have used the fuzzers mentioned (on DTLS [1], SSH [2] and EDHOC [3]), and the RALib-based extension in particular, to infer register automata of implementations of these protocols.
+Recent works have used the fuzzers mentioned (on DTLS [1], EDHOC [2] and SSH [3]), and the RALib-based extension in particular, to infer register automata of implementations of these protocols.
 Effort is underway to port ProtocolState-Fuzzer to use the most recent RALib which implements SLLAMBDAEQ, with a prototype already being available and used by DTLS-Fuzzer.
 Once porting is complete, all fuzzers will be able to use SLLAMBDAEQ.
 RALib has also been used in areas such as specification extraction [4], which might also benefit from the improved performance of SLLAMBDAEQ.
@@ -62,12 +62,12 @@ These steps can be ommitted when performing the evaluation.
 3. Install RALib and DTLS-Fuzzer
 
 RALib is included in the `ralib` folder and is already built in the image.
-DTLS-Fuzzer is included in the `dtls-fuzzer` folder and is already built in the image, along its dependencies (TLS-Attacker and ProtocolState-Fuzzer, provided as separate sub-folders) and the five SUTs considered in our benchmarks, which are deployed in the `suts` subfolder.
+DTLS-Fuzzer is included in the `dtls-fuzzer` folder and is already built in the image, along with its dependencies (TLS-Attacker and ProtocolState-Fuzzer, provided as separate sub-folders) and the five SUTs considered in our benchmarks, which are deployed in the `suts` subfolder.
 
 We install RALib and DTLS-Fuzzer using the provided `build.sh` script.
 
 ```bash
-./build.sh --ralib --dtlsfuzzer 
+./build.sh --ralib --dtlsfuzzer
 ```
 
 The script should finish successfully, echoing `BUILD SUCCESS`.
@@ -106,7 +106,7 @@ docker container rm sllambdaeq
 
 *Troubleshooting.*
 
-In case container does not work, check that it is still there (look for `sllambdaeq`), and if not, go to step 2.
+In case the container does not work, check that it is still there (look for `sllambdaeq`), and if not, go to step 2.
 ```bash
 docker container ls -a
 ```
@@ -115,7 +115,7 @@ If needed, the container can be removed (step 7), and then possibly re-created (
 
 ## Full review
 
-We assume the image has been downloaded, and that container has been created.
+We assume the image has been loaded, and that container has been created.
 Start the container.
 
 ```bash
@@ -131,7 +131,7 @@ a summary is stored in `synthentic-models.csv`;
 - `palindrome` contains results (logs) for the palindrome language experiments,
 a summary is stored in `palindrome.csv`;
 - `dtls-models` contains results (logs and models) for the experiments on DTLS models,
-a summary is stored in `dtls-models.csv`, and a plot in `plot-dtls-models-resets.pdf`;
+a summary is stored in `dtls-models.csv`, and a plot in `plot-dtls-models-tests.pdf`;
 - `dtls-implementations` contains results (statistics files and models) for the experiments on DTLS implementations, 
 a summary is included in `dtls-implementations.csv`.
 
@@ -151,7 +151,7 @@ docker cp sllambdaeq:/results ${results}
 where `${results}` is replaced by a directory on the host machine.
 
 
-1. Run the synthetic models (? minutes)
+1. Run learning experiments on the synthetic models
 
 ```bash
 ./run-synthetic-models-experiments.sh
@@ -186,7 +186,7 @@ For example,
 ```bash
 ./run-dtls-experiments.sh -s mbedtls -a SLLAMBDAEQ
 ```
-performs learning with SLLAMBDAEQ of the Mbed TLS server implementations.
+performs learning with SLLAMBDAEQ of the Mbed TLS server implementation.
 
 The time estimate can be drawn from Table 3 in the paper.
 Learning Mbed TLS with SLLAMBDAEQ should take under 10 minutes.

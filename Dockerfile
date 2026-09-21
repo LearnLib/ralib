@@ -12,10 +12,12 @@ COPY build.sh ./
 COPY ralib/ ./ralib/
 COPY dtls-fuzzer/ ./dtls-fuzzer/
 RUN test -f ralib/pom.xml && test -f dtls-fuzzer/pom.xml
+COPY README_ARTIFACT.md ./
 COPY scripts/ ./scripts/
 COPY experiments/ ./experiments/
 COPY configs/ ./configs/
 COPY run-*-experiments.sh ./
+COPY saved_results ./saved_results
 RUN mkdir -p results && chmod +x scripts/*.sh run-*-experiments.sh
 
 VOLUME ["/benchmark/results"]
