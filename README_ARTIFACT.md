@@ -124,9 +124,9 @@ docker start --interactive  sllambdaeq
 
 Our paper conducted four types of experiments (or benchmarks).
 For each, we provide a script that can automatically run the experiments and summarize their results in tables or plots.
-Results are stored under the `results` folder, in separate subfolders for each experiment type.
-Results can be compared with the those reported in the paper, which are stored in `saved_results`.
-Note that re-running benchmark will overwrite old results/summaries connected to the benchmark, while not touching the others.
+Results are stored under the `results` folder, organized in distinct subfolders for each benchmark.
+Results can be compared to the those reported in the paper, which are stored in `saved_results`.
+Note that re-running a benchmark will overwrite any old results/summaries connected to it.
 
 To facilitate analysis, after running each benchmark, results can be copied to the host, e.g., using the command below:
 
@@ -148,16 +148,16 @@ Experiments take around 5-10 minutes to finish.
 Results (logs and models) are stored in `synthetic`.
 A summary is stored in `synthentic-models.csv`.
 
-2. Run palindrome experiments for even numbers of `n` (size) up to `max_n`
+2. Run palindrome experiments for even numbers of `n` up to `max_n`
 
 ```bash
 ./run-palindrome-experiments.sh --even --max-n max_n [--mem mem]
 ```
 
 We suggest using `max_n` of 10 or smaller, which should reduce experiment time to under 5 minutes.
-Running with size over 10 requires more memory and takes considerably longer to finish.
-These experiments might need a (much) larger heap than the default.
-Such a heap can be configured via `--mem`, e.g., `--mem 10g` configures a 10 Gigabyte heap.
+For a `max_n` of 12, experiments take around 20 minutes to finish.
+We advise against running experiments with `max_n` of 14 or higher as they need a much larger heap and can take over 5 hours to finish.
+Such a heap can be configured via `--mem`, e.g., `--mem 150g` configures a 150 Gigabyte heap, which is what we used in the paper.
 Results (logs) are stored in `palindrome`.
 A summary is stored in `palindrome.csv`.
 
@@ -190,6 +190,7 @@ For example,
 performs learning with SLLAMBDAEQ of the Mbed TLS server implementation.
 The time estimate can be drawn from Table 3 in the paper.
 Learning Mbed TLS with SLLAMBDAEQ should take under 10 minutes.
+Note that the output log reports a higher number of locations than the paper or summary because it counts sink locations, which the paper and summary omit.
 
 Experiment success is indicated in the "Finished" column in `results/dtls-implementations.csv`.
 DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
