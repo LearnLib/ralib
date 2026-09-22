@@ -171,11 +171,12 @@ where `${results}` is replaced by a directory on the host machine.
 
    Experiments take around 5–10 minutes to finish.
    Results are stored in `synthetic`.
-
    They are organized in distinct folders named after the system and algorithm used (e.g., `abp_output-sllambda`).
    Each folder includes the log and the learned model, from which results are derived.
 
    A summary of the results is stored in `synthetic-models.csv`.
+   > [!NOTE]
+   > The term *resets* (as in “Total Resets”) is used synonymously with *tests*.
 
 2. **Run palindrome experiments for even values of `n` up to `max_n`**
 
