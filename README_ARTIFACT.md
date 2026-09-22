@@ -26,9 +26,9 @@ RALib has also been used in areas such as specification extraction [4], which mi
 Requirements (recommended):
 
   * RAM: 16 GB
-  * CPU cores: 1
-  * Time (smoke test): 1 to 2 minutes
-  * Time (full review): 1 to 2 minutes
+  * CPU cores: 2
+  * Time (smoke test): 10 minutes
+  * Time (full review): 2 to 4 hours
 
 External connectivity: yes
 
