@@ -3,16 +3,18 @@ FROM maven:3.9.16-eclipse-temurin-21-noble
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash less python3 latexmk texlive-latex-extra texlive-pictures \
+    && apt-get install -y iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /benchmark
 
-# Initialize the ralib submodule on the host before building the image.
+COPY LICENSE ./
+COPY Dockerfile ./
+COPY README_ARTIFACT.md ./README.md
 COPY build.sh ./
 COPY ralib/ ./ralib/
 COPY dtls-fuzzer/ ./dtls-fuzzer/
 RUN test -f ralib/pom.xml && test -f dtls-fuzzer/pom.xml
-COPY README_ARTIFACT.md ./
 COPY scripts/ ./scripts/
 COPY experiments/ ./experiments/
 COPY configs/ ./configs/
