@@ -1,32 +1,33 @@
 [[1;34mINFO[m] Scanning for projects...
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m----------------------< [0;36mde.learnlib.ralib:ralib[0;1m >-----------------------[m
-[[1;34mINFO[m] [1mBuilding RALib 0.2-SNAPSHOT[m
+[[1;34mINFO[m] [1mBuilding RALib 0.2[m
 [[1;34mINFO[m]   from pom.xml
 [[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:resources[m [1m(default-resources)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] skip non existing resourceDirectory /home/pfg666/GitHub/artifacts/ralib-vmcai2027-benchmarking/ralib/src/main/resources
 [[1;34mINFO[m] 
-[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:compile[m [1m(default-compile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.16.0:compile[m [1m(default-compile)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] Nothing to compile - all classes are up to date.
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:testResources[m [1m(default-testResources)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] Copying 17 resources from src/test/resources to target/test-classes
 [[1;34mINFO[m] 
-[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:testCompile[m [1m(default-testCompile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.16.0:testCompile[m [1m(default-testCompile)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] Nothing to compile - all classes are up to date.
 [[1;34mINFO[m] 
-[[1;34mINFO[m] [1m--- [0;32msurefire:3.5.6:test[m [1m(default-test)[m @ [36mralib[0;1m ---[m
-[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.testng.TestNGProvider
+[[1;34mINFO[m] [1m--- [0;32msurefire:3.6.0:test[m [1m(default-test)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[[1;34mINFO[m] TestNG is present. Adding per default org.junit.support:testng-engine:1.1.0
 [[1;34mINFO[m] 
 [[1;34mINFO[m] -------------------------------------------------------
 [[1;34mINFO[m]  T E S T S
 [[1;34mINFO[m] -------------------------------------------------------
-[[1;34mINFO[m] Running de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
 SLF4J(W): No SLF4J providers were found.
 SLF4J(W): Defaulting to no-operation (NOP) logger implementation
 SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+[[1;34mINFO[m] Running de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
 Test name: testLearnPalindromeSLLambdaEq
 =======================
 ========== 7 ==========
@@ -186,7 +187,7 @@ Hyp. Transitions: 73
 Hyp. Input Locations: 32
 Hyp. Input Transitions: 73
 Hyp. Registers: 3
-[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.002 s -- in de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.499 s -- in de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
 [[1;34mINFO[m] 
 [[1;34mINFO[m] Results:
 [[1;34mINFO[m] 
@@ -195,6 +196,6 @@ Hyp. Registers: 3
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
 [[1;34mINFO[m] [1;32mBUILD SUCCESS[m
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
-[[1;34mINFO[m] Total time:  5.498 s
-[[1;34mINFO[m] Finished at: 2026-09-09T17:36:41+02:00
+[[1;34mINFO[m] Total time:  5.591 s
+[[1;34mINFO[m] Finished at: 2026-09-18T15:35:29+02:00
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m

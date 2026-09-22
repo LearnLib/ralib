@@ -1,57 +1,45 @@
 [[1;34mINFO[m] Scanning for projects...
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m----------------------< [0;36mde.learnlib.ralib:ralib[0;1m >-----------------------[m
-[[1;34mINFO[m] [1mBuilding RALib 0.2-SNAPSHOT[m
+[[1;34mINFO[m] [1mBuilding RALib 0.2[m
 [[1;34mINFO[m]   from pom.xml
 [[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:resources[m [1m(default-resources)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] skip non existing resourceDirectory /home/pfg666/GitHub/artifacts/ralib-vmcai2027-benchmarking/ralib/src/main/resources
 [[1;34mINFO[m] 
-[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:compile[m [1m(default-compile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.16.0:compile[m [1m(default-compile)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] Nothing to compile - all classes are up to date.
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:testResources[m [1m(default-testResources)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] Copying 17 resources from src/test/resources to target/test-classes
 [[1;34mINFO[m] 
-[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:testCompile[m [1m(default-testCompile)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.16.0:testCompile[m [1m(default-testCompile)[m @ [36mralib[0;1m ---[m
 [[1;34mINFO[m] Nothing to compile - all classes are up to date.
 [[1;34mINFO[m] 
-[[1;34mINFO[m] [1m--- [0;32msurefire:3.5.6:test[m [1m(default-test)[m @ [36mralib[0;1m ---[m
-[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.testng.TestNGProvider
+[[1;34mINFO[m] [1m--- [0;32msurefire:3.6.0:test[m [1m(default-test)[m @ [36mralib[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[[1;34mINFO[m] TestNG is present. Adding per default org.junit.support:testng-engine:1.1.0
 [[1;34mINFO[m] 
 [[1;34mINFO[m] -------------------------------------------------------
 [[1;34mINFO[m]  T E S T S
 [[1;34mINFO[m] -------------------------------------------------------
-[[1;34mINFO[m] Running de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
 SLF4J(W): No SLF4J providers were found.
 SLF4J(W): Defaulting to no-operation (NOP) logger implementation
 SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+[[1;34mINFO[m] Running de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
 Test name: testLearnPalindromeSLStar
 =======================
 ========== 13 ==========
 =======================
-[[1;31mERROR[m] [1;31mTests [0;1mrun: [0;1m1[m, [1;31mFailures: [0;1;31m1[m, Errors: 0, Skipped: 0, Time elapsed: 5853 s[1;31m <<< FAILURE![m -- in de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
-[[1;31mERROR[m] de.learnlib.ralib.learning.LearnPalindromeTest.testLearnPalindromeSLStar -- Time elapsed: 5852 s <<< FAILURE!
+[[1;31mERROR[m] [1;31mTests [0;1mrun: [0;1m1[m, Failures: 0, [1;31mErrors: [0;1;31m1[m, Skipped: 0, Time elapsed: 5968 s[1;31m <<< FAILURE![m -- in de.learnlib.ralib.learning.[1mLearnPalindromeTest[m
+[[1;31mERROR[m] de.learnlib.ralib.learning.LearnPalindromeTest.testLearnPalindromeSLStar -- Time elapsed: 5968 s <<< ERROR!
 java.lang.OutOfMemoryError: Java heap space
-	at gov.nasa.jpf.constraints.api.ValuationEntry.create(ValuationEntry.java:37)
-	at gov.nasa.jpf.constraints.api.Valuation.setValue(Valuation.java:72)
-	at de.learnlib.ralib.smt.SMTUtil.lambda$compose$1(SMTUtil.java:29)
-	at de.learnlib.ralib.smt.SMTUtil$$Lambda/0x00007f19c816a4c8.accept(Unknown Source)
-	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
-	at java.base/java.util.Iterator.forEachRemaining(Iterator.java:133)
-	at java.base/java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1939)
-	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:762)
-	at java.base/java.util.stream.ReferencePipeline$7$1.accept(ReferencePipeline.java:276)
-	at java.base/java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:1024)
-	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
-	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
-	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151)
-	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174)
-	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
-	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:596)
-	at de.learnlib.ralib.smt.SMTUtil.compose(SMTUtil.java:26)
-	at de.learnlib.ralib.theory.EquivalenceClassFilter.toList(EquivalenceClassFilter.java:73)
+	at java.base/java.util.HashMap.resize(HashMap.java:710)
+	at java.base/java.util.HashMap.putVal(HashMap.java:635)
+	at java.base/java.util.HashMap.putMapEntries(HashMap.java:522)
+	at java.base/java.util.HashMap.putAll(HashMap.java:791)
+	at de.learnlib.ralib.theory.EquivalenceClassFilter.toList(EquivalenceClassFilter.java:70)
 	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:112)
 	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
 	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
@@ -66,22 +54,35 @@ java.lang.OutOfMemoryError: Java heap space
 	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
 	at de.learnlib.ralib.theory.equality.EqualityTheory.treeQuery(EqualityTheory.java:151)
 	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:127)
+	at de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle.treeQuery(MultiTheoryTreeOracle.java:95)
+	at de.learnlib.ralib.learning.rastar.Cell.computeCell(Cell.java:92)
+	at de.learnlib.ralib.learning.rastar.Row.addSuffix(Row.java:76)
+	at de.learnlib.ralib.learning.rastar.Component.addSuffix(Component.java:137)
+	at de.learnlib.ralib.learning.rastar.ObservationTable.processNewSuffix(ObservationTable.java:142)
+	at de.learnlib.ralib.learning.rastar.ObservationTable.complete(ObservationTable.java:104)
+	at de.learnlib.ralib.learning.rastar.RaStar.learn(RaStar.java:118)
+	at de.learnlib.ralib.learning.LearnPalindromeTest.learn(LearnPalindromeTest.java:117)
+	at de.learnlib.ralib.learning.LearnPalindromeTest.testLearnPalindrome(LearnPalindromeTest.java:76)
+	at de.learnlib.ralib.learning.LearnPalindromeTest.testLearnPalindromeSLStar(LearnPalindromeTest.java:62)
+	at java.base/java.lang.invoke.LambdaForm$DMH/0x00007f1520150000.invokeVirtual(LambdaForm$DMH)
+	at java.base/java.lang.invoke.LambdaForm$MH/0x00007f1520150800.invoke(LambdaForm$MH)
+	at java.base/java.lang.invoke.Invokers$Holder.invokeExact_MT(Invokers$Holder)
 
 [[1;34mINFO[m] 
 [[1;34mINFO[m] Results:
 [[1;34mINFO[m] 
-[[1;31mERROR[m] [1;31mFailures: [m
-[[1;31mERROR[m] [1;31m  LearnPalindromeTest.testLearnPalindromeSLStar » OutOfMemory Java heap space[m
+[[1;31mERROR[m] [1;31mErrors: [m
+[[1;31mERROR[m] [1;31m  LearnPalindromeTest.testLearnPalindromeSLStar:62->testLearnPalindrome:76->learn:117 » OutOfMemory Java heap space[m
 [[1;34mINFO[m] 
-[[1;31mERROR[m] [1;31mTests run: 1, Failures: 1, Errors: 0, Skipped: 0[m
+[[1;31mERROR[m] [1;31mTests run: 1, Failures: 0, Errors: 1, Skipped: 0[m
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
 [[1;34mINFO[m] [1;31mBUILD FAILURE[m
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
-[[1;34mINFO[m] Total time:  01:37 h
-[[1;34mINFO[m] Finished at: 2026-09-09T13:31:05+02:00
+[[1;34mINFO[m] Total time:  01:39 h
+[[1;34mINFO[m] Finished at: 2026-09-18T11:18:55+02:00
 [[1;34mINFO[m] [1m------------------------------------------------------------------------[m
-[[1;31mERROR[m] Failed to execute goal [32morg.apache.maven.plugins:maven-surefire-plugin:3.5.6:test[m [1m(default-test)[m on project [36mralib[m: [1;31mThere are test failures.[m
+[[1;31mERROR[m] Failed to execute goal [32morg.apache.maven.plugins:maven-surefire-plugin:3.6.0:test[m [1m(default-test)[m on project [36mralib[m: [1;31m[m
 [[1;31mERROR[m] [1;31m[m
 [[1;31mERROR[m] [1;31mSee /home/pfg666/GitHub/artifacts/ralib-vmcai2027-benchmarking/ralib/target/surefire-reports for the individual test results.[m
 [[1;31mERROR[m] [1;31mSee dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.[m
