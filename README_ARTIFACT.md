@@ -19,7 +19,8 @@ Timing measurements exhibited only minor variations, but can vary substantially 
 *Reusable.* RALib, based on which we implemented our algorithm, has been recently incorporated in [ProtocolState-Fuzzer](https://github.com/protocol-fuzzing/protocol-state-fuzzer/), a framework for building protocol state fuzzers, to provide support for learning register automata.
 ProtocolState-Fuzzer is the backbone of fuzzers for an increasing number of protocols including DTLS (see [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer)), EDHOC (see [EDHOC-Fuzzer](https://github.com/protocol-fuzzing/edhoc-fuzzer)) and SSH (see [SSH-Fuzzer](https://github.com/assist-project/ssh-fuzzer)).
 Recent works have used the fuzzers mentioned (on DTLS [1], EDHOC [2] and SSH [3]), and the RALib-based extension in particular, to infer register automata of implementations of these protocols.
-Effort is underway to port ProtocolState-Fuzzer to use the most recent RALib which implements SLLAMBDAEQ, with a prototype already being available and used by DTLS-Fuzzer.
+Effort is underway to port ProtocolState-Fuzzer to use the most recent RALib which implements SLLAMBDAEQ.
+A prototype is already available and is used by the DTLS-Fuzzer version included in this artifact.
 Once porting is complete, all fuzzers will be able to use SLLAMBDAEQ.
 RALib has also been used in areas such as specification extraction [4], which might also benefit from the improved performance of SLLAMBDAEQ.
 
@@ -41,10 +42,10 @@ Spotless downloads some metadata from maven's central repository.
 1. **Download docker image**
 
    ```bash
-   docker load < sllambdaeq-image.tar.gz
+   docker load -i sllambdaeq_${arch}.tar.gz
    ```
 
-   Inspect that  the image was created (look for `sllambdaeq:latest`)
+   Inspect that the image was created (look for `sllambdaeq:latest`)
    ```bash
    docker image  ls -a
    ```
@@ -73,9 +74,8 @@ Spotless downloads some metadata from maven's central repository.
 
 4. **Execute a test with DTLS-Fuzzer**
 
-   DTLS-Fuzzer is included in the `dtls-fuzzer` folder and is pre-built in the image; its build artifacts are stored under `dtls-fuzzer/target`.
-   Also built are its dependencies (TLS-Attacker and ProtocolState-Fuzzer, provided as separate sub-folders) and the five SUTs considered in our benchmarks, which are deployed in the `suts` subfolder.
-   We now check that DTLS-Fuzzer with RALib support works by executing a handshake on Mbed TLS using input actions parametric on epoch.
+   DTLS-Fuzzer with register automata learning support is included in the `dtls-fuzzer` folder and is pre-built in the image; its build artifacts are stored under `dtls-fuzzer/target`.
+   We use DTLS-Fuzzer to execute a handshake on Mbed TLS using input actions parametric on epoch.
 
    ```bash
    java -jar dtls-fuzzer/target/dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar configs/dtls-implementations/args/learn_mbedtls_server_psk_epoch -test configs/dtls-implementations/tests/psk_epoch
@@ -237,7 +237,7 @@ where `${results}` is replaced by a directory on the host machine.
 ### Rebuilding RALib and DTLS-Fuzzer
 
 The source code of both RALib and DTLS-Fuzzer is included in the artifact, as is the code for DTLS-Fuzzer's dependencies (TLS-Attacker and ProtocolState-Fuzzer).
-This allows both tools to be re-build, which can be done conveniently using the provided `build.sh` script.
+This allows both tools to be re-built, which can be done conveniently using the provided `build.sh` script.
 
 ```bash
 ./build.sh --ralib --dtlsfuzzer
