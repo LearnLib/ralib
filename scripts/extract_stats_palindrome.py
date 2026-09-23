@@ -59,7 +59,6 @@ def process_logs(log_dir: Path):
     results = {}
 
     for log_file in sorted(log_dir.glob("*.log")):
-        print(log_file.name)
         log_match = LOG_FILE_RE.search(log_file.name)
         if log_match is None:
             raise ValueError(

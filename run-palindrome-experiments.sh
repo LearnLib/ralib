@@ -103,7 +103,6 @@ echo "Running benchmark using memory setting $mem and result folder $out"
 # run palindrome benchmark for each algorithm
 for alg in "${sel_algs[@]}"; do
   test_method="#testLearnPalindrome${algs[$alg]}"
-  echo $test_method
   if [[ -n ${n} ]]; then
     MAVEN_OPTS="$maven_opts" mvn test -f $RALIB_DIR -Dtest=LearnPalindromeTest$test_method -Dpalindrome.size=$n -Dpalindrome.benchmark=true > $out/palindrome-size-$n-"${algs[$alg]}".log 2>&1
   else
