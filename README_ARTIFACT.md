@@ -68,7 +68,7 @@ Spotless downloads some metadata from maven's central repository.
    ./run-palindrome-experiments.sh --even --max-n 6
    ```
 
-   This should have generated:
+   This should generate:
    (1) a folder `results/palindrome`  which should contain files with names of form `palindrome-size-${n}-${alg}.log ` where `{n}` is a number and `${alg}` is an algorithm;
    (2) a non-empty file `results/palindrome.csv`.
 
@@ -81,7 +81,7 @@ Spotless downloads some metadata from maven's central repository.
    java -jar dtls-fuzzer/target/dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar configs/dtls-implementations/args/learn_mbedtls_server_psk_epoch -test configs/dtls-implementations/tests/psk_epoch
    ```
 
-   The output should contain the excerpt below. Having `APPLICATION` as last output indicates that we have successfully completed a handshake.
+   The log should contain the excerpt below. Having `APPLICATION` as last output indicates that we have successfully completed a handshake.
 
    ```
    Test: PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_KEY_EXCHANGE[0[epoch_i]] CHANGE_CIPHER_SPEC[0[epoch_i]] FINISHED[1[epoch_i]] APPLICATION[1[epoch_i]]
@@ -115,10 +115,14 @@ If needed, the container can be removed (step 6), and then possibly re-created (
 ## Full review
 
 
-The review is structured as follows.
+The full review is organized as follows.
 First we briefly describe the structure of the artifact.
 Next, we explain the procedure for running each of the four benchmarks presented in our work, and reviewing the results.
 We end with instructions on how to build RALib and DTLS-Fuzzer from their sources contained in the artifact.
+> [!NOTE]
+> The benchmarks are _synthetic models_, _DTLS models_, _palindrome_ and _DTLS implementations_.
+
+
 
 We assume the image has been loaded, and that container has been created.
 Start the container.
@@ -136,9 +140,9 @@ docker start --interactive  sllambdaeq
 |   |── ProtocolState-Fuzzer
 |   └── Tls-Attacker
 |   └── suts                        # source code and build outputs for five implementations
-└── configs/                        # configuration files three of the benchmarks
-└── experiments/                    # models for the two benchmarks on synthetic and DTLS models, respectively
-└── saved_results                   # results and summaries that are used in the paper's evaluation
+└── configs/                        # configuration files used by three benchmarks
+└── experiments/                    # models used by the benchmarks on synthetic and DTLS models
+└── saved_results/                  # results and summaries that are used in the paper's evaluation
 └── scripts/                        # helper scripts used to run experiments/summarize results
 └── run-${benchmark}-experiments.sh # script to execute experiments and summarize results for the benchmark ${benchmark}
 └── build.sh                        # script to build RALib and DTLS-Fuzzer
@@ -151,6 +155,7 @@ docker start --interactive  sllambdaeq
 
 We provide for each benchmark a script that can automatically run its experiments and summarize the results in tables or plots.
 Results are stored under the `results` folder, organized in distinct subfolders for each benchmark.
+Summaries are stored directly under `results`.
 Results can be compared to the those reported in the paper, which are stored in `saved_results`.
 Note that re-running a benchmark will overwrite any old results/summaries connected to it.
 
@@ -160,7 +165,7 @@ To facilitate analysis, after running each benchmark, results can be copied to t
 docker cp sllambdaeq:/benchmark/results ${results}
 ```
 
-where `${results}` is replaced by a directory on the host machine.
+where `${results}` is replaced by a path to a directory on the host machine where results should be stored.
 
 
 1. **Run learning experiments on the synthetic models from the [Automata Wiki](https://automata.cs.ru.nl)**
@@ -170,13 +175,13 @@ where `${results}` is replaced by a directory on the host machine.
    ```
 
    Experiments take around 5–10 minutes to finish.
-   Results are stored in `synthetic`.
+   Results are stored in `synthetic` (within the `results` folder).
    They are organized in distinct folders named after the system and algorithm used (e.g., `abp_output-sllambda`).
-   Each folder includes the log and the learned model, from which results are derived.
+   Each folder includes the learned model and the log, from which results are derived.
 
-   A summary of the results is stored in `synthetic-models.csv`.
-   > [!NOTE]
-   > The term *resets* (as in “Total Resets”) is used synonymously with *tests*.
+   A summary of the results is stored in `synthetic-models.csv` (in the `results` folder).
+> [!NOTE]
+> The term *resets* (as in “Total Resets”) is used synonymously with *tests*.
 
 2. **Run palindrome experiments for even values of `n` up to `max_n`**
 
@@ -212,11 +217,6 @@ where `${results}` is replaced by a directory on the host machine.
    ./run-dtls-implementations-experiments.sh [-a algorithm][-s sut]
    ```
 
-   Results are stored in `dtls-implementations`.
-   They are organized in distinct sub-folders for each algorithm, and further subdivider for each SUT.
-   The output folder for an experiment (e.g., `ra-SLSTAR/mbedtls-2.26.0_server_psk_epoch`)  contains learned model (`learnedModel.dot`) and the statistics file (`statistics.txt`) from which results are derived.
-   A summary of the results is included in `dtls-implementations.csv`.
-
    Without aguments, the script runs all the experiments which can take over six hours.
    For the sake of time, we suggest restricting experiments to one algorithm and/or one implementation.
    The resulting table (in `results/dtls-implementations.csv`) will contain results only for the experiment(s) run.
@@ -225,11 +225,15 @@ where `${results}` is replaced by a directory on the host machine.
    ./run-dtls-implementations-experiments.sh -s mbedtls -a SLLAMBDAEQ
    ```
    performs learning with SLLAMBDAEQ of the Mbed TLS server implementation.
-   The time estimate can be drawn from Table 3 in the paper.
+   A rough time estimate can be drawn from Table 3 in the paper.
    Learning Mbed TLS with SLLAMBDAEQ should take under 10 minutes.
    Note that the output log reports a higher number of locations than the paper or summary because it counts sink locations, which the paper and summary omit.
-
-   Experiment success is indicated in the "Finished" column in `results/dtls-implementations.csv`.
+   
+   Results are stored in `dtls-implementations`.
+   They are organized in distinct sub-folders for each algorithm, and further subdivided for each SUT.
+   The output folder for an experiment (e.g., `ra-SLSTAR/mbedtls-2.26.0_server_psk_epoch`)  contains learned model (`learnedModel.dot`) and the statistics file (`statistics.txt`) from which results are derived.
+   A summary of the results is included in `dtls-implementations.csv`.
+   Experiment success is indicated in the "Finished" column.
    DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
    This can result in the implementation exhibiting timing-related non-determinism, which none of the algorithms can handle.
    On such an occurrence, a different SUT can be chosen.
@@ -244,8 +248,8 @@ This allows both tools to be re-built, which can be done conveniently using the 
 ```
 
 The script should finish successfully, echoing `BUILD SUCCESS`.
-`ralib/target` should exist and should contain `ralib-0.2-jar-with-dependencies.jar`, which is the executable JAR we use to run RALib.
-`dtls-fuzzer/target` should exist and should contain `dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar`, which is the executable JAR we use to run DTLS-Fuzzer extended to use RALib.
+`ralib/target` should exist and should contain a newly-generated `ralib-0.2-jar-with-dependencies.jar`, which is the executable JAR we use to run RALib.
+`dtls-fuzzer/target` should exist and should contain a newly-generated `dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar`, which is the executable JAR we use to run DTLS-Fuzzer extended to use RALib.
 
 
 ## Dependencies
