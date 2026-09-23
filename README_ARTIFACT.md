@@ -233,10 +233,11 @@ where `${results}` is replaced by a path to a directory on the host machine wher
    They are organized in distinct sub-folders for each algorithm, and further subdivided for each SUT.
    The output folder for an experiment (e.g., `ra-SLSTAR/mbedtls-2.26.0_server_psk_epoch`)  contains learned model (`learnedModel.dot`) and the statistics file (`statistics.txt`) from which results are derived.
    A summary of the results is included in `dtls-implementations.csv`.
-   Experiment success is indicated in the "Finished" column.
-   DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
-   This can result in the implementation exhibiting timing-related non-determinism, which none of the algorithms can handle.
-   On such an occurrence, a different SUT can be chosen.
+> [!NOTE]
+> DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
+> Failure can be identified by checking the "Finished" column in `dtls-implementations.csv`, which denotes experiment success.
+> We chose parameters that should work on most machines, but there is always a risk that they do not.
+> If that happens, a different SUT can be chosen, or experiments can be run on a more powerful machine.
 
 ### Rebuilding RALib and DTLS-Fuzzer
 
