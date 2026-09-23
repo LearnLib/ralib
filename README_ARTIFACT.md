@@ -1,6 +1,6 @@
 # SLLAMBDAEQ Artifact
 
-Paper title: Efficient Active Learning of Register Automata with Equalities
+Paper title: Leveraging Restrictions to Optimize Register Automata Learning
 
 Claimed badges: Available + Functional + Reusable
 
