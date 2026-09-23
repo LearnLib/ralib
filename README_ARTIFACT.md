@@ -259,10 +259,10 @@ We record the used repositories/commits for RALib and its dependencies. We forke
 
 - name: dtls-fuzzer
    url: https://github.com/artifact-sllambdaeq/dtls-fuzzer.git
-   commit: 2393e995e22796398ae1121575301d10cd9cddb5
+   commit: ba75b9cd925fc5e3022544d159432972dc31d40b
 - name: protocol-state-fuzzer
    url: https://github.com/artifact-sllambdaeq/protocol-state-fuzzer.git
-   commit: f9f8f146c9725e98a819c0f79555df56994f5d06
+   commit: af6441be540dc06e0e39ab7391214d493873d3ca
 - name: ralib
    url: https://github.com/artifact-sllambdaeq/ralib.git
    commit: 91965b283d2b8e4c692d12dec6e028026dba72cc
