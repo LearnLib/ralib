@@ -175,10 +175,10 @@ where `${results}` is replaced by a path to a directory on the host machine wher
    ```
 
    Experiments take around 5–10 minutes to finish.
+   
    Results are stored in `synthetic` (within the `results` folder).
    They are organized in distinct folders named after the system and algorithm used (e.g., `abp_output-sllambda`).
    Each folder includes the learned model and the log, from which results are derived.
-
    A summary of the results is stored in `synthetic-models.csv` (in the `results` folder).
 > [!NOTE]
 > The term *resets* (as in “Total Resets”) is used synonymously with *tests*.
@@ -206,12 +206,13 @@ where `${results}` is replaced by a path to a directory on the host machine wher
    ```
 
    To save time, SLSTAR is ommitted from these experiments, which take around 20 minutes to finish.
+   
    Results are stored in `dtls-models`.
    They are organized in distinct folders which are named after the system (client/server), the hyptothesis number and algorithm used (e.g., `client-10-sllambda`).
    Each folder includes the log and learned model, from which results are derived.
    A summary of the results is stored in `dtls-models.csv`, and a plot in `plot-dtls-models-tests.pdf`.
 
-4. **Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, openssl, piondtls, scandium, wolfssl)**
+5. **Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, openssl, piondtls, scandium, wolfssl)**
 
    ```bash
    ./run-dtls-implementations-experiments.sh [-a algorithm][-s sut]
@@ -219,7 +220,6 @@ where `${results}` is replaced by a path to a directory on the host machine wher
 
    Without aguments, the script runs all the experiments which can take over six hours.
    For the sake of time, we suggest restricting experiments to one algorithm and/or one implementation.
-   The resulting table (in `results/dtls-implementations.csv`) will contain results only for the experiment(s) run.
    For example,
    ```bash
    ./run-dtls-implementations-experiments.sh -s mbedtls -a SLLAMBDAEQ
