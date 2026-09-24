@@ -22,7 +22,7 @@ public abstract class RaGuard {
             return guards;
         }
         if (guard instanceof PropositionalCompound pc) {
-            assert pc.getOperator().equals(LogicalOperator.AND) : "Invalid logical compund: conjunction expected";
+            assert pc.getOperator().equals(LogicalOperator.AND) : "Invalid logical compound: conjunction expected";
             guards.addAll(fromRaGuard(pc.getLeft()));
             guards.addAll(fromRaGuard(pc.getRight()));
             return guards;
