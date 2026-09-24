@@ -29,7 +29,7 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
  * @author falk
  */
 public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> implements TypedValue permits
-        SymbolicDataValue.Parameter, SymbolicDataValue.Constant, SymbolicDataValue.Register, SymbolicDataValue.SuffixValue {
+        SymbolicDataValue.Parameter, SymbolicDataValue.Constant, SymbolicDataValue.Register, SymbolicDataValue.SuffixValue, SymbolicDataValue.SDV, SymbolicDataValue.QuantifiedSDV {
 
     /**
      * a data parameter of an action
@@ -84,6 +84,20 @@ public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> impl
         @Override
         public Expression<BigDecimal> asExpression() {
             return this;
+        }
+    }
+
+    public static final class SDV extends SymbolicDataValue implements SymbolicDataVariable {
+
+        public SDV(DataType dataType, int id) {
+            super(dataType, id, "d" + id);
+        }
+    }
+
+    public static final class QuantifiedSDV extends SymbolicDataValue implements SymbolicDataVariable {
+
+        public QuantifiedSDV(DataType dataType, int id) {
+            super(dataType, id, "D" + id);
         }
     }
 
