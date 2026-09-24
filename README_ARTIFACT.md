@@ -11,7 +11,7 @@ Our algorithm (SLLAMBDAEQ) is implemented in [RALib](https://github.com/LearnLib
 The scripts and any other tooling needed to reproduce our experiments are also open source, and included in the artifact.
 In particular, we include our extension of [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer) which was used to perform the DTLS implementation experiments.
 We plan to incorporate this extension into the next release of the tool.
-Information regarding the versions of RALib and DTLS-Fuzzer used is available in the Dependencies section at the end of the page.
+Information regarding the versions of RALib and DTLS-Fuzzer used is available in the [Dependencies](#dependencies) section at the end of the page.
 
 *Functional.* In our repeated testing, we were able to consistently reproduce the non-timing results reported in the evaluation.
 Timing measurements exhibited only minor variations, but can vary substantially depending on the computation available, though this should not affect the outcome, such as which algorithm finish the fastest.
@@ -24,7 +24,9 @@ A prototype is already available and is used by the DTLS-Fuzzer version included
 Once porting is complete, all fuzzers will be able to use SLLAMBDAEQ.
 RALib has also been used in areas such as specification extraction [4], which might also benefit from the improved performance of SLLAMBDAEQ.
 
-Requirements (recommended):
+**Requirements**
+
+System Requirements (recommended):
 
   * RAM: 16 GB
   * CPU cores: 2
@@ -36,19 +38,27 @@ External connectivity: yes
 Maven needs to download possibly missing components from its repository,
 Spotless downloads some metadata from maven's central repository.
 
+The artifact requires Docker to run (see [Installing Docker](#installing-docker) section).
 
 ## Smoke test
 
 1. **Download docker image**
 
    ```bash
-   docker load -i sllambdaeq_${arch}.tar.gz
+   docker load -i sllambdaeq_x86.tar.gz
    ```
 
    Inspect that the image was created (look for `sllambdaeq:latest`)
    ```bash
    docker image  ls -a
    ```
+> [!NOTE]
+> On POSIX systems, Docker commands may need to be run with elevated privileges (e.g., using `sudo`).
+> For example:
+>
+> ```bash
+> sudo docker image ls -a
+> ```
 
 2. **Create and run the container**
 
@@ -70,7 +80,9 @@ Spotless downloads some metadata from maven's central repository.
 
    This should generate:
    (1) a folder `results/palindrome`  which should contain files with names of form `palindrome-size-${n}-${alg}.log ` where `{n}` is a number and `${alg}` is an algorithm;
-   (2) a non-empty file `results/palindrome.csv`.
+   (2) the files `results/palindrome.csv`, `results/palindrome.tex` and `results/palindrome.pdf`.
+
+   The table in `results/palindrome.csv` should have a header row followed by three data rows.
 
 4. **Execute a test with DTLS-Fuzzer**
 
@@ -81,7 +93,8 @@ Spotless downloads some metadata from maven's central repository.
    java -jar dtls-fuzzer/target/dtls-fuzzer-0.3-SNAPSHOT-ra-jar-with-dependencies.jar configs/dtls-implementations/args/learn_mbedtls_server_psk_epoch -test configs/dtls-implementations/tests/psk_epoch
    ```
 
-   The log should contain the excerpt below. Having `APPLICATION` as last output indicates that we have successfully completed a handshake.
+   The verbose log should end with the excerpt below. Having `APPLICATION` as last output indicates that we have successfully completed a handshake.
+   The rest of log can be ignored.
 
    ```
    Test: PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_HELLO[0[epoch_i]] PSK_CLIENT_KEY_EXCHANGE[0[epoch_i]] CHANGE_CIPHER_SPEC[0[epoch_i]] FINISHED[1[epoch_i]] APPLICATION[1[epoch_i]]
@@ -179,11 +192,12 @@ where `${results}` is replaced by a path to a directory on the host machine wher
    Results are stored in `synthetic` (within the `results` folder).
    They are organized in distinct folders named after the system and algorithm used (e.g., `abp_output-sllambda`).
    Each folder includes the learned model and the log, from which results are derived.
-   A summary of the results is stored in `synthetic-models.csv` (in the `results` folder).
+
+   A summary of the results is stored in `synthetic-models.csv` (in the `results` folder); this file is used to generate  `synthetic-models.pdf`, which can be checked against Table 1 in the paper.
 > [!NOTE]
 > The term *resets* (as in “Total Resets”) is used synonymously with *tests*.
 
-2. **Run palindrome experiments for even values of `n` up to `max_n`**
+1. **Run palindrome experiments for even values of `n` up to `max_n`**
 
    ```bash
    ./run-palindrome-experiments.sh --even --max-n max_n [--mem mem]
@@ -196,10 +210,10 @@ where `${results}` is replaced by a path to a directory on the host machine wher
 
    Results are stored in `palindrome`.
    They appear as output logs named after the algorithm and the maximum palindrome size used in the experiment (e.g., `palindrome-size-4-SLLambdaEq.log`).
-   A summary is stored in `palindrome.csv`.
+   A summary is stored in `palindrome.csv`; this file is used to generate `palindrome.pdf`, which can be checked against Table 2 in the paper.
 
 
-3. **Run DTLS model experiments**
+2. **Run DTLS model experiments**
 
    ```bash
    ./run-dtls-models-experiments.sh
@@ -210,9 +224,9 @@ where `${results}` is replaced by a path to a directory on the host machine wher
    Results are stored in `dtls-models`.
    They are organized in distinct folders which are named after the system (client/server), the hyptothesis number and algorithm used (e.g., `client-10-sllambda`).
    Each folder includes the log and learned model, from which results are derived.
-   A summary of the results is stored in `dtls-models.csv`, and a plot in `plot-dtls-models-tests.pdf`.
+   A summary of the results is stored in `dtls-models.csv`; this file is used to generate the plot `plot-dtls-models-tests.pdf`, which can be checked against Figure 5 in the paper.
 
-5. **Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, openssl, piondtls, scandium, wolfssl)**
+3. **Run DTLS implementation experiments, optionally providing the algorithm (SLLAMBDA, SLLAMBDAEQ, SLSTAR) and the implementation/SUT (mbedtls, openssl, piondtls, scandium, wolfssl)**
 
    ```bash
    ./run-dtls-implementations-experiments.sh [-a algorithm][-s sut]
@@ -232,7 +246,7 @@ where `${results}` is replaced by a path to a directory on the host machine wher
    Results are stored in `dtls-implementations`.
    They are organized in distinct sub-folders for each algorithm, and further subdivided for each SUT.
    The output folder for an experiment (e.g., `ra-SLSTAR/mbedtls-2.26.0_server_psk_epoch`)  contains learned model (`learnedModel.dot`) and the statistics file (`statistics.txt`) from which results are derived.
-   A summary of the results is included in `dtls-implementations.csv`.
+   A summary of the results is included in `dtls-implementations.csv`; this file is used to generate `dtls-implementations.pdf`, which  which was used for Table 3 in the paper.
 > [!NOTE]
 > DTLS implementation experiments can fail if timing parameters (e.g., time to wait for each response) are not suitable (typically too low) for the SUT given the running machine.
 > Failure can be identified by checking the "Finished" column in `dtls-implementations.csv`, which denotes experiment success.
@@ -266,6 +280,23 @@ We record the used repositories/commits for RALib and its dependencies. We forke
 - name: ralib
    url: https://github.com/artifact-sllambdaeq/ralib.git
    commit: 91965b283d2b8e4c692d12dec6e028026dba72cc
+
+## Installing Docker
+
+**On Debian-based distributions**
+
+```bash
+sudo apt install docker.io
+```
+
+**On Windows (using [Chocolatey](https://chocolatey.org/) package manager)**
+
+```
+choco install docker-cli
+```
+
+Also install [Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/), which containes Docker engine.
+
 
 ## References
 
