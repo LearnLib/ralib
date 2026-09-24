@@ -1,0 +1,25 @@
+\documentclass{article}
+\usepackage[a4paper,margin=15mm]{geometry}
+\usepackage{booktabs,graphicx}
+\pagestyle{empty}
+\begin{document}
+\begin{table}[t!]
+\caption{Results on learning RA models of DTLS servers; ratio is SLLAMBDAEQ/SLLAMBDA.}
+\label{tbl:dtls-bb}
+\centering
+\resizebox{.9\textwidth}{!}{
+\begin{tabular}{l@{\ }|@{\ }rrr@{\ }|@{\ }rrr@{\ }|@{\ }rrrr@{\ }|@{\ }rrrr@{\ }}
+\toprule
+\multicolumn{1}{l}{} & \multicolumn{3}{@{\ }c@{\ }}{\textbf{$|Q|$}} & \multicolumn{3}{@{\ }c@{\ }}{\textbf{$|GAMMA|$}} & \multicolumn{4}{@{\ }c@{\ }}{\textbf{Tests (Total)}} & \multicolumn{4}{@{\ }c@{\ }}{\textbf{Time (min.)}} \\
+\multicolumn{1}{l}{\textbf{SUL}} & \multicolumn{1}{@{\ }c@{\ }}{SLSTAR} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDA} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDAEQ} & \multicolumn{1}{@{\ }c@{\ }}{SLSTAR} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDA} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDAEQ} & \multicolumn{1}{@{\ }c@{\ }}{SLSTAR} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDA} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDAEQ} & ratio & \multicolumn{1}{@{\ }c@{\ }}{SLSTAR} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDA} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDAEQ} & ratio \\
+\midrule
+Mbed TLS 2.26.0 & 13 & 13 & 13 & 56 & 55 & 55 & 3302 & 1406 & 560 & 39\% & 43 & 16.4 & 6.4 & 37\% \\
+OpenSSL 1.1.1k & 14 & 14 & 14 & 64 & 63 & 63 & 3728 & 3257 & 653 & 20\% & 44.1 & 36.5 & 7.3 & 19\% \\
+Pion 2.0.9 & 15 & 14 & 14 & 64 & 62 & 62 & 3662 & 3680 & 683 & 18\% & 46.4 & 46 & 8 & 17\% \\
+Scandium 2.6.2 & 13 & 11 & 11 & 55 & 45 & 45 & 3061 & 1192 & 457 & 38\% & 86.5 & 31.6 & 12 & 38\% \\
+WolfSSL 5.7.6 & 14 & 13 & 13 & 57 & 54 & 54 & 3320 & 1418 & 557 & 39\% & 83.6 & 31.8 & 12 & 38\% \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+\end{document}

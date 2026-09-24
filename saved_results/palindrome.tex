@@ -1,0 +1,34 @@
+\documentclass{article}
+\usepackage[a4paper,margin=15mm]{geometry}
+\usepackage{booktabs,graphicx}
+\pagestyle{empty}
+\begin{document}
+\begin{table}[t!]
+\caption{Results on PALINDROME(n); OOM denotes out of memory; ratio is SLLAMBDAEQ/SLLAMBDA.}
+\label{tbl:palindrome}
+\centering
+\resizebox{.99\textwidth}{!}{
+\begin{tabular}{r@{\ \ }rrc@{\ }|@{\ }rrrr@{\ }|@{\ }rrrr}
+\toprule
+\multicolumn{4}{l}{} & \multicolumn{4}{c}{\textbf{Tests (Construction)}} & \multicolumn{4}{c}{\textbf{Tests (Total)}} \\
+$n$ & $|Q|$ & $|GAMMA|$ & $|X|$ & \multicolumn{1}{c}{SLSTAR} & \multicolumn{1}{c}{SLLAMBDA} & \multicolumn{1}{c}{SLLAMBDAEQ} & ratio & \multicolumn{1}{c}{SLSTAR} & \multicolumn{1}{c}{SLLAMBDA} & \multicolumn{1}{c}{SLLAMBDAEQ} & ratio \\
+\midrule
+1 & 3 & 3 & 0 & 10 & 3 & 3 & 100\% & 11 & 5 & 5 & 100\% \\
+2 & 4 & 5 & 1 & 14 & 5 & 5 & 100\% & 16 & 7 & 7 & 100\% \\
+3 & 6 & 9 & 1 & 99 & 21 & 26 & 123\% & 109 & 33 & 30 & 90\% \\
+4 & 8 & 14 & 2 & 153 & 36 & 40 & 111\% & 161 & 58 & 46 & 79\% \\
+5 & 13 & 25 & 2 & 1,460 & 253 & 275 & 108\% & 1,574 & 389 & 295 & 75\% \\
+6 & 17 & 37 & 3 & 2,215 & 456 & 393 & 86\% & 2,260 & 629 & 422 & 67\% \\
+7 & 32 & 73 & 3 & 27,053 & 3,930 & 3,587 & 91\% & 27,492 & 6,296 & 3,759 & 59\% \\
+8 & 43 & 107 & 4 & 40,702 & 7,614 & 5,346 & 70\% & 40,898 & 10,882 & 5,560 & 51\% \\
+9 & 88 & 220 & 4 & 569,718 & 78,332 & 61,512 & 78\% & 580,447 & 140,634 & 63,592 & 45\% \\
+10 & 121 & 325 & 5 & 866,422 & 167,214 & 94,694 & 56\% & 869,111 & 253,498 & 98,126 & 38\% \\
+11 & 261 & 684 & 5 & 15,056,581 & 1,968,595 & 1,312,933 & 66\% & 15,113,952 & 3,948,445 & 1,345,247 & 34\% \\
+12 & 364 & 1013 & 6 & 23,705,721 & 5,040,826 & 2,091,319 & 41\% & 23,720,416 & 7,793,497 & 2,198,805 & 28\% \\
+13 & 804 & 2152 & 6 & OOM & 58,154,399 & 36,024,705 & 61\% & OOM & 129,380,836 & 37,111,186 & 28\% \\
+14 & 1125 & 3188 & 7 & OOM & OOM & 57,303,364 & -- & OOM & OOM & 61,149,431 & -- \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+\end{document}

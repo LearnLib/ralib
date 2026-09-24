@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage[a4paper,margin=15mm]{geometry}
+\usepackage{booktabs,graphicx}
+\pagestyle{empty}
+\begin{document}
+\begin{table}[t!]
+\caption{Results on Synthetic Models from Automata Wiki.}
+\label{tbl:autwiki}
+\centering
+\resizebox{.6\textwidth}{!}{
+\begin{tabular}{lrrcc@{\ }|@{\ }rrr@{\ }|@{\ }rrr@{\ }}
+\toprule
+\multicolumn{5}{l}{\textbf{SUL}} & \multicolumn{3}{@{\ }c@{\ }}{\textbf{Tests (Constr.)}} & \multicolumn{3}{@{\ }c@{\ }}{\textbf{Tests (Total)}} \\
+ & $|Q|$ & $|GAMMA|$ & $|X|$ & $|C|$ & \multicolumn{1}{@{\ }c@{\ }}{SLSTAR} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDA} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDAEQ} & \multicolumn{1}{@{\ }c@{\ }}{SLSTAR} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDA} & \multicolumn{1}{@{\ }c@{\ }}{SLLAMBDAEQ} \\
+\midrule
+channel-frame & 5 & 8 & 3 & 2 & \textbf{7} & \textbf{7} & \textbf{7} & \textbf{11} & \textbf{11} & \textbf{11} \\
+abp-receiver3 & 6 & 10 & 3 & 2 & 253 & 61 & \textbf{25} & 303 & 70 & \textbf{50} \\
+login & 12 & 19 & 4 & 0 & 369 & 222 & \textbf{216} & 402 & 238 & \textbf{225} \\
+fifo7 & 24 & 32 & 8 & 0 & 713 & \textbf{44} & \textbf{44} & 3306 & \textbf{57} & \textbf{57} \\
+abp-output & 30 & 50 & 1 & 2 & 255 & 148 & \textbf{68} & 299 & 176 & \textbf{106} \\
+sip & 30 & 72 & 2 & 0 & 478 & 210 & \textbf{194} & 512 & 228 & \textbf{211} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+\end{document}
