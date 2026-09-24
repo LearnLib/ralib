@@ -126,3 +126,5 @@ echo "Analyzing logs and storing statistics in ${OUTPUT_DIR}/${csv}"
 mkdir -p ${OUTPUT_DIR}
 
 python3 scripts/extract_stats_palindrome.py --log-dir "${out}" --output-csv "${OUTPUT_DIR}"/"${csv}"
+
+python3 scripts/generate_palindrome_pdf.py "${OUTPUT_DIR}"/"${csv}"

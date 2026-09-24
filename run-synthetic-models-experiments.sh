@@ -14,3 +14,4 @@ cd ..
 
 mv scripts/synthetic.csv results/synthetic-models.csv
 
+python3 scripts/generate_synthetic-models_pdf.py results/synthetic-models.csv

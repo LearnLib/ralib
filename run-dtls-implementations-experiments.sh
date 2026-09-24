@@ -115,3 +115,5 @@ run_experiments "${no_sim}"
 mkdir -p ${OUTPUT_DIR}
 
 python3 scripts/extract_stats_dtls-implementations.py -o ${OUTPUT_DIR}/"${csv}" "${RESULTS_DIR}"
+
+python3 scripts/generate_dtls-implementations_pdf.py "${OUTPUT_DIR}"/"${csv}"
