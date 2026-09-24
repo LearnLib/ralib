@@ -3,6 +3,7 @@ FROM maven:3.9.16-eclipse-temurin-21-noble
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash less python3 latexmk texlive-latex-extra texlive-pictures \
+    && apt-get install -y graphviz \
     && apt-get install -y iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
