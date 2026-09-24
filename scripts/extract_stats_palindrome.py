@@ -65,7 +65,7 @@ def process_logs(log_dir: Path):
                 f"Invalid file name {log_file.name}. Name should have format {LOG_FILE_RE}."
             )
         size = int(log_match.group(1))
-        if size not in results:
+        if size not in results or results[size]["Locations"] is None:
             results[size] = {"Size": size}
             results[size]["Locations"] = extract_result_statistic_with_pattern(
                 log_file, LOC_RE
