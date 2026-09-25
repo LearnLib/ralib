@@ -13,8 +13,7 @@ In particular, we include our extension of [DTLS-Fuzzer](https://github.com/assi
 We plan to incorporate this extension into the next release of the tool.
 Information regarding the versions of RALib and DTLS-Fuzzer used is available in the [Dependencies](#dependencies) section at the end of the page.
 
-*Functional.* In our repeated testing, we were able to consistently reproduce the non-timing results reported in the evaluation.
-Timing measurements exhibited only minor variations, but can vary substantially depending on the computation available, though this should not affect the outcome, such as which algorithm finish the fastest.
+*Functional.* The artifact allows for reproduction of all the experiments. In our repeated testing, results were consistent with those reported in the paper.
 
 *Reusable.* RALib, which contains the implementation of our algorithm, has been recently incorporated in [ProtocolState-Fuzzer](https://github.com/protocol-fuzzing/protocol-state-fuzzer/), a framework for building protocol state fuzzers, to provide support for learning register automata.
 ProtocolState-Fuzzer is the backbone of fuzzers for an increasing number of protocols including DTLS (see [DTLS-Fuzzer](https://github.com/assist-project/dtls-fuzzer)), EDHOC (see [EDHOC-Fuzzer](https://github.com/protocol-fuzzing/edhoc-fuzzer)) and SSH (see [SSH-Fuzzer](https://github.com/assist-project/ssh-fuzzer)).
@@ -81,7 +80,6 @@ The artifact requires Docker to run (see [Installing Docker](#installing-docker)
    This should generate:
    (1) a folder `results/palindrome`  which should contain files with names of form `palindrome-size-${n}-${alg}.log ` where `{n}` is a number and `${alg}` is an algorithm;
    (2) the files `results/palindrome.csv`, `results/palindrome.tex` and `results/palindrome.pdf`.
-
    The table in `results/palindrome.csv` should have a header row followed by three data rows.
 
 4. **Execute a test with DTLS-Fuzzer**
@@ -155,7 +153,7 @@ docker start --interactive  sllambdaeq
 |   └── suts                        # source code and build outputs for five implementations
 └── configs/                        # configuration files used by three benchmarks
 └── experiments/                    # models used by the benchmarks on synthetic and DTLS models
-└── saved_results/                  # results and summaries that are used in the paper's evaluation
+└── saved_results/                  # logs (results and summaries) used in the paper's evaluation
 └── scripts/                        # helper scripts used to run experiments/summarize results
 └── run-${benchmark}-experiments.sh # script to execute experiments and summarize results for the benchmark ${benchmark}
 └── build.sh                        # script to build RALib and DTLS-Fuzzer
@@ -169,7 +167,7 @@ docker start --interactive  sllambdaeq
 We provide for each benchmark a script that can automatically run its experiments and summarize the results in tables or plots.
 Results are stored under the `results` folder, organized in distinct subfolders for each benchmark.
 Summaries are stored directly under `results`.
-Results can be compared to the those reported in the paper, which are stored in `saved_results`.
+Obtained results can be compared to the those reported in the paper, which are stored in `saved_results`.
 Note that re-running a benchmark will overwrite any old results/summaries connected to it.
 
 To facilitate analysis, after running each benchmark, results can be copied to the host, e.g., using the command below:
