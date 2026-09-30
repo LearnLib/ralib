@@ -32,11 +32,11 @@ public class TestConstraints extends RaLibTestSuite {
         eq.put(d2, x2);
         eq.put(D1, x3);
 
-        AtomicConstraint a1 = Constraint.construct(d1, Relation.EQ, x1);
-        AtomicConstraint a2 = Constraint.construct(d2, Relation.EQ, x2);
-        AtomicConstraint a3 = Constraint.construct(d2, Relation.NEQ, x1);
-        AtomicConstraint a4 = Constraint.construct(d1, Relation.NEQ, x2);
-        AtomicConstraint a5 = Constraint.construct(D1, Relation.EQ, x3);
+        Constraint a1 = Constraint.construct(d1, Relation.EQ, x1);
+        Constraint a2 = Constraint.construct(d2, Relation.EQ, x2);
+        Constraint a3 = Constraint.construct(d2, Relation.NEQ, x1);
+        Constraint a4 = Constraint.construct(d1, Relation.NEQ, x2);
+        Constraint a5 = Constraint.construct(D1, Relation.EQ, x3);
 
         Constraint c1 = Constraint.construct(eq);
         Constraint c2 = Constraint.construct(a3, a4);
@@ -86,6 +86,6 @@ public class TestConstraints extends RaLibTestSuite {
                 Constraint.construct(d1, Relation.NEQ, x2));
 
         Assert.assertTrue(Constraint.implies(c1, c2));
-        Assert.assertTrue(Constraint.implies(c1, Constraint.trueConstraint()));
+        Assert.assertTrue(Constraint.implies(c1, Constraint.TRUE));
     }
 }

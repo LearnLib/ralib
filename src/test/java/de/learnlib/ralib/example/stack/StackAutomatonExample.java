@@ -78,7 +78,7 @@ public class StackAutomatonExample {
         ra.addTransition(l0, I_POP, new InputTransition(trueGuard, I_POP, l0, ls, noAssign));
 
         // push location
-        ra.addTransition(l1, I_POP, new InputTransition(okGuard1, I_POP, l1, l0, copyAssign));
+        ra.addTransition(l1, I_POP, new InputTransition(okGuard1, I_POP, l1, l0, noAssign));
         ra.addTransition(l1, I_POP, new InputTransition(errorGuard1, I_POP, l1, ls, noAssign));
         ra.addTransition(l1, I_PUSH, new InputTransition(trueGuard, I_PUSH, l1, l2, storeAssign2));
 

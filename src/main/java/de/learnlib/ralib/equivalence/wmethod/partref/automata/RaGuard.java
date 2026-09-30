@@ -5,6 +5,8 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.equivalence.wmethod.partref.DSymbolInstance;
+import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
 import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Relation;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -14,6 +16,16 @@ import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public abstract class RaGuard {
+
+    public abstract Constraint toConstraint(DSymbolInstance in);
+
+    public static Constraint toConstraint(Set<RaGuard> guards, DSymbolInstance in) {
+        Set<Constraint> constrs = new LinkedHashSet<>();
+        for (RaGuard g : guards) {
+            constrs.add(g.toConstraint(in));
+        }
+        return Constraint.construct(constrs);
+    }
 
     public static Set<RaGuard> fromRaGuard(Expression<Boolean> guard) {
         Set<RaGuard> guards = new LinkedHashSet<>();
@@ -45,8 +57,13 @@ public abstract class RaGuard {
         }
 
         SymbolicDataValue leftVal = parseVariable(left);
-        assert leftVal.isParameter() : "Left comparator should be Parameter";
         SymbolicDataValue rightVal = parseVariable(right);
+        if (!leftVal.isParameter()) {
+            assert rightVal.isParameter() : "Invalid guard";
+            SymbolicDataValue temp = leftVal;
+            leftVal = rightVal;
+            rightVal = temp;
+        }
         return new RaEqualityGuard((Parameter) leftVal, rel, rightVal);
     }
 

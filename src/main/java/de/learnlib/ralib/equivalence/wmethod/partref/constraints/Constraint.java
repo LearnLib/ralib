@@ -1,6 +1,7 @@
 package de.learnlib.ralib.equivalence.wmethod.partref.constraints;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +15,9 @@ import gov.nasa.jpf.constraints.api.Expression;
 
 public interface Constraint {
 
+    public static final FalseConstraint FALSE = new FalseConstraint();
+    public static final Constraint TRUE = trueConstraint();
+
     public int maxIndex();
 
     public Expression<Boolean> toExpression();
@@ -21,6 +25,8 @@ public interface Constraint {
     public Mapping<? extends SymbolicDataValue, ? extends SymbolicDataVariable> toMapping();
 
     public Constraint remap(Mapping<Register, ? extends SymbolicDataValue> remapping);
+
+    public Constraint offset(int k);
 
     public Set<SymbolicDataValue> getVariables();
 
@@ -30,12 +36,14 @@ public interface Constraint {
 
     public Set<AtomicConstraint> getAtomics();
 
-    public static AtomicConstraint construct(SymbolicDataVariable dataValue, Relation relation, SymbolicDataValue param) {
+    public static Constraint construct(SymbolicDataVariable dataValue, Relation relation, SymbolicDataValue param) {
         if (dataValue instanceof SDV sdv) {
             return new SDVConstraint(sdv, relation, param);
         }
         if (dataValue instanceof QuantifiedSDV qsdv) {
-            assert relation.equals(Relation.EQ) : "Existentially quantified constraints only defined for equality";
+            if (!relation.equals(Relation.EQ)) {
+                return FALSE;
+            }
             assert param.isRegister() : "Existentialy quantified constraints only defined for equality with registers";
             return new ExistentialConstraint(qsdv, (Register) param);
         }
@@ -45,7 +53,7 @@ public interface Constraint {
     public static ConstraintList construct(Map<SymbolicDataVariable, SymbolicDataValue> equalities) {
         ConstraintList cl = new ConstraintList();
         for (Map.Entry<SymbolicDataVariable, SymbolicDataValue> e : equalities.entrySet()) {
-            AtomicConstraint c = construct(e.getKey(), Relation.EQ, e.getValue());
+            Constraint c = construct(e.getKey(), Relation.EQ, e.getValue());
             cl.add(c);
         }
         return cl;
@@ -55,7 +63,14 @@ public interface Constraint {
         if (constraints.length == 1) {
             return constraints[0];
         }
-        return new ConstraintList(Arrays.asList(constraints));
+        return ConstraintList.construct(Arrays.asList(constraints));
+    }
+
+    public static Constraint construct(Collection<Constraint> constraints) {
+        if (constraints.contains(FALSE)) {
+            return FALSE;
+        }
+        return ConstraintList.construct(constraints);
     }
 
     public static Constraint trueConstraint() {
@@ -63,6 +78,10 @@ public interface Constraint {
     }
 
     public static boolean isSatisfiable(Constraint constraint) {
+        if (constraint.equals(FALSE)) {
+            return false;
+        }
+
         DSU dsu = new DSU();
 
         for (SymbolicDataValue v : constraint.getVariables()) {
@@ -81,6 +100,13 @@ public interface Constraint {
     }
 
     public static boolean implies(Constraint a, Constraint b) {
+        if (a.equals(FALSE)) {
+            return true;
+        }
+        if (b.equals(FALSE)) {
+            return false;
+        }
+
         DSU dsu = new DSU();
 
         for (SymbolicDataValue v : a.getVariables()) {

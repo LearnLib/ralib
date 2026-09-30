@@ -8,7 +8,7 @@ import de.learnlib.ralib.data.SymbolicDataVariable;
 
 public class ExistentialConstraint extends AtomicConstraint {
 
-    public ExistentialConstraint(QuantifiedSDV dataValue, Register param) {
+    protected ExistentialConstraint(QuantifiedSDV dataValue, Register param) {
         super(dataValue, Relation.EQ, param);
     }
 
@@ -39,8 +39,13 @@ public class ExistentialConstraint extends AtomicConstraint {
             if (remapped.isRegister()) {
                 return new ExistentialConstraint(getDataValue(), (Register) remapped);
             }
-            return Constraint.trueConstraint();
+            return Constraint.TRUE;
         }
+        return this;
+    }
+
+    @Override
+    public Constraint offset(int k) {
         return this;
     }
 

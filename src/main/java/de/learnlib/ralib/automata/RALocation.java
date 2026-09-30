@@ -58,6 +58,10 @@ public class RALocation {
         return ret;
     }
 
+    public int getId() {
+        return id;
+    }
+
     void addOut(Transition t) {
         Collection<Transition> c = out.get(t.getLabel());
         if (c == null) {

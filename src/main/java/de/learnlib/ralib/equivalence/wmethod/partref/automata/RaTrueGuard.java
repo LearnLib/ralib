@@ -2,9 +2,17 @@ package de.learnlib.ralib.equivalence.wmethod.partref.automata;
 
 import java.util.Objects;
 
+import de.learnlib.ralib.equivalence.wmethod.partref.DSymbolInstance;
+import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
+
 public class RaTrueGuard extends RaGuard {
 
     public RaTrueGuard() {
+    }
+
+    @Override
+    public Constraint toConstraint(DSymbolInstance in) {
+        return Constraint.trueConstraint();
     }
 
     @Override

@@ -4,6 +4,9 @@ import java.util.Objects;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataVariable;
+import de.learnlib.ralib.equivalence.wmethod.partref.DSymbolInstance;
+import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
 import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Relation;
 
 public class RaEqualityGuard extends RaGuard {
@@ -36,6 +39,16 @@ public class RaEqualityGuard extends RaGuard {
 
     public boolean isDisequality() {
         return rel.equals(Relation.NEQ);
+    }
+
+    @Override
+    public Constraint toConstraint(DSymbolInstance in) {
+        SymbolicDataVariable[] vars = in.getSymbolicValues();
+        SymbolicDataVariable dataValue = vars[left.getId() - 1];
+        SymbolicDataValue reg = right.isParameter() ?
+                (SymbolicDataValue) vars[right.getId() - 1] :
+                    right;
+        return Constraint.construct(dataValue, rel, reg);
     }
 
     @Override

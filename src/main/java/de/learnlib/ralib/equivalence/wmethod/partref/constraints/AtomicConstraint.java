@@ -20,7 +20,7 @@ public abstract class AtomicConstraint implements Constraint {
 
     protected SymbolicDataValue param;
 
-    public AtomicConstraint(SymbolicDataVariable dataValue, Relation relation, SymbolicDataValue param) {
+    protected AtomicConstraint(SymbolicDataVariable dataValue, Relation relation, SymbolicDataValue param) {
         this.dataValue = dataValue;
         this.relation = relation;
         this.param = param;

@@ -7,7 +7,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SDV;
 
 public class SDVConstraint extends AtomicConstraint {
 
-    public SDVConstraint(SDV dataValue, Relation relation, SymbolicDataValue param) {
+    protected SDVConstraint(SDV dataValue, Relation relation, SymbolicDataValue param) {
         super(dataValue, relation, param);
     }
 
@@ -22,5 +22,10 @@ public class SDVConstraint extends AtomicConstraint {
             return new SDVConstraint(getDataValue(), relation, remapping.get(param));
         }
         return this;
+    }
+
+    @Override
+    public Constraint offset(int k) {
+        return new SDVConstraint(new SDV(dataValue.getDataType(), dataValue.getId() + k), relation, param);
     }
 }

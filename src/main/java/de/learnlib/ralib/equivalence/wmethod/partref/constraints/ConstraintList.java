@@ -18,11 +18,11 @@ public class ConstraintList implements Constraint, Iterable<Constraint> {
 
     private final Set<Constraint> constrs;
 
-    public ConstraintList() {
+    protected ConstraintList() {
         constrs = new LinkedHashSet<>();
     }
 
-    public ConstraintList(Collection<Constraint> constraints) {
+    protected ConstraintList(Collection<Constraint> constraints) {
         constrs = new LinkedHashSet<>();
         for (Constraint c : constraints) {
             if (c instanceof ConstraintList cl) {
@@ -77,6 +77,15 @@ public class ConstraintList implements Constraint, Iterable<Constraint> {
         ConstraintList ret = new ConstraintList();
         for (Constraint c : constrs) {
             ret.add(c.remap(remapping));
+        }
+        return ret;
+    }
+
+    @Override
+    public Constraint offset(int k) {
+        ConstraintList ret = new ConstraintList();
+        for (Constraint c : constrs) {
+            ret.add(c.offset(k));
         }
         return ret;
     }
@@ -150,6 +159,37 @@ public class ConstraintList implements Constraint, Iterable<Constraint> {
 
     @Override
     public String toString() {
-        return constrs.toString();
+        if (constrs.isEmpty()) {
+            return "true";
+        }
+        String str = "[";
+        Iterator<Constraint> it = constrs.iterator();
+        while (it.hasNext()) {
+            str = str + it.next().toString();
+            if (it.hasNext()) {
+                str = str + " ∧ ";
+            }
+        }
+        return str + "]";
+    }
+
+    public static Constraint construct(Collection<Constraint> constrs) {
+        if (constrs.contains(Constraint.FALSE)) {
+            return Constraint.FALSE;
+        }
+        Set<Constraint> flattened = new LinkedHashSet<>();
+        for (Constraint c : constrs) {
+            if (c instanceof ConstraintList cl) {
+                if (!cl.constrs.isEmpty()) {
+                    flattened.addAll(cl.constrs);
+                }
+            } else {
+                flattened.add(c);
+            }
+        }
+        if (flattened.size() == 1) {
+            return flattened.iterator().next();
+        }
+        return new ConstraintList(flattened);
     }
 }
