@@ -19,6 +19,11 @@ public class FalseConstraint implements Constraint {
     }
 
     @Override
+    public int maxQuantifiedSDVIndex() {
+        return 0;
+    }
+
+    @Override
     public Expression<Boolean> toExpression() {
         return ExpressionUtil.FALSE;
     }

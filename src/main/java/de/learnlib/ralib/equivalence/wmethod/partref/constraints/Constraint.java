@@ -20,6 +20,8 @@ public interface Constraint {
 
     public int maxIndex();
 
+    public int maxQuantifiedSDVIndex();
+
     public Expression<Boolean> toExpression();
 
     public Mapping<? extends SymbolicDataValue, ? extends SymbolicDataVariable> toMapping();

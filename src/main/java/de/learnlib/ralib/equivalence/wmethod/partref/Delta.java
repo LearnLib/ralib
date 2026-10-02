@@ -44,4 +44,13 @@ public class Delta {
         }
         return true;
     }
+
+    public boolean makesProgress() {
+        for (RegProgress rp : regProgress) {
+            if (!rp.regs.isEmpty()) {
+                return true;
+            }
+        }
+        return !separated.isEmpty();
+    }
 }

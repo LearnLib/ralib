@@ -51,6 +51,10 @@ public class SymbolicState {
         return constr.maxIndex();
     }
 
+    public int maxQuantifiedSDVIndex() {
+        return constr.maxQuantifiedSDVIndex();
+    }
+
     public boolean areAllRegistersIdentified() {
         Set<Register> eqRegs = getIdentifiedRegisters();
         return eqRegs.containsAll(loc.getRegisters());

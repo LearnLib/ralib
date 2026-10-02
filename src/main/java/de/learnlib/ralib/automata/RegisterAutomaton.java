@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.output.OutputTransition;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -114,4 +116,44 @@ public abstract class RegisterAutomaton
         }
         return regs;
     }
+
+    public RARun getRun(Word<PSymbolInstance> word, Constants constants) {
+        int n = word.length();
+        RALocation[] locs = new RALocation[n+1];
+        RegisterValuation[] vals = new RegisterValuation[n+1];
+        PSymbolInstance[] symbols = new PSymbolInstance[n];
+        Transition[] transitions = new Transition[n];
+
+        locs[0] = getInitialState();
+        vals[0] = new RegisterValuation();
+
+        for (int i = 0; i < n; i++) {
+            symbols[i] = word.getSymbol(i);
+            ParameterValuation pars = ParameterValuation.fromPSymbolInstance(symbols[i]);
+
+            Collection<Transition> candidates = locs[i].getOut(symbols[i].getBaseSymbol());
+            if (candidates == null) {
+                return null;
+            }
+
+            boolean found = false;
+
+            for (Transition t : candidates) {
+                if (t.isEnabled(vals[i], pars, constants)) {
+                    transitions[i] = t;
+                    vals[i+1] = t.execute(vals[i], pars, constants);
+                    locs[i+1] = t.getDestination();
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                return null;
+            }
+        }
+
+        return new RARun(locs, vals, symbols, transitions);
+    }
+
 }

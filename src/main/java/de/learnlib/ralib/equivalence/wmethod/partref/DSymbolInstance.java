@@ -1,13 +1,19 @@
 package de.learnlib.ralib.equivalence.wmethod.partref;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SDV;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
@@ -123,6 +129,39 @@ public class DSymbolInstance {
         return vals;
     }
 
+    /**
+     * returns set of all unique data values in a data word.
+     *
+     * @param word
+     * @return
+     */
+    public static Set<SymbolicDataVariable> valSet(Word<DSymbolInstance> word) {
+        Set<SymbolicDataVariable> valset = new LinkedHashSet<>();
+        for (DSymbolInstance dsi : word) {
+            valset.addAll(Arrays.asList(dsi.getSymbolicValues()));
+        }
+        return valset;
+    }
+
+    /**
+     * returns set of unique data values of some type in a data word.
+     *
+     * @param word
+     * @param t
+     * @return
+     */
+    public static  Set<SymbolicDataVariable> valSet(Word<DSymbolInstance> word, DataType t) {
+        Set<SymbolicDataVariable> vals = new LinkedHashSet<>();
+        for (DSymbolInstance dsi : word) {
+            for (SymbolicDataVariable d : dsi.getSymbolicValues()) {
+                if (d.getDataType().equals(t)) {
+                    vals.add(d);
+                }
+            }
+        }
+        return vals;
+    }
+
     public static Word<DSymbolInstance> offset(Word<DSymbolInstance> word, int offset) {
         Word<DSymbolInstance> ret = Word.epsilon();
         for (DSymbolInstance dsi : word) {
@@ -144,6 +183,20 @@ public class DSymbolInstance {
         Word<DSymbolInstance> word = w1;
         for (DSymbolInstance dsi : w2) {
             word = word.append(dsi);
+        }
+        return word;
+    }
+
+    public static Word<PSymbolInstance> toDataWord(Word<DSymbolInstance> symbWord, Map<SymbolicDataVariable, DataValue> varmapping) {
+        Word<PSymbolInstance> word = Word.epsilon();
+        for (DSymbolInstance dsi : symbWord) {
+            SymbolicDataVariable[] vars = dsi.getSymbolicValues();
+            DataValue[] vals = new DataValue[vars.length];
+            for (int i = 0; i < vars.length; i++) {
+                vals[i] = varmapping.get(vars[i]);
+            }
+            PSymbolInstance psi = new PSymbolInstance(dsi.getBaseSymbol(), vals);
+            word = word.append(psi);
         }
         return word;
     }

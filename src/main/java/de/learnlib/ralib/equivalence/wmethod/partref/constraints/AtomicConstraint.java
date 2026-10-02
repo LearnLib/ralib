@@ -39,11 +39,6 @@ public abstract class AtomicConstraint implements Constraint {
     }
 
     @Override
-    public int maxIndex() {
-        return dataValue.getId();
-    }
-
-    @Override
     public Expression<Boolean> toExpression() {
         NumericComparator rel = switch(relation) {
         case EQ -> NumericComparator.EQ;

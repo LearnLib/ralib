@@ -17,6 +17,16 @@ public class SDVConstraint extends AtomicConstraint {
     }
 
     @Override
+    public int maxIndex() {
+        return dataValue.getId();
+    }
+
+    @Override
+    public int maxQuantifiedSDVIndex() {
+        return 0;
+    }
+
+    @Override
     public Constraint remap(Mapping<Register, ? extends SymbolicDataValue> remapping) {
         if (remapping.containsKey(param)) {
             return new SDVConstraint(getDataValue(), relation, remapping.get(param));

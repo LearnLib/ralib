@@ -90,6 +90,14 @@ public abstract class Block {
         return max;
     }
 
+    public int maxQuantifiedSDVIndex() {
+        int max = 0;
+        for (SymbolicState s : states) {
+            max = Integer.max(s.maxQuantifiedSDVIndex(), max);
+        }
+        return max;
+    }
+
     public boolean isOutputConsistent(ParameterizedSymbol ... inacts) {
         if (states.size() == 1) {
             return true;

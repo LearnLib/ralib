@@ -51,6 +51,15 @@ public class ConstraintList implements Constraint, Iterable<Constraint> {
     }
 
     @Override
+    public int maxQuantifiedSDVIndex() {
+        int index = 0;
+        for (Constraint c : constrs) {
+            index = Integer.max(index, c.maxQuantifiedSDVIndex());
+        }
+        return index;
+    }
+
+    @Override
     public Expression<Boolean> toExpression() {
         if (constrs.isEmpty()) {
             return ExpressionUtil.TRUE;

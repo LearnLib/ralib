@@ -40,6 +40,10 @@ public class SplittingTree {
         return root.maxIndex();
     }
 
+    public int maxQuantifiedSDVIndex() {
+        return root.maxQuantifiedSDVIndex();
+    }
+
     public List<Leaf> getLeaves() {
         return getLeaves(root);
     }
@@ -83,6 +87,7 @@ public class SplittingTree {
     }
 
     public boolean splitByOutput(Leaf block, DSymbolInstance in) {
+        assert getLeaves().contains(block) : "Not a leaf block";
         Set<DSymbolInstance> outs = block.getPossibleOutputs(in);
         List<Leaf> leaves = new ArrayList<>();
         List<Set<SymbolicState>> intersections = new ArrayList<>();
@@ -93,7 +98,7 @@ public class SplittingTree {
             Leaf leaf = new Leaf(intersection);
             leaves.add(leaf);
         }
-        if (leaves.size() >= 2 &&
+        if (!leaves.isEmpty() &&
                 canMeaningfullySplit(block, intersections)) {
             Word<DSymbolInstance> label = Word.fromLetter(in);
             expand(block, label, leaves);
@@ -111,17 +116,21 @@ public class SplittingTree {
         for (int i = 1; i <= groups.size(); i++) {
             assert groups.containsKey(i) : "Labels are not prefix-closed";
             for (InnerNode parent : groups.get(i)) {
-                List<Set<SymbolicState>> preconditions = new ArrayList<>();
+                List<Set<SymbolicState>> intersections = new ArrayList<>();
                 for (Block block : parent.getChildren()) {
                     Set<SymbolicState> precond = block.computeStatePreconditions(in, out, k, model);
-                    preconditions.add(precond);
+                    Set<SymbolicState> intersection = leaf.intersect(precond);
+                    if (!intersection.isEmpty()) {
+                        intersections.add(intersection);
+                    }
                 }
-                if (canMeaningfullySplit(leaf, preconditions)) {
+                if (!intersections.isEmpty() &&
+                        canMeaningfullySplit(leaf, intersections)) {
                     Word<DSymbolInstance> parentLabel = DSymbolInstance.offset(parent.getLabel(), k);
                     Word<DSymbolInstance> inWord = Word.fromLetter(in);
                     Word<DSymbolInstance> label = DSymbolInstance.append(inWord, parentLabel);
                     List<Leaf> leaves = new ArrayList<>();
-                    for (Set<SymbolicState> prec : preconditions) {
+                    for (Set<SymbolicState> prec : intersections) {
                         Set<SymbolicState> intersection = leaf.intersect(prec);
                         leaves.add(new Leaf(intersection));
                     }
@@ -132,6 +141,16 @@ public class SplittingTree {
         }
 
         return false;
+    }
+
+    public List<Word<DSymbolInstance>> getSeparatingSuffixes(Block block) {
+        List<Word<DSymbolInstance>> suffixes = new ArrayList<>();
+        InnerNode parent = parents.get(block);
+        while (parent != null) {
+            suffixes.add(parent.getLabel());
+            parent = parents.get(parent);
+        }
+        return suffixes;
     }
 
     private void expand(Leaf leaf, Word<DSymbolInstance> label, List<Leaf> children) {
@@ -148,14 +167,21 @@ public class SplittingTree {
     }
 
     private boolean canMeaningfullySplit(Block block, List<Set<SymbolicState>> children) {
-        Node ancestor = parents.get(block);
-        if (ancestor == null) {
-            return true;
-        }
+//        if (ancestor == null) {
+//            return true;
+//        }
         List<Delta> blockProgresses = new ArrayList<>();
+        boolean makesProgress = false;
         for (Set<SymbolicState> child : children) {
-            blockProgresses.add(new Delta(block, child));
+            Delta delta = new Delta(block, child);
+            blockProgresses.add(delta);
+            makesProgress = makesProgress || delta.makesProgress();
         }
+        if (!makesProgress) {
+            return false;
+        }
+
+        Node ancestor = parents.get(block);
         while (ancestor != null) {
             assert ancestor instanceof InnerNode;
             List<Delta> ancestorProgresses = new ArrayList<>();

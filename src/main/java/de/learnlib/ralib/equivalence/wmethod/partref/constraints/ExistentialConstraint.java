@@ -27,6 +27,10 @@ public class ExistentialConstraint extends AtomicConstraint {
         return 0;
     }
 
+    public int maxQuantifiedSDVIndex() {
+        return dataValue.getId();
+    }
+
     @Override
     public Mapping<? extends SymbolicDataValue, ? extends SymbolicDataVariable> toMapping() {
         return new Mapping<>();
