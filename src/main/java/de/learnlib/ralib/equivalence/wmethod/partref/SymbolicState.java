@@ -1,5 +1,6 @@
 package de.learnlib.ralib.equivalence.wmethod.partref;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Set;
 import com.google.common.collect.BiMap;
 
 import de.learnlib.ralib.automata.Transition;
+import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -146,7 +148,12 @@ public class SymbolicState {
 
     public Set<SymbolicState> computeStatePreconditions(DSymbolInstance in, DSymbolInstance out, RaModel model) {
         Set<SymbolicState> ret = new LinkedHashSet<>();
-        for (Transition t : model.getPredecessorTransitions(loc)) {
+        Collection<Transition> predecessors = model.getPredecessorTransitions(loc);
+        if (predecessors == null) {
+            assert loc.getRaLocation().getId() == 0 : "Non-initial location with no predecessors";
+            return ret;
+        }
+        for (Transition t : predecessors) {
             if (model.getDestination(t).equals(loc)) {
                 Location src = model.getLocation(t.getSource());
                 Optional<Constraint> precOpt = computeStatePrecondition(in, out, t, src);
@@ -166,8 +173,9 @@ public class SymbolicState {
             return Optional.empty();
         }
         Constraint guardConstraint = constraintFromGuard(trans, in, src);
-        Constraint assignConstraint = constraintFromAssignment(trans, in);
-        return Optional.of(Constraint.construct(guardConstraint, assignConstraint));
+        Constraint outGuardConstraint = constraintFromOutputGuard(trans, out, src);
+        Constraint assignConstraint = constraintFromAssignment(trans, in, out);
+        return Optional.of(Constraint.construct(guardConstraint, outGuardConstraint, assignConstraint));
     }
 
     private Constraint constraintFromGuard(Transition transition, DSymbolInstance in, Location src) {
@@ -186,9 +194,20 @@ public class SymbolicState {
         return Constraint.construct(constraintList);
     }
 
-    private Constraint constraintFromAssignment(Transition t, DSymbolInstance in) {
+    private Constraint constraintFromAssignment(Transition t, DSymbolInstance in, DSymbolInstance out) {
+        Collection<Transition> outTransitions = t.getDestination().getOut();
+        Constraint ret = constr;
+        if (outTransitions.size() == 1 && outTransitions.iterator().next() instanceof OutputTransition) {
+            Transition ot = outTransitions.iterator().next();
+            ret = ret.remap(assignmentRemapping(ot, out));
+        }
+
+        return ret.remap(assignmentRemapping(t, in));
+    }
+
+    private Mapping<Register, SymbolicDataValue> assignmentRemapping(Transition t, DSymbolInstance dsi) {
         Mapping<Register, SymbolicDataValue> remapping = new Mapping<>();
-        SymbolicDataVariable[] inVars = in.getSymbolicValues();
+        SymbolicDataVariable[] inVars = dsi.getSymbolicValues();
         for (Map.Entry<Register, ? extends SymbolicDataValue> assignEntry : t.getAssignment().getAssignment().entrySet()) {
             Register r = assignEntry.getKey();
             SymbolicDataValue val = assignEntry.getValue();
@@ -200,8 +219,18 @@ public class SymbolicState {
                 throw new IllegalStateException("Shouldn't be here");
             }
         }
+        return remapping;
+    }
 
-        return constr.remap(remapping);
+    private Constraint constraintFromOutputGuard(Transition t, DSymbolInstance out, Location src) {
+        Map<SymbolicDataVariable, SymbolicDataValue> equalities = new LinkedHashMap<>();
+        SymbolicDataVariable[] outVars = out.getSymbolicValues();
+        for (Map.Entry<Parameter, SymbolicDataValue> e : src.getOutputParameterMapping(t).entrySet()) {
+            Parameter outParam = e.getKey();
+            SymbolicDataValue val = e.getValue();
+            equalities.put(outVars[outParam.getId() - 1], val);
+        }
+        return Constraint.construct(equalities);
     }
 
     @Override

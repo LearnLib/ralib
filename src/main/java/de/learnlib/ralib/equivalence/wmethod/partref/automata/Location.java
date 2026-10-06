@@ -1,8 +1,12 @@
 package de.learnlib.ralib.equivalence.wmethod.partref.automata;
 
+import static de.learnlib.ralib.equivalence.wmethod.partref.automata.RaModel.EMPTY_INPUT;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -10,6 +14,8 @@ import java.util.Set;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import de.learnlib.ralib.automata.Assignment;
+import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.output.OutputMapping;
@@ -25,12 +31,19 @@ import de.learnlib.ralib.equivalence.wmethod.partref.DSymbolInstance;
 import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class Location {
 
     private final RALocation raloc;
 
     private final Set<Register> regs;
+
+    private final boolean ioMode;
+
+    private final Collection<Transition> transitions;
+
+    private final Transition epsilonTransition;
 
     private final Map<Transition, OutputMapping> outputMappings;
 
@@ -42,32 +55,37 @@ public class Location {
 
     private final Map<Transition, RALocation> destinations;
 
-    public Location(RALocation raloc, Set<Register> regs) {
+    public Location(RALocation raloc, Set<Register> regs, boolean ioMode) {
         this.raloc = raloc;
         this.regs = regs;
+        this.ioMode = ioMode;
         outputMappings = new LinkedHashMap<>();
         outputSymbols = new LinkedHashMap<>();
         outputParamMappings = new LinkedHashMap<>();
         raGuards = new LinkedHashMap<>();
         destinations = new LinkedHashMap<>();
 
-        for (Transition t : raloc.getOut()) {
+        transitions = new ArrayList<>(raloc.getOut());
+        epsilonTransition = ioMode ? null : createEpsilonTransition(raloc, regs);
+        if (!ioMode) {
+            transitions.add(epsilonTransition);
+        }
+
+        for (Transition t : transitions) {
             assert !(t instanceof OutputTransition) : "Location is not an input location";
-            boolean isIo = false;
             RALocation dest = t.getDestination();
-            Collection<Transition> nextOut = dest.getOut();
-            if (nextOut.size() == 1) {
+            if (ioMode) {
+                Collection<Transition> nextOut = dest.getOut();
+                assert nextOut.size() == 1 : "Malformed output location";
                 Transition next = nextOut.iterator().next();
-                if (next instanceof OutputTransition ot) {
-                    outputMappings.put(t, ot.getOutput());
-                    outputSymbols.put(t, ot.getLabel());
-                    outputParamMappings.putAll(getOutputParamMappings(outputMappings));
-                    destinations.put(t, ot.getDestination());
-                    isIo = true;
-                }
-            }
-            if (!isIo) {
-                outputMappings.put(t, RaModel.EmptyMap);
+                assert next instanceof OutputTransition : "Output transition expected";
+                OutputTransition ot = (OutputTransition) next;
+                outputMappings.put(t, ot.getOutput());
+                outputSymbols.put(t, ot.getLabel());
+                outputParamMappings.putAll(getOutputParamMappings(outputMappings));
+                destinations.put(t, ot.getDestination());
+            } else {
+                outputMappings.put(t, RaModel.EMPTY_MAP);
                 outputSymbols.put(t, dest.isAccepting() ? RaModel.ACC : RaModel.REJ);
                 outputParamMappings.put(t, HashBiMap.create());
                 destinations.put(t, t.getDestination());
@@ -112,10 +130,13 @@ public class Location {
     }
 
     public Collection<Transition> getTransitions() {
-        return raloc.getOut();
+        return transitions;
     }
 
     public Collection<Transition> getTransitions(ParameterizedSymbol inact) {
+        if (inact.equals(EMPTY_INPUT)) {
+            return List.of(epsilonTransition);
+        }
         return raloc.getOut(inact);
     }
 
@@ -141,7 +162,7 @@ public class Location {
 
     public Set<OutputSymbol> getPossibleOutputActions(ParameterizedSymbol inact) {
         Set<OutputSymbol> outacts = new LinkedHashSet<>();
-        for (Transition t : raloc.getOut(inact)) {
+        for (Transition t : getTransitions(inact)) {
             outacts.add(outputSymbols.get(t));
         }
         return outacts;
@@ -151,7 +172,7 @@ public class Location {
         Set<DSymbolInstance> outs = new LinkedHashSet<>();
         SymbolicDataVariable[] inVals = in.getSymbolicValues();
         int maxId = in.maxIndex();
-        for (Transition t : raloc.getOut(in.getBaseSymbol())) {
+        for (Transition t : getTransitions(in.getBaseSymbol())) {
             Set<RaGuard> guards = raGuards.get(t);
             Constraint guardConstraint = RaGuard.toConstraint(guards, in);
             Constraint con = Constraint.construct(constraint, guardConstraint);
@@ -213,5 +234,14 @@ public class Location {
     @Override
     public String toString() {
         return raloc.toString();
+    }
+
+    private static Transition createEpsilonTransition(RALocation loc, Set<Register> regs) {
+        VarMapping<Register, Register> regmap = new VarMapping<>();
+        for (Register r : regs) {
+            regmap.put(r, r);
+        }
+        Assignment copy = new Assignment(regmap);
+        return new InputTransition(ExpressionUtil.TRUE, EMPTY_INPUT, loc, loc, copy);
     }
 }

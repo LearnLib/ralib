@@ -87,8 +87,8 @@ public class PureIOStackAutomatonExample {
         ra.addTransition(l2, I_POP, new InputTransition(gt, I_POP, l2, l2_pop, r1r2Copy));
 
         ra.addTransition(l0_push, O_OK, new OutputTransition(gt, out, O_OK, l0_push, l1, r1Copy));
-        ra.addTransition(l1_push, O_OK, new OutputTransition(gt, out, O_OK, l1_push, l2, r2Store));
-        ra.addTransition(l2_push, O_OK, new OutputTransition(gt, out, O_OK, l2_push, l2, r2Store));
+        ra.addTransition(l1_push, O_OK, new OutputTransition(gt, out, O_OK, l1_push, l2, r1r2Copy));
+        ra.addTransition(l2_push, O_OK, new OutputTransition(gt, out, O_OK, l2_push, l2, r1r2Copy));
         ra.addTransition(l0_pop, O_NOK, new OutputTransition(gt, out, O_NOK, l0_pop, l0, noAssign));
         ra.addTransition(l1_pop, O_OUT, new OutputTransition(gt, outr1, O_OUT, l1_pop, l0, noAssign));
         ra.addTransition(l2_pop, O_OUT, new OutputTransition(gt, outr2, O_OUT, l2_pop, l1, r1Copy));

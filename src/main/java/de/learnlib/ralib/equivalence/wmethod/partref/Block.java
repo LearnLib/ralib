@@ -33,7 +33,7 @@ public abstract class Block {
             for (i = 0; i < act.getArity(); i++) {
                 indices[i] = 0;
             }
-            hasNext = !vars.isEmpty();
+            hasNext = act.getArity() == 0 || !vars.isEmpty();
         }
 
         @Override
@@ -43,6 +43,11 @@ public abstract class Block {
 
         @Override
         public DSymbolInstance next() {
+            if (act.getArity() == 0) {
+                hasNext = false;
+                return new DSymbolInstance(act);
+            }
+
             SymbolicDataVariable[] vars = new SymbolicDataVariable[act.getArity()];
             for (int i = 0; i < act.getArity(); i++) {
                 vars[i] = this.vars[indices[i]];

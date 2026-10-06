@@ -29,7 +29,7 @@ public class TestSplittingTree extends RaLibTestSuite {
 
     @Test
     public void testSplittingTreeOnStack() {
-        RaModel model = new RaModel(StackAutomatonExample.AUTOMATON);
+        RaModel model = new RaModel(StackAutomatonExample.AUTOMATON, false);
         SplittingTree tree = new SplittingTree(model, I_POP, I_PUSH);
         Location[] locs = getLocations(model);
 
@@ -135,7 +135,7 @@ public class TestSplittingTree extends RaLibTestSuite {
 
     @Test
     public void testSplittingTreeOnIOStack() {
-        RaModel model = new RaModel(IOStackAutomatonExample.AUTOMATON);
+        RaModel model = new RaModel(IOStackAutomatonExample.AUTOMATON, true);
         Location[] locs = getLocations(model);
 
         SplittingTree tree = new SplittingTree(model, I_POP, I_PUSH);
@@ -237,7 +237,7 @@ public class TestSplittingTree extends RaLibTestSuite {
 
     @Test
     public void testSplittingTreeOnPureIOStack() {
-        RaModel model = new RaModel(PureIOStackAutomatonExample.AUTOMATON);
+        RaModel model = new RaModel(PureIOStackAutomatonExample.AUTOMATON, true);
         Location[] locs = getLocations(model);
 
         SplittingTree tree = new SplittingTree(model, I_POP, I_PUSH);
@@ -286,8 +286,10 @@ public class TestSplittingTree extends RaLibTestSuite {
 
         SDV d4 = new SDV(T_INT, 4);
         Constraint d4Er1 = Constraint.construct(d4, Relation.EQ, r1);
-        Leaf b2_1 = makeBlock(new SymbolicState(locs[1], d1Er1));
-        Leaf b2_2 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d1Er2, d4Er1)));
+        Constraint d3Er1 = Constraint.construct(d3, Relation.EQ, r1);
+        Constraint d3Er2 = Constraint.construct(d3, Relation.EQ, r2);
+        Leaf b2_1 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d1Er1, d3Er1)));
+        Leaf b2_2 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d1Er2, d3Er2, d4Er1)));
         Assert.assertTrue(tree.getLeaves().contains(b2_1));
         Assert.assertTrue(tree.getLeaves().contains(b2_2));
 

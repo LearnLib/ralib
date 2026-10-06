@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.Location;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaModel;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -110,14 +109,16 @@ public class PartitionRefinement implements Iterator<Partition> {
 
     private boolean isAcceptable;
     private boolean isStable;
+    private boolean isInitial;
 
-    public PartitionRefinement(RegisterAutomaton model, ParameterizedSymbol ... inacts) {
+    public PartitionRefinement(RaModel model, boolean ioMode, ParameterizedSymbol ... inacts) {
+        this.model = model;
         this.inacts = inacts;
-        this.model = new RaModel(model);
-        tree = new SplittingTree(this.model, inacts);
+        tree = new SplittingTree(model, inacts);
         isAcceptable = tree.isAcceptable();
         isStable = tree.isStable();
-        currPart = new Partition(tree.getLeaves(), this.model.getLocations());
+        currPart = null;
+        isInitial = true;
     }
 
     public List<Word<DSymbolInstance>> getSuffixes(RALocation raloc, Partition partition) {
@@ -128,11 +129,16 @@ public class PartitionRefinement implements Iterator<Partition> {
 
     @Override
     public boolean hasNext() {
-        return !isAcceptable || !isStable;
+        return isInitial || !isAcceptable || !isStable;
     }
 
     @Override
     public Partition next() {
+        if (isInitial) {
+            isInitial = false;
+            currPart = new Partition(tree.getLeaves(), this.model.getLocations());
+            return currPart;
+        }
         int maxIndex = tree.maxIndex();
         int maxQuantifiedSDVIndex = tree.maxQuantifiedSDVIndex();
 
