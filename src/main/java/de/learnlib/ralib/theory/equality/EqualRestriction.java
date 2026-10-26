@@ -120,7 +120,7 @@ public class EqualRestriction extends AbstractSuffixValueRestriction implements 
 	@Override
 	public int hashCode() {
 		int hash = super.hashCode();
-		return 89 * hash + Objects.hash(equalParam);
+		return 89 * hash + Objects.hashCode(equalParam);
 	}
 
 	public SuffixValue getEqualParameter() {

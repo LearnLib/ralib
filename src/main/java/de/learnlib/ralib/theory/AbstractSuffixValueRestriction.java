@@ -115,7 +115,7 @@ public abstract class AbstractSuffixValueRestriction {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(parameter);
+		return Objects.hashCode(parameter);
 	}
 
 	@Override
