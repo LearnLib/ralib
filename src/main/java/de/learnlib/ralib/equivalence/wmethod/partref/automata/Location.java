@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import de.learnlib.ralib.automata.Assignment;
@@ -28,7 +27,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.SDV;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.equivalence.wmethod.partref.DSymbolInstance;
-import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -49,7 +47,7 @@ public class Location {
 
     private final Map<Transition, OutputSymbol> outputSymbols;
 
-    private final Map<Transition, BiMap<Parameter, SymbolicDataValue>> outputParamMappings;
+    private final Map<Transition, Map<Parameter, SymbolicDataValue>> outputParamMappings;
 
     private final Map<Transition, Set<RaGuard>> raGuards;
 
@@ -94,13 +92,13 @@ public class Location {
         }
     }
 
-    private static Map<Transition, BiMap<Parameter, SymbolicDataValue>> getOutputParamMappings(Map<Transition, OutputMapping> outputMappings) {
-        Map<Transition, BiMap<Parameter, SymbolicDataValue>> ret = new LinkedHashMap<>();
+    private static Map<Transition, Map<Parameter, SymbolicDataValue>> getOutputParamMappings(Map<Transition, OutputMapping> outputMappings) {
+        Map<Transition, Map<Parameter, SymbolicDataValue>> ret = new LinkedHashMap<>();
         for (Map.Entry<Transition, OutputMapping> outEntry : outputMappings.entrySet()) {
             Transition t = outEntry.getKey();
             OutputMapping outmap = outEntry.getValue();
             VarMapping<Register, ? extends SymbolicDataValue> assign = t.getAssignment().getAssignment();
-            BiMap<Parameter, SymbolicDataValue> outParamMap = HashBiMap.create();
+            Map<Parameter, SymbolicDataValue> outParamMap = new LinkedHashMap<>();
             for (Map.Entry<Parameter, SymbolicDataValue> outmapEntry : outmap.getOutput().entrySet()) {
                 Parameter outParam = outmapEntry.getKey();
                 SymbolicDataValue s = outmapEntry.getValue();
@@ -148,7 +146,7 @@ public class Location {
         return outputMappings.get(t);
     }
 
-    public BiMap<Parameter, SymbolicDataValue> getOutputParameterMapping(Transition t) {
+    public Map<Parameter, SymbolicDataValue> getOutputParameterMapping(Transition t) {
         return outputParamMappings.get(t);
     }
 
@@ -168,35 +166,37 @@ public class Location {
         return outacts;
     }
 
-    public Set<DSymbolInstance> getPossibleOutputSymbols(DSymbolInstance in, Constraint constraint) {
+    public Set<DSymbolInstance> getPossibleOutputSymbols(DSymbolInstance in, int startIndex) {
         Set<DSymbolInstance> outs = new LinkedHashSet<>();
-        SymbolicDataVariable[] inVals = in.getSymbolicValues();
-        int maxId = in.maxIndex();
         for (Transition t : getTransitions(in.getBaseSymbol())) {
-            Set<RaGuard> guards = raGuards.get(t);
-            Constraint guardConstraint = RaGuard.toConstraint(guards, in);
-            Constraint con = Constraint.construct(constraint, guardConstraint);
-            if (Constraint.isSatisfiable(con)) {
-                OutputSymbol outact = outputSymbols.get(t);
-                DataType[] types = outact.getPtypes();
-                BiMap<Parameter, SymbolicDataValue> outParamMap = outputParamMappings.get(t);
-                SymbolicDataVariable[] sdvs = new SymbolicDataVariable[outact.getArity()];
-                for (int i = 0; i < outact.getArity(); i++) {
-                    Parameter outParam = new Parameter(types[i], i + 1);
-                    SymbolicDataValue inVal = outParamMap.get(outParam);
-                    assert inVal != null : "Unknown parameter";
-                    if (inVal.isParameter()) {
-                        sdvs[i] = inVals[inVal.getId() - 1];
-                    } else {
-                        sdvs[i] = new SDV(outParam.getDataType(), (maxId++));
-                    }
-                }
+            OutputSymbol outact = outputSymbols.get(t);
+            DataType[] types = outact.getPtypes();
+            SymbolicDataVariable[] outVars = new SymbolicDataVariable[outact.getArity()];
+            for (int i = 0; i < outact.getArity(); i++) {
+                outVars[i] = new SDV(types[i], startIndex + i);
+            }
+            outs.add(new DSymbolInstance(outact, outVars));
+        }
+        return outs;
+    }
 
-                outs.add(new DSymbolInstance(outact, sdvs));
+    public Map<SymbolicDataVariable, SymbolicDataValue> getOutputEqualities(DSymbolInstance in, DSymbolInstance out, Transition t) {
+        SymbolicDataVariable[] inVars = in.getSymbolicValues();
+        SymbolicDataVariable[] outVars = out.getSymbolicValues();
+        DataType[] types = out.getBaseSymbol().getPtypes();
+        Map<Parameter, SymbolicDataValue> outParamMap = outputParamMappings.get(t);
+        Map<SymbolicDataVariable, SymbolicDataValue> ret = new LinkedHashMap<>();
+        for (int i = 0; i < outVars.length; i++) {
+            Parameter outParam = new Parameter(types[i], i + 1);
+            SymbolicDataValue inVal = outParamMap.get(outParam);
+            assert inVal != null : "Unknown parameter";
+            if (inVal.isParameter()) {
+                ret.put(outVars[i], (SymbolicDataValue) inVars[i]);
+            } else {
+                ret.put(outVars[i], inVal);
             }
         }
-
-        return outs;
+        return ret;
     }
 
     public Set<Transition> getTransitionsWithOutput(OutputSymbol outact) {

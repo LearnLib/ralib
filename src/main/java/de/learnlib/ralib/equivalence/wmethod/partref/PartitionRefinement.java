@@ -1,103 +1,17 @@
 package de.learnlib.ralib.equivalence.wmethod.partref;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.Location;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaModel;
+import de.learnlib.ralib.equivalence.wmethod.partref.symbolgen.SplittingIterator;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class PartitionRefinement implements Iterator<Partition> {
-
-    private class SplittingIterator implements Iterator<Map.Entry<Leaf, DSymbolInstance>> {
-
-        private List<Leaf> blocks;
-        private List<UnquantifiedInputSymbolGenerator> normalGens;
-        private List<QuantifiedInputSymbolGenerator> quantGens;
-
-        private int currBlock;
-        private int currQuantBlock;
-
-        public SplittingIterator(int startingIndex, int quantStartingIndex, List<Leaf> blocks) {
-            this.blocks = blocks;
-            normalGens = new ArrayList<>();
-            quantGens = new ArrayList<>();
-            for (Block block : blocks) {
-                normalGens.add(new UnquantifiedInputSymbolGenerator(startingIndex, inacts));
-                quantGens.add(new QuantifiedInputSymbolGenerator(startingIndex, quantStartingIndex, block, model, inacts));
-            }
-
-            currBlock = 0;
-            currQuantBlock = 0;
-        }
-
-        @Override
-        public boolean hasNext() {
-            for (int i = currBlock; i < blocks.size(); i++) {
-                if (normalGens.get(i).hasNext()) {
-                    return true;
-                }
-            }
-            for (int i = currQuantBlock; i < blocks.size(); i++) {
-                if (quantGens.get(i).hasNext()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public Entry<Leaf, DSymbolInstance> next() {
-            if (currBlock < blocks.size()) {
-                UnquantifiedInputSymbolGenerator gen = normalGens.get(currBlock);
-                assert gen.hasNext();
-                DSymbolInstance in = gen.next();
-                Leaf block = blocks.get(currBlock);
-                advance();
-                return Map.entry(block, in);
-            }
-            assert currQuantBlock < blocks.size();
-            QuantifiedInputSymbolGenerator gen = quantGens.get(currQuantBlock);
-            assert gen.hasNext();
-            DSymbolInstance in = gen.next();
-            Leaf block = blocks.get(currQuantBlock);
-            advance();
-            return Map.entry(block, in);
-        }
-
-        private void advance() {
-            if (currBlock < blocks.size()) {
-                if (!normalGens.get(currBlock).hasNext()) {
-                    currBlock++;
-                    if (currBlock >= blocks.size()) {
-                        advance();
-                        return;
-                    }
-                }
-                if (!normalGens.get(currBlock).hasNext()) {
-                    advance();
-                    return;
-                }
-            } else if (currQuantBlock < blocks.size()) {
-                if (!quantGens.get(currQuantBlock).hasNext()) {
-                    currQuantBlock++;
-                    if (currQuantBlock >= blocks.size()) {
-                        advance();
-                        return;
-                    }
-                }
-                if (!quantGens.get(currQuantBlock).hasNext()) {
-                    advance();
-                    return;
-                }
-            }
-        }
-    }
 
     private final ParameterizedSymbol[] inacts;
 
@@ -140,9 +54,8 @@ public class PartitionRefinement implements Iterator<Partition> {
             return currPart;
         }
         int maxIndex = tree.maxIndex();
-        int maxQuantifiedSDVIndex = tree.maxQuantifiedSDVIndex();
 
-        SplittingIterator split = new SplittingIterator(maxIndex + 1, maxQuantifiedSDVIndex + 1, currPart.getBlocks());
+        SplittingIterator split = new SplittingIterator(maxIndex + 1, currPart.getBlocks(), model, inacts);
 
         if (isAcceptable) {
             // split by state
@@ -150,7 +63,8 @@ public class PartitionRefinement implements Iterator<Partition> {
                 Map.Entry<Leaf, DSymbolInstance> pair = split.next();
                 Leaf block = pair.getKey();
                 DSymbolInstance in = pair.getValue();
-                for (DSymbolInstance out : block.getPossibleOutputs(in)) {
+                int k = Integer.max(in.maxIndex(), maxIndex) + 1;
+                for (DSymbolInstance out : block.getPossibleOutputs(in, k)) {
                     if (tree.splitByState(block, in, out)) {
                         checkTreeStatus();
                         currPart = new Partition(tree.getLeaves(), model.getLocations());
@@ -169,6 +83,8 @@ public class PartitionRefinement implements Iterator<Partition> {
                 }
             }
         }
+        System.out.println(tree.toString());
+        System.out.println(isAcceptable);
         throw new IllegalStateException("Did not find a successful split");
     }
 

@@ -11,6 +11,11 @@ public class RaTrueGuard extends RaGuard {
     }
 
     @Override
+    public RaFalseGuard negate() {
+        return new RaFalseGuard();
+    }
+
+    @Override
     public Constraint toConstraint(DSymbolInstance in) {
         return Constraint.trueConstraint();
     }

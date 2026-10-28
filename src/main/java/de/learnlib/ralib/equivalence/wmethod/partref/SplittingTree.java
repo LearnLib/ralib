@@ -7,11 +7,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.Location;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaModel;
+import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
@@ -38,10 +40,6 @@ public class SplittingTree {
 
     public int maxIndex() {
         return root.maxIndex();
-    }
-
-    public int maxQuantifiedSDVIndex() {
-        return root.maxQuantifiedSDVIndex();
     }
 
     public List<Leaf> getLeaves() {
@@ -73,7 +71,7 @@ public class SplittingTree {
         Set<Location> identified = new LinkedHashSet<>();
         for (Leaf leaf : getLeaves()) {
             Set<SymbolicState> states = leaf.getStates();
-            if (states.size() == 1) {
+            if (leaf.getLocations().size() == 1) {
                 SymbolicState s = states.iterator().next();
                 if (s.areAllRegistersIdentified()) {
                     identified.add(s.getLocation());
@@ -86,20 +84,84 @@ public class SplittingTree {
         return false;
     }
 
+    private Optional<List<Set<SymbolicState>>> computeChildren(Leaf block, DSymbolInstance in) {
+        List<Set<SymbolicState>> preconditions = new ArrayList<>();
+        Set<DSymbolInstance> outs = block.getPossibleOutputs(in, in.maxIndex() + 1);
+        for (DSymbolInstance out : outs) {
+            preconditions.add(block.computeOutputPreconditions(in, out));
+        }
+        List<Set<SymbolicState>> children = computeChildren(block, in, preconditions);
+        if (!children.isEmpty() &&
+                canMeaningfullySplit(block, children)) {
+            return Optional.of(children);
+        }
+        return Optional.empty();
+    }
+
+    private Optional<List<Set<SymbolicState>>> computeChildren(Leaf block, DSymbolInstance in, DSymbolInstance out, int offset, List<? extends Block> blocks) {
+        List<Set<SymbolicState>> preconditions = new ArrayList<>();
+        for (Block b : blocks) {
+            preconditions.add(b.computeStatePreconditions(in, out, offset, model));
+        }
+        List<Set<SymbolicState>> children = computeChildren(block, in, preconditions);
+        if (!children.isEmpty() &&
+                canMeaningfullySplit(block, children) &&
+                isValidSplit(block, children)) {
+            return Optional.of(children);
+        }
+        return Optional.empty();
+    }
+
+    private List<Set<SymbolicState>> computeChildren(Block block, DSymbolInstance in, List<Set<SymbolicState>> preconditions) {
+        List<Set<SymbolicState>> children = new ArrayList<>();
+
+        if (!in.isQuantified()) {
+            for (Set<SymbolicState> prec : preconditions) {
+                Set<SymbolicState> intersection = block.intersect(prec);
+                if (!intersection.isEmpty()) {
+                    children.add(intersection);
+                }
+            }
+            return children;
+        }
+
+        Map<Integer, Set<SymbolicState>> groups = new LinkedHashMap<>();
+        for (SymbolicState s : block.getStates()) {
+            int bitmask = 0;
+            int bit = 1;
+            for (Set<SymbolicState> prec : preconditions) {
+                Set<SymbolicState> intersection = s.and(prec);
+                if (!intersection.isEmpty()) {
+                    bitmask = bitmask + bit;
+                }
+                bit = bit * 2;
+            }
+            Set<SymbolicState> group = groups.containsKey(bitmask) ? groups.get(bitmask) : new LinkedHashSet<>();
+            group.add(s);
+            groups.put(bitmask, group);
+        }
+
+        for (Set<SymbolicState> group : groups.values()) {
+            for (Set<SymbolicState> prec : preconditions) {
+                Set<SymbolicState> intersection = SymbolicState.intersect(group, prec);
+                if (!intersection.isEmpty()) {
+                    children.add(intersection);
+                }
+            }
+        }
+
+        return children;
+    }
+
     public boolean splitByOutput(Leaf block, DSymbolInstance in) {
         assert getLeaves().contains(block) : "Not a leaf block";
-        Set<DSymbolInstance> outs = block.getPossibleOutputs(in);
         List<Leaf> leaves = new ArrayList<>();
-        List<Set<SymbolicState>> intersections = new ArrayList<>();
-        for (DSymbolInstance out : outs) {
-            Set<SymbolicState> precs = block.computeOutputPreconditions(in, out);
-            Set<SymbolicState> intersection = block.intersect(precs);
-            intersections.add(intersection);
-            Leaf leaf = new Leaf(intersection);
-            leaves.add(leaf);
-        }
-        if (!leaves.isEmpty() &&
-                canMeaningfullySplit(block, intersections)) {
+        Optional<List<Set<SymbolicState>>> children = computeChildren(block, in);
+        if (children.isPresent()) {
+            assert isValidSplit(block, children.get()) : "States lost after split";
+            for (Set<SymbolicState> states : children.get()) {
+                leaves.add(new Leaf(states));
+            }
             Word<DSymbolInstance> label = Word.fromLetter(in);
             expand(block, label, leaves);
             return true;
@@ -107,39 +169,27 @@ public class SplittingTree {
         return false;
     }
 
-    public boolean splitByState(Leaf leaf, DSymbolInstance in, DSymbolInstance out) {
-        assert leaf.isOutputConsistent() : "Attempting to split by state a leaf that is not output consistent";
-        int k = Integer.max(in.maxIndex(), out.maxIndex());
-
+    public boolean splitByState(Leaf block, DSymbolInstance in, DSymbolInstance out) {
         Map<Integer, Queue<InnerNode>> groups = orderBlocksByLabelLength();
+        int k = Integer.max(in.maxIndex(), out.maxIndex());
 
         for (int i = 1; i <= groups.size(); i++) {
             assert groups.containsKey(i) : "Labels are not prefix-closed";
             for (InnerNode parent : groups.get(i)) {
-                List<Set<SymbolicState>> intersections = new ArrayList<>();
-                for (Block block : parent.getChildren()) {
-                    Set<SymbolicState> precond = block.computeStatePreconditions(in, out, k, model);
-                    Set<SymbolicState> intersection = leaf.intersect(precond);
-                    if (!intersection.isEmpty()) {
-                        intersections.add(intersection);
+                Optional<List<Set<SymbolicState>>> children = computeChildren(block, in, out, k, parent.getChildren());
+                if (children.isPresent()) {
+                    List<Leaf> leaves = new ArrayList<>();
+                    for (Set<SymbolicState> states : children.get()) {
+                        leaves.add(new Leaf(states));
                     }
-                }
-                if (!intersections.isEmpty() &&
-                        canMeaningfullySplit(leaf, intersections)) {
                     Word<DSymbolInstance> parentLabel = DSymbolInstance.offset(parent.getLabel(), k);
                     Word<DSymbolInstance> inWord = Word.fromLetter(in);
                     Word<DSymbolInstance> label = DSymbolInstance.append(inWord, parentLabel);
-                    List<Leaf> leaves = new ArrayList<>();
-                    for (Set<SymbolicState> prec : intersections) {
-                        Set<SymbolicState> intersection = leaf.intersect(prec);
-                        leaves.add(new Leaf(intersection));
-                    }
-                    expand(leaf, label, leaves);
+                    expand(block, label, leaves);
                     return true;
                 }
             }
         }
-
         return false;
     }
 
@@ -166,18 +216,39 @@ public class SplittingTree {
         }
     }
 
+    private boolean isValidSplit(Block parent, List<Set<SymbolicState>> children) {
+        for (SymbolicState state : parent.getStates()) {
+            boolean found = false;
+            for (Set<SymbolicState> child : children) {
+                for (SymbolicState s : child) {
+                    if (s.getLocation().equals(state.getLocation()) &&
+                            Constraint.implies(s.getConstraints(), state.getConstraints())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private boolean canMeaningfullySplit(Block block, List<Set<SymbolicState>> children) {
-//        if (ancestor == null) {
-//            return true;
-//        }
         List<Delta> blockProgresses = new ArrayList<>();
-        boolean makesProgress = false;
+        boolean revealsRegs = false;
+        boolean separatesLocs = true;
         for (Set<SymbolicState> child : children) {
             Delta delta = new Delta(block, child);
             blockProgresses.add(delta);
-            makesProgress = makesProgress || delta.makesProgress();
+            revealsRegs = revealsRegs || delta.revealsRegisters();
+            separatesLocs = separatesLocs && delta.separatesLocations();
         }
-        if (!makesProgress) {
+        if (!revealsRegs && !separatesLocs) {
             return false;
         }
 

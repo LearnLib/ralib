@@ -15,8 +15,10 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.FreshSDV;
 import de.learnlib.ralib.data.SymbolicDataValue.QuantifiedSDV;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import de.learnlib.ralib.equivalence.wmethod.partref.DSymbolInstance;
@@ -79,7 +81,10 @@ public class IdentificationSetBuilder {
         Constraint constr = partition.getConstraint(loc);
         Expression<Boolean> expr = toExpression(constr, prefix);
         VarsValuationVisitor vvv = new VarsValuationVisitor();
-        Expression<Boolean> evaluated = vvv.apply(expr, regs);
+        Mapping<SymbolicDataValue, DataValue> regMapping = new Mapping<>();
+        regMapping.putAll(regs);
+        regMapping.putAll(consts);
+        Expression<Boolean> evaluated = vvv.apply(expr, regMapping);
 
         Optional<Valuation> valuation = solver.solve(evaluated);
         assert valuation.isPresent() : "No valuation found";
@@ -115,8 +120,11 @@ public class IdentificationSetBuilder {
     private Expression<Boolean> toExpression(Constraint constr, Word<PSymbolInstance> prefix) {
         Expression<Boolean> expr = constr.toExpression();
         for (Map.Entry<SymbolicDataValue, SymbolicDataValue> e : constr.getEqualities()) {
-            if (e.getKey() instanceof QuantifiedSDV qsdv) {
+            if (e.getKey() instanceof QuantifiedSDV qsdv && e.getValue().isRegister()) {
                 expr = addEqualities(expr, qsdv, prefix);
+            }
+            if (e.getKey() instanceof FreshSDV fsdv) {
+                expr = addDisequalities(expr, fsdv, prefix);
             }
         }
         return expr;
@@ -131,6 +139,20 @@ public class IdentificationSetBuilder {
         }
         Expression<Boolean> disjunction = ExpressionUtil.or(disjuncts);
         return ExpressionUtil.and(expr, disjunction);
+    }
+
+    private Expression<Boolean> addDisequalities(Expression<Boolean> expr, FreshSDV fsdv, Word<PSymbolInstance> prefix) {
+        Set<DataValue> prefixVals = DataWords.valSet(prefix);
+        Expression[] conjuncts = new Expression[prefixVals.size() + consts.values().size()];
+        int i = 0;
+        for (DataValue d : prefixVals) {
+            conjuncts[i++] = new NumericBooleanExpression(fsdv, NumericComparator.NE, d);
+        }
+        for (DataValue d : consts.values()) {
+            conjuncts[i++] = new NumericBooleanExpression(fsdv, NumericComparator.NE, d);
+        }
+        Expression<Boolean> conjunction = ExpressionUtil.and(conjuncts);
+        return ExpressionUtil.and(expr, conjunction);
     }
 
     private DataValue fresh(Collection<DataValue> vals, DataType t) {

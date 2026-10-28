@@ -29,7 +29,8 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
  * @author falk
  */
 public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> implements TypedValue permits
-        SymbolicDataValue.Parameter, SymbolicDataValue.Constant, SymbolicDataValue.Register, SymbolicDataValue.SuffixValue, SymbolicDataValue.SDV, SymbolicDataValue.QuantifiedSDV {
+        SymbolicDataValue.Parameter, SymbolicDataValue.Constant, SymbolicDataValue.Register, SymbolicDataValue.SuffixValue,
+        SymbolicDataValue.SDV, SymbolicDataValue.QuantifiedSDV, SymbolicDataValue.FreshSDV {
 
     /**
      * a data parameter of an action
@@ -92,12 +93,34 @@ public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> impl
         public SDV(DataType dataType, int id) {
             super(dataType, id, "d" + id);
         }
+
+        @Override
+        public SDV offset(int k) {
+            return new SDV(getDataType(), getId() + k);
+        }
     }
 
     public static final class QuantifiedSDV extends SymbolicDataValue implements SymbolicDataVariable {
 
         public QuantifiedSDV(DataType dataType, int id) {
-            super(dataType, id, "D" + id);
+            super(dataType, id, "∀d" + id);
+        }
+
+        @Override
+        public QuantifiedSDV offset(int k) {
+            return new QuantifiedSDV(getDataType(), getId() + k);
+        }
+    }
+
+    public static final class FreshSDV extends SymbolicDataValue implements SymbolicDataVariable {
+
+        public FreshSDV(DataType dataType, int id) {
+            super(dataType, id, "f" + id);
+        }
+
+        @Override
+        public FreshSDV offset(int k) {
+            return new FreshSDV(getDataType(), getId() + k);
         }
     }
 

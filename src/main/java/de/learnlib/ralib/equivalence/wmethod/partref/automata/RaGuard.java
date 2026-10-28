@@ -17,6 +17,8 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public abstract class RaGuard {
 
+    public abstract RaGuard negate();
+
     public abstract Constraint toConstraint(DSymbolInstance in);
 
     public static Constraint toConstraint(Set<RaGuard> guards, DSymbolInstance in) {

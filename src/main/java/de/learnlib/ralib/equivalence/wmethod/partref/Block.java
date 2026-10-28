@@ -1,12 +1,13 @@
 package de.learnlib.ralib.equivalence.wmethod.partref;
 
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SDV;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.Location;
@@ -16,63 +17,35 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public abstract class Block {
 
-    private static class InputSymbolBuilder implements Iterator<DSymbolInstance> {
-        private final ParameterizedSymbol act;
-        private final SymbolicDataVariable[] vars;
-        private final int[] indices;
-        private boolean hasNext;
-
-        public InputSymbolBuilder(ParameterizedSymbol act, Set<SymbolicDataVariable> vars) {
-            this.act = act;
-            this.vars = new SymbolicDataVariable[vars.size()];
-            indices = new int[act.getArity()];
-            int i = 0;
-            for (SymbolicDataVariable var : vars) {
-                this.vars[i++] = var;
-            }
-            for (i = 0; i < act.getArity(); i++) {
-                indices[i] = 0;
-            }
-            hasNext = act.getArity() == 0 || !vars.isEmpty();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return hasNext;
-        }
-
-        @Override
-        public DSymbolInstance next() {
-            if (act.getArity() == 0) {
-                hasNext = false;
-                return new DSymbolInstance(act);
-            }
-
-            SymbolicDataVariable[] vars = new SymbolicDataVariable[act.getArity()];
-            for (int i = 0; i < act.getArity(); i++) {
-                vars[i] = this.vars[indices[i]];
-            }
-            increment(act.getArity() - 1);
-            return new DSymbolInstance(act, vars);
-        }
-
-        private void increment(int i) {
-            indices[i]++;
-            if (indices[i] >= vars.length) {
-                indices[i] = 0;
-                if (i > 0) {
-                    increment(i - 1);
-                } else {
-                    hasNext = false;
-                }
-            }
-        }
-    };
-
     private final Set<SymbolicState> states;
 
     public Block(Set<SymbolicState> states) {
-        this.states = states;
+        this.states = combine(states);
+        assert SymbolicState.isDisjoint(this.states) : "Symbolic states not disjoint";
+    }
+
+    private static Set<SymbolicState> combine(Set<SymbolicState> states) {
+        SymbolicState[] stateArr = states.toArray(new SymbolicState[states.size()]);
+        Set<SymbolicState> ret = new LinkedHashSet<>();
+        Set<Integer> done = new LinkedHashSet<>();
+        for (int i = 0; i < stateArr.length; i++) {
+            Location l = stateArr[i].getLocation();
+            if (!done.contains(i)) {
+                Constraint combined = stateArr[i].getConstraints();
+                for (int j = i + 1; j < stateArr.length; j++) {
+                    if (stateArr[j].getLocation().equals(l) &&
+                            !done.contains(j)) {
+                        Optional<Constraint> opt = Constraint.combine(combined, stateArr[j].getConstraints());
+                        if (opt.isPresent()) {
+                            combined = opt.get();
+                            done.add(j);
+                        }
+                    }
+                }
+                ret.add(new SymbolicState(l, combined));
+            }
+        }
+        return ret;
     }
 
     public Set<SymbolicState> getStates() {
@@ -95,50 +68,66 @@ public abstract class Block {
         return max;
     }
 
-    public int maxQuantifiedSDVIndex() {
-        int max = 0;
+    public boolean hasState(SymbolicState state) {
         for (SymbolicState s : states) {
-            max = Integer.max(s.maxQuantifiedSDVIndex(), max);
+            if (s.getLocation().equals(state.getLocation())) {
+                Constraint conjunction = Constraint.construct(s.getConstraints(), state.getConstraints());
+                if (Constraint.isSatisfiable(conjunction)) {
+                    return true;
+                }
+            }
         }
-        return max;
+        return false;
     }
 
     public boolean isOutputConsistent(ParameterizedSymbol ... inacts) {
-        if (states.size() == 1) {
-            return true;
+        int k = maxIndex() + 1;
+
+        for (ParameterizedSymbol inact : inacts) {
+            DataType[] types = new DataType[inact.getArity()];
+            SymbolicDataVariable[] inVars = new SymbolicDataVariable[inact.getArity()];
+            for (int i = 0; i < inact.getArity(); i++) {
+                inVars[i] = new SDV(types[i], k + i);
+            }
+            DSymbolInstance in = new DSymbolInstance(inact, inVars);
+
+            Set<DSymbolInstance> outsExpected = null;
+            for (SymbolicState s : states) {
+                Set<DSymbolInstance> outs = s.getPossibleOutputs(in, k + inact.getArity());
+                assert !outs.isEmpty() : "No output for input";
+                if (outsExpected == null) {
+                    outsExpected = outs;
+                } else {
+                    if (outs.size() != outsExpected.size() ||
+                            !outs.containsAll(outsExpected)) {
+                        return false;
+                    }
+                }
+                if (!hasAllRegisters(s, in, outs)) {
+                    return false;
+                }
+            }
         }
-        Set<SymbolicDataVariable> allVars = new LinkedHashSet<>();
+        return true;
+    }
+
+    private boolean hasAllRegisters(SymbolicState state, DSymbolInstance in, Set<DSymbolInstance> outs) {
+        Set<Register> regs = new LinkedHashSet<>();
         for (SymbolicState s : states) {
-            Set<SymbolicDataValue> vals = s.getConstraints().getVariables();
-            for (SymbolicDataValue val : vals) {
-                if (val instanceof SymbolicDataVariable var) {
-                    allVars.add(var);
+            if (s.getLocation().equals(state.getLocation())) {
+                for (SymbolicDataValue v : s.getConstraints().getVariables()) {
+                    if (v.isRegister()) {
+                        regs.add((Register) v);
+                    }
                 }
             }
         }
 
-        for (ParameterizedSymbol inact : inacts) {
-            Set<SymbolicDataVariable> vars = new LinkedHashSet<>(allVars);
-            int k = maxIndex() + 1;
-            DataType[] types = inact.getPtypes();
-            // make sure there are enough vars to allow for each param to be fresh
-            for (int i = 0; i < inact.getArity(); i++) {
-                vars.add(new SDV(types[i], k++));
-            }
-            InputSymbolBuilder builder = new InputSymbolBuilder(inact, vars);
-            while (builder.hasNext) {
-                DSymbolInstance in = builder.next();
-                Set<DSymbolInstance> outsExpected = null;
-                for (SymbolicState s : states) {
-                    Set<DSymbolInstance> outs = s.getPossibleOutputs(in);
-                    assert !outs.isEmpty() : "No output for input";
-                    if (outsExpected == null) {
-                        outsExpected = outs;
-                    } else {
-                        if (outs.size() != outsExpected.size() ||
-                                !outs.containsAll(outsExpected)) {
-                            return false;
-                        }
+        for (DSymbolInstance out : outs) {
+            for (Constraint c : state.computeOutputPreconditions(in, out/*, OutputQualifier.ANY*/)) {
+                for (SymbolicDataValue v : c.getVariables()) {
+                    if (v.isRegister() && !regs.contains(v)) {
+                        return false;
                     }
                 }
             }
@@ -147,26 +136,21 @@ public abstract class Block {
     }
 
     public Set<SymbolicState> intersect(Set<SymbolicState> preconditions) {
-        Set<SymbolicState> conjunctions = new LinkedHashSet<>();
-        for (SymbolicState s : states) {
-            Set<SymbolicState> con = s.and(preconditions);
-            conjunctions.addAll(con);
-        }
-        return conjunctions;
+        return SymbolicState.intersect(states, preconditions);
     }
 
-    public Set<DSymbolInstance> getPossibleOutputs(DSymbolInstance in) {
+    public Set<DSymbolInstance> getPossibleOutputs(DSymbolInstance in, int outStartIndex) {
         Set<DSymbolInstance> outs = new LinkedHashSet<>();
         for (SymbolicState s : states) {
-            outs.addAll(s.getPossibleOutputs(in));
+            outs.addAll(s.getPossibleOutputs(in, outStartIndex));
         }
         return outs;
     }
 
-    public Set<SymbolicState> computeOutputPreconditions(DSymbolInstance in, DSymbolInstance out) {
+    public Set<SymbolicState> computeOutputPreconditions(DSymbolInstance in, DSymbolInstance out/*, OutputQualifier qualifier*/) {
         Set<SymbolicState> precs = new LinkedHashSet<>();
         for (SymbolicState s : states) {
-            for (Constraint c : s.computeOutputPreconditions(in, out)) {
+            for (Constraint c : s.computeOutputPreconditions(in, out/*, qualifier*/)) {
                 precs.add(new SymbolicState(s.getLocation(), c));
             }
         }

@@ -7,12 +7,13 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 
-public abstract class AtomicConstraint implements Constraint {
+public class AtomicConstraint implements Constraint {
 
     protected SymbolicDataVariable dataValue;
 
@@ -39,6 +40,11 @@ public abstract class AtomicConstraint implements Constraint {
     }
 
     @Override
+    public int maxIndex() {
+        return dataValue.getId();
+    }
+
+    @Override
     public Expression<Boolean> toExpression() {
         NumericComparator rel = switch(relation) {
         case EQ -> NumericComparator.EQ;
@@ -54,6 +60,23 @@ public abstract class AtomicConstraint implements Constraint {
         Mapping<SymbolicDataValue, SymbolicDataVariable> mapping = new Mapping<>();
         mapping.put(param, dataValue);
         return mapping;
+    }
+
+    @Override
+    public Constraint remap(Mapping<Register, ? extends SymbolicDataValue> remapping) {
+        if (remapping.containsKey(param)) {
+            return Constraint.construct(dataValue, relation, remapping.get(param));
+        }
+        return this;
+    }
+
+    @Override
+    public AtomicConstraint offset(int k) {
+        SymbolicDataValue param = this.param;
+        if (param instanceof SymbolicDataVariable sdv) {
+            param = (SymbolicDataValue) sdv.offset(k);
+        }
+        return new AtomicConstraint(dataValue.offset(k), relation, param);
     }
 
     @Override
@@ -117,12 +140,7 @@ public abstract class AtomicConstraint implements Constraint {
 
     @Override
     public String toString() {
-        String rel = switch(relation) {
-        case EQ -> "==";
-        case NEQ -> "!=";
-        default -> "??";
-        };
-        return dataValue.toString() + rel + param.toString();
+        return dataValue.toString() + relation.toString() + param.toString();
     }
 
 }

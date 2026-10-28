@@ -3,7 +3,9 @@ package de.learnlib.ralib.equivalence.wmethod.partref.automata;
 import java.util.Objects;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.FreshSDV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.QuantifiedSDV;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import de.learnlib.ralib.equivalence.wmethod.partref.DSymbolInstance;
 import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
@@ -42,9 +44,20 @@ public class RaEqualityGuard extends RaGuard {
     }
 
     @Override
+    public RaEqualityGuard negate() {
+        return new RaEqualityGuard(left, rel.negate(), right);
+    }
+
+    @Override
     public Constraint toConstraint(DSymbolInstance in) {
         SymbolicDataVariable[] vars = in.getSymbolicValues();
         SymbolicDataVariable dataValue = vars[left.getId() - 1];
+        if (dataValue instanceof FreshSDV && !rel.equals(Relation.NEQ)) {
+            return Constraint.FALSE;
+        }
+        if (dataValue instanceof QuantifiedSDV && !rel.equals(Relation.EQ)) {
+            return Constraint.FALSE;
+        }
         SymbolicDataValue reg = right.isParameter() ?
                 (SymbolicDataValue) vars[right.getId() - 1] :
                     right;

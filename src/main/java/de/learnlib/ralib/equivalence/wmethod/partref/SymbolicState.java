@@ -1,20 +1,22 @@
 package de.learnlib.ralib.equivalence.wmethod.partref;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.BiMap;
-
+import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.QuantifiedSDV;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.Location;
@@ -22,8 +24,9 @@ import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaEqualityGuard;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaGuard;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaModel;
 import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
-import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Relation;
+import de.learnlib.ralib.equivalence.wmethod.partref.symbolgen.BooleanArrayIterator;
 import de.learnlib.ralib.words.OutputSymbol;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class SymbolicState {
 
@@ -51,10 +54,6 @@ public class SymbolicState {
 
     public int maxIndex() {
         return constr.maxIndex();
-    }
-
-    public int maxQuantifiedSDVIndex() {
-        return constr.maxQuantifiedSDVIndex();
     }
 
     public boolean areAllRegistersIdentified() {
@@ -105,41 +104,36 @@ public class SymbolicState {
         return new SymbolicState(loc, constr.offset(k));
     }
 
-    public Set<DSymbolInstance> getPossibleOutputs(DSymbolInstance in) {
-        return loc.getPossibleOutputSymbols(in, constr);
+    public Set<DSymbolInstance> getPossibleOutputs(DSymbolInstance in, int startIndex) {
+        return loc.getPossibleOutputSymbols(in, startIndex);
     }
 
     public Set<Constraint> computeOutputPreconditions(DSymbolInstance in, DSymbolInstance out) {
         assert out.getBaseSymbol() instanceof OutputSymbol : "Invalid output symbol";
         OutputSymbol outact = (OutputSymbol) out.getBaseSymbol();
-        SymbolicDataVariable[] outSdvs = out.getSymbolicValues();
-        SymbolicDataVariable[] inSdvs = in.getSymbolicValues();
         Set<Constraint> precs = new LinkedHashSet<>();
+
         for (Transition t : loc.getTransitionsWithOutput(outact)) {
             if (t.getLabel().equals(in.getBaseSymbol())) {
-                BiMap<Parameter, SymbolicDataValue> outParamMap = loc.getOutputParameterMapping(t);
-                assert outParamMap != null : "No output parameter mapping found";
+                Map<SymbolicDataVariable, SymbolicDataValue> outEqs = loc.getOutputEqualities(in, out, t);
 
-                Map<SymbolicDataVariable, SymbolicDataValue> constraintMap = new LinkedHashMap<>();
-
-                for (Map.Entry<Parameter, SymbolicDataValue> outParamEntry : outParamMap.entrySet()) {
-                    Parameter outParam = outParamEntry.getKey();
-                    SymbolicDataValue inVal = outParamEntry.getValue();
-                    SymbolicDataVariable outSdv = outSdvs[outParam.getId() - 1];
-                    if (inVal.isConstant() || inVal.isRegister()) {
-                        constraintMap.put(outSdv, inVal);
-                    } else if (inVal.isParameter()) {
-                        constraintMap.put(outSdv, (SymbolicDataValue) inSdvs[inVal.getId() - 1]);
-                    } else {
-                        throw new IllegalArgumentException("Invalid type of symbolic data value");
-                    }
-                }
-
-                Constraint mappingConstraint = Constraint.construct(constraintMap);
+                List<Transition> transitions = new ArrayList<>(getTransitionsWithInput(loc.getTransitionsWithOutput(outact), in.getBaseSymbol()));
+                transitions.remove(t);
+                Set<Constraint> otherGuardsConstraints = constraintsFromGuard(transitions, in, loc);
+                Constraint mappingConstraint = Constraint.construct(outEqs);
                 Constraint guardConstraint = constraintFromGuard(t, in, loc);
-                Constraint con = Constraint.construct(guardConstraint, mappingConstraint);
-                if (Constraint.isSatisfiable(con)) {
-                    precs.add(Constraint.construct(guardConstraint, mappingConstraint));
+                if (otherGuardsConstraints.isEmpty()) {
+                    Constraint con = Constraint.construct(guardConstraint, mappingConstraint);
+                    if (Constraint.isSatisfiable(con)) {
+                        precs.add(Constraint.construct(guardConstraint, mappingConstraint));
+                    }
+                } else {
+                    for (Constraint otherGuardsConstraint : otherGuardsConstraints) {
+                        Constraint con = Constraint.construct(guardConstraint, otherGuardsConstraint, mappingConstraint);
+                        if (Constraint.isSatisfiable(con)) {
+                            precs.add(Constraint.construct(con, mappingConstraint));
+                        }
+                    }
                 }
             }
         }
@@ -153,29 +147,127 @@ public class SymbolicState {
             assert loc.getRaLocation().getId() == 0 : "Non-initial location with no predecessors";
             return ret;
         }
+        Map<RALocation, List<Transition>> transitions = new LinkedHashMap<>();
         for (Transition t : predecessors) {
-            if (model.getDestination(t).equals(loc)) {
-                Location src = model.getLocation(t.getSource());
-                Optional<Constraint> precOpt = computeStatePrecondition(in, out, t, src);
-                if (precOpt.isPresent()) {
-                    ret.add(new SymbolicState(src, precOpt.get()));
-                }
+            if (model.getDestination(t).equals(loc) &&
+                    t.getLabel().equals(in.getBaseSymbol()) &&
+                    model.getLocation(t.getSource()).getOutputSymbol(t).equals(out.getBaseSymbol())) {
+                List<Transition> trans = transitions.containsKey(t.getSource()) ? transitions.get(t.getSource()) : new ArrayList<>();
+                trans.add(t);
+                transitions.put(t.getSource(), trans);
+            }
+        }
+        for (Map.Entry<RALocation, List<Transition>> e : transitions.entrySet()) {
+            Location src = model.getLocation(e.getKey());
+            List<Constraint> constraints = computeStatePreconditions(in, out, e.getValue(), src);
+            for (Constraint constraint : constraints) {
+                ret.add(new SymbolicState(src, constraint));
             }
         }
         return ret;
     }
 
-    private Optional<Constraint> computeStatePrecondition(DSymbolInstance in, DSymbolInstance out, Transition trans, Location src) {
-        if (!trans.getLabel().equals(in.getBaseSymbol())) {
-            return Optional.empty();
+    private List<Transition> getTransitionsWithInput(Collection<Transition> transitions, ParameterizedSymbol inact) {
+        List<Transition> ret = new ArrayList<>();
+        for (Transition t : transitions) {
+            if (t.getLabel().equals(inact)) {
+                ret.add(t);
+            }
         }
-        if (!src.getOutputSymbol(trans).equals(out.getBaseSymbol())) {
-            return Optional.empty();
+        return ret;
+    }
+
+    private List<Constraint> computeStatePreconditions(DSymbolInstance in, DSymbolInstance out, List<Transition> transitions, Location src) {
+        List<Constraint> constraints = new ArrayList<>();
+        for (Transition t : transitions) {
+            if (t.getLabel().equals(in.getBaseSymbol()) &&
+                    src.getOutputSymbol(t).equals(out.getBaseSymbol())) {
+                List<Transition> others = new ArrayList<>(getTransitionsWithInput(transitions, in.getBaseSymbol()));
+                others.remove(t);
+                Constraint outGuardConstraint = Constraint.construct(src.getOutputEqualities(in, out, t));
+                Constraint assignConstraint = constraintFromAssignment(t, in, out);
+                Constraint guardConstraint = constraintFromGuard(t, in, src);
+                Set<Constraint> otherGuardsConstraints = constraintsFromGuard(others, in, src);
+                if (otherGuardsConstraints.isEmpty()) {
+                    constraints.add(Constraint.construct(guardConstraint, outGuardConstraint, assignConstraint));
+                } else {
+                    for (Constraint otherGuardsConstraint : constraintsFromGuard(others, in, src)) {
+                        constraints.add(Constraint.construct(guardConstraint, otherGuardsConstraint, outGuardConstraint, assignConstraint));
+                    }
+                }
+            }
         }
-        Constraint guardConstraint = constraintFromGuard(trans, in, src);
-        Constraint outGuardConstraint = constraintFromOutputGuard(trans, out, src);
-        Constraint assignConstraint = constraintFromAssignment(trans, in, out);
-        return Optional.of(Constraint.construct(guardConstraint, outGuardConstraint, assignConstraint));
+        return constraints;
+    }
+
+//    private Optional<Constraint> computeStatePrecondition(DSymbolInstance in, DSymbolInstance out, Transition trans, Location src) {
+//        if (!trans.getLabel().equals(in.getBaseSymbol())) {
+//            return Optional.empty();
+//        }
+//        if (!src.getOutputSymbol(trans).equals(out.getBaseSymbol())) {
+//            return Optional.empty();
+//        }
+//        Constraint guardConstraint = constraintFromGuard(trans, in, src);
+//        Constraint outGuardConstraint = Constraint.construct(src.getOutputEqualities(in, out, trans));
+//        Constraint assignConstraint = constraintFromAssignment(trans, in, out);
+//        return Optional.of(Constraint.construct(guardConstraint, outGuardConstraint, assignConstraint));
+//    }
+
+    private Set<Constraint> constraintsFromGuard(Collection<Transition> transitions, DSymbolInstance in, Location src) {
+        List<Set<RaGuard>> guardList = new ArrayList<>();
+        SymbolicDataVariable[] vars = in.getSymbolicValues();
+        for (Transition t : transitions) {
+            Set<RaGuard> guards = RaGuard.fromRaGuard(t.getGuard());
+            Set<RaGuard> trimmedGuards = new LinkedHashSet<>();
+            for (RaGuard g : guards) {
+                if (g instanceof RaEqualityGuard eg) {
+                    Parameter p = eg.getLeft();
+                    if (!(vars[p.getId() - 1] instanceof QuantifiedSDV)) {
+                        trimmedGuards.add(eg);
+                    }
+                } else {
+                    trimmedGuards.add(g);
+                }
+            }
+            guardList.add(trimmedGuards);
+        }
+        Set<Constraint> ret = new LinkedHashSet<>();
+        for (List<Set<RaGuard>> guardPermutation : getGuardPermutations(guardList)) {
+            for (Set<RaGuard> guardSet : guardPermutation) {
+                Set<Constraint> constraintList = new LinkedHashSet<>();
+                for (RaGuard g : guardSet) {
+                    constraintList.add(g.toConstraint(in));
+                }
+                ret.add(Constraint.construct(constraintList));
+            }
+        }
+        return ret;
+    }
+
+    private List<List<Set<RaGuard>>> getGuardPermutations(List<Set<RaGuard>> guards) {
+        List<List<Set<RaGuard>>> guardPermutations = new ArrayList<>();
+
+        for (int size = 0; size <= guards.size(); size++) {
+            BooleanArrayIterator permit = new BooleanArrayIterator(guards.size(), size);
+            while (permit.hasNext()) {
+                List<Set<RaGuard>> guardPermutation = new ArrayList<>();
+                boolean[] permutation = permit.next();
+                for (int i = 0; i < guards.size(); i++) {
+                    if (permutation[i]) {
+                        guardPermutation.add(guards.get(i));
+                    } else {
+                        Set<RaGuard> negated = new LinkedHashSet<>();
+                        for (RaGuard g : guards.get(i)) {
+                            negated.add(g.negate());
+                        }
+                        guardPermutation.add(negated);
+                    }
+                }
+                guardPermutations.add(guardPermutation);
+            }
+        }
+
+        return guardPermutations;
     }
 
     private Constraint constraintFromGuard(Transition transition, DSymbolInstance in, Location src) {
@@ -183,13 +275,7 @@ public class SymbolicState {
         Set<RaGuard> guards = src.getGuards(transition);
         Set<Constraint> constraintList = new LinkedHashSet<>();
         for (RaGuard guard : guards) {
-            if (guard instanceof RaEqualityGuard g) {
-                Parameter param = g.getLeft();
-                SymbolicDataValue right = g.getRight();
-                Relation rel = g.getRelation();
-                SymbolicDataVariable left = sdvs[param.getId() - 1];
-                constraintList.add(Constraint.construct(left, rel, right));
-            }
+            constraintList.add(guard.toConstraint(in));
         }
         return Constraint.construct(constraintList);
     }
@@ -222,16 +308,18 @@ public class SymbolicState {
         return remapping;
     }
 
-    private Constraint constraintFromOutputGuard(Transition t, DSymbolInstance out, Location src) {
-        Map<SymbolicDataVariable, SymbolicDataValue> equalities = new LinkedHashMap<>();
-        SymbolicDataVariable[] outVars = out.getSymbolicValues();
-        for (Map.Entry<Parameter, SymbolicDataValue> e : src.getOutputParameterMapping(t).entrySet()) {
-            Parameter outParam = e.getKey();
-            SymbolicDataValue val = e.getValue();
-            equalities.put(outVars[outParam.getId() - 1], val);
-        }
-        return Constraint.construct(equalities);
-    }
+//    private Constraint constraintFromOutputGuard(Transition t, DSymbolInstance out, Location src) {
+//        Map<SymbolicDataVariable, SymbolicDataValue> equalities = new LinkedHashMap<>();
+//        SymbolicDataVariable[] outVars = out.getSymbolicValues();
+//        for (Map.Entry<Parameter, SymbolicDataValue> e : src.getOutputParameterMapping(t).entrySet()) {
+//            Parameter outParam = e.getKey();
+//            SymbolicDataValue val = e.getValue();
+//            if (val.isRegister() || val.isConstant()) {
+//                equalities.put(outVars[outParam.getId() - 1], val);
+//            }
+//        }
+//        return Constraint.construct(equalities);
+//    }
 
     @Override
     public boolean equals(Object obj) {
@@ -262,5 +350,27 @@ public class SymbolicState {
     @Override
     public String toString() {
         return "<" + loc.toString() + ", " + constr.toString() + ">";
+    }
+
+    public static boolean isDisjoint(Set<SymbolicState> states) {
+        SymbolicState[] stateArr = states.toArray(new SymbolicState[states.size()]);
+        for (int i = 0; i < states.size(); i++) {
+            for (int j = i + 1; j < states.size(); j++) {
+                Optional<SymbolicState> s = stateArr[i].and(stateArr[j]);
+                if (s.isPresent() && Constraint.isSatisfiable(s.get().getConstraints())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static Set<SymbolicState> intersect(Set<SymbolicState> states, Set<SymbolicState> preconditions) {
+        Set<SymbolicState> conjunctions = new LinkedHashSet<>();
+        for (SymbolicState s : states) {
+            Set<SymbolicState> con = s.and(preconditions);
+            conjunctions.addAll(con);
+        }
+        return conjunctions;
     }
 }

@@ -10,6 +10,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.QuantifiedSDV;
 import de.learnlib.ralib.data.SymbolicDataValue.SDV;
 import de.learnlib.ralib.data.SymbolicDataVariable;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
@@ -53,6 +54,15 @@ public class DSymbolInstance {
             }
         }
         return max;
+    }
+
+    public boolean isQuantified() {
+        for (SymbolicDataVariable d : getSymbolicValues()) {
+            if (d instanceof QuantifiedSDV) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

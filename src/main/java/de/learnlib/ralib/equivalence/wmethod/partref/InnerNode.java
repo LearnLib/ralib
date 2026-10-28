@@ -38,13 +38,4 @@ public class InnerNode extends Node {
         }
         return max;
     }
-
-    @Override
-    public int maxQuantifiedSDVIndex() {
-        int max = super.maxQuantifiedSDVIndex();
-        for (Node child : children) {
-            max = Integer.max(child.maxQuantifiedSDVIndex(), max);
-        }
-        return max;
-    }
 }

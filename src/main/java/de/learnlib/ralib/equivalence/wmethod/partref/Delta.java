@@ -45,12 +45,16 @@ public class Delta {
         return true;
     }
 
-    public boolean makesProgress() {
+    public boolean revealsRegisters() {
         for (RegProgress rp : regProgress) {
             if (!rp.regs.isEmpty()) {
                 return true;
             }
         }
+        return false;
+    }
+
+    public boolean separatesLocations() {
         return !separated.isEmpty();
     }
 }

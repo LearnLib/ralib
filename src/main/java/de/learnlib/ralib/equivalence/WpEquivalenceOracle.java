@@ -31,8 +31,6 @@ public class WpEquivalenceOracle implements IOEquivalenceOracle {
 
     private final Constants consts;
 
-    private final boolean ioMode;
-
     private final ParameterizedSymbol[] inputs;
 
     private final ConstraintSolver solver;
@@ -44,7 +42,6 @@ public class WpEquivalenceOracle implements IOEquivalenceOracle {
             int sizeDifference,
             Map<DataType, Theory> teachers,
             Constants consts,
-            boolean ioMode,
             ParameterizedSymbol ... inputs) {
         this.target = target;
         this.strategy = strategy;
@@ -52,7 +49,6 @@ public class WpEquivalenceOracle implements IOEquivalenceOracle {
         this.teachers = teachers;
         this.consts = consts;
         this.inputs = inputs;
-        this.ioMode = ioMode;
         solver = new ConstraintSolver();
     }
 
@@ -60,7 +56,7 @@ public class WpEquivalenceOracle implements IOEquivalenceOracle {
     public @Nullable DefaultQuery<PSymbolInstance, Boolean> findCounterExample(RegisterAutomaton hypothesis,
             Collection<? extends PSymbolInstance> clctn) {
 
-        WpTestSuite testSuite = new WpTestSuite(hypothesis, sizeDifference, strategy, teachers, solver, consts, ioMode, inputs);
+        WpTestSuite testSuite = new WpTestSuite(hypothesis, sizeDifference, strategy, teachers, solver, consts, false, inputs);
 
         for (Word<PSymbolInstance> test : testSuite) {
             boolean hypAcc = hypothesis.accepts(test);

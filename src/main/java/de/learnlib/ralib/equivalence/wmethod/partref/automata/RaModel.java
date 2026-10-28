@@ -182,6 +182,15 @@ public class RaModel extends RegisterAutomaton {
         return locMap.inverse().get(raloc);
     }
 
+    public Location getLocation(int id) {
+        for (Location loc : getLocations()) {
+            if (loc.getRaLocation().getId() == id) {
+                return loc;
+            }
+        }
+        return null;
+    }
+
     public Map<Location, Set<Transition>> getPredecessorTransitions() {
         return predecessors;
     }

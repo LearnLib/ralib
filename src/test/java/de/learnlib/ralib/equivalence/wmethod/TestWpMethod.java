@@ -56,7 +56,7 @@ public class TestWpMethod extends RaLibTestSuite {
         ConstraintSolver solver = new ConstraintSolver();
 
         RAEquivalenceTest modelChecker = new RAEquivalenceTest(sul, teachers, consts, false, I_PUSH, I_POP);
-        WpEquivalenceOracle wpEq = new WpEquivalenceOracle(sul, strat, k, teachers, consts, false, I_PUSH, I_POP);
+        WpEquivalenceOracle wpEq = new WpEquivalenceOracle(sul, strat, k, teachers, consts, I_PUSH, I_POP);
 
         Measurements mes = new Measurements();
 

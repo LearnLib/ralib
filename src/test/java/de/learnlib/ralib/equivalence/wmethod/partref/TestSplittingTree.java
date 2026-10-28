@@ -170,7 +170,7 @@ public class TestSplittingTree extends RaLibTestSuite {
         Assert.assertTrue(tree.getLeaves().contains(b1));
         Assert.assertTrue(tree.getLeaves().contains(b2));
 
-        SDV d2 = new SDV(T_INT, 2);
+        SymbolicDataVariable d2 = new SDV(T_INT, 2);
         in = new DSymbolInstance(I_PUSH, new SymbolicDataVariable[] {d2});
         success = tree.splitByOutput(b2, in);
         Assert.assertFalse(success);
@@ -179,13 +179,13 @@ public class TestSplittingTree extends RaLibTestSuite {
         success = tree.splitByOutput(b1, in);
         Assert.assertFalse(success);
 
-        QuantifiedSDV dd1 = new QuantifiedSDV(T_INT, 1);
-        in = new DSymbolInstance(I_POP, new SymbolicDataVariable[] {dd1});
+        d2 = new QuantifiedSDV(T_INT, 2);
+        in = new DSymbolInstance(I_POP, new SymbolicDataVariable[] {d2});
         success = tree.splitByOutput(b1, in);
         Assert.assertTrue(success);
 
-        Constraint eEr1 = Constraint.construct(dd1, Relation.EQ, r1);
-        Constraint eEr2 = Constraint.construct(dd1, Relation.EQ, r2);
+        Constraint eEr1 = Constraint.construct(d2, Relation.EQ, r1);
+        Constraint eEr2 = Constraint.construct(d2, Relation.EQ, r2);
         Leaf b1_1 = makeBlock(new SymbolicState(locs[0], Constraint.TRUE));
         Leaf b1_2 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d1Nr1, eEr1)),
                 new SymbolicState(locs[2], Constraint.construct(d1Nr2, eEr2)));
@@ -199,34 +199,37 @@ public class TestSplittingTree extends RaLibTestSuite {
 
         // SPLIT BY STATE
 
-        in = new DSymbolInstance(I_POP, new SymbolicDataVariable[] {d2});
+        SDV d3 = new SDV(T_INT, 3);
+        in = new DSymbolInstance(I_POP, new SymbolicDataVariable[] {d3});
         success = tree.splitByState(b2, in, OK);
         Assert.assertTrue(success);
 
-        SDV d3 = new SDV(T_INT, 3);
-        Constraint d2Er1 = Constraint.construct(d2, Relation.EQ, r1);
-        Constraint d2Er2 = Constraint.construct(d2, Relation.EQ, r2);
+        SDV d4 = new SDV(T_INT, 4);
         Constraint d3Er1 = Constraint.construct(d3, Relation.EQ, r1);
-        Constraint d3Nr1 = Constraint.construct(d3, Relation.NEQ, r1);
-        Leaf b2_1 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d1Er2, d2Er2, d3Er1)));
-        Leaf b2_2 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d1Er1, d2Er1)),
-                new SymbolicState(locs[2], Constraint.construct(d1Er2, d2Er2, d3Nr1)));
+        Constraint d3Er2 = Constraint.construct(d3, Relation.EQ, r2);
+        Constraint d4Er1 = Constraint.construct(d4, Relation.EQ, r1);
+        Constraint d4Nr1 = Constraint.construct(d4, Relation.NEQ, r1);
+        Leaf b2_1 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d1Er2, d3Er2, d4Er1)));
+        Leaf b2_2 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d1Er1, d3Er1)),
+                new SymbolicState(locs[2], Constraint.construct(d1Er2, d3Er2, d4Nr1)));
         Assert.assertTrue(tree.getLeaves().contains(b2_1));
         Assert.assertTrue(tree.getLeaves().contains(b2_2));
 
         Assert.assertFalse(tree.isStable());
 
-        SDV d4 = new SDV(T_INT, 4);
-        in = new DSymbolInstance(I_POP, new SymbolicDataVariable[] {d4});
+        SDV d5 = new SDV(T_INT, 5);
+        in = new DSymbolInstance(I_POP, new SymbolicDataVariable[] {d5});
         success = tree.splitByState(b2_2, in, OK);
         Assert.assertTrue(success);
 
-        SDV d5 = new SDV(T_INT, 5);
-        Constraint d4Er1 = Constraint.construct(d4, Relation.EQ, r1);
-        Constraint d4Er2 = Constraint.construct(d4, Relation.EQ, r2);
-        Constraint d5Nr1 = Constraint.construct(d5, Relation.NEQ, r1);
-        Leaf b2_2_1 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d1Er1, d2Er1, d4Er1)));
-        Leaf b2_2_2 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d1Er2, d2Er2, d4Er2, d3Nr1, d5Nr1, eEr1)));
+        SDV d6 = new SDV(T_INT, 6);
+        QuantifiedSDV d7 = new QuantifiedSDV(T_INT, 7);
+        Constraint d5Er1 = Constraint.construct(d5, Relation.EQ, r1);
+        Constraint d5Er2 = Constraint.construct(d5, Relation.EQ, r2);
+        Constraint d6Nr1 = Constraint.construct(d6, Relation.NEQ, r1);
+        Constraint ed7Er1 = Constraint.construct(d7, Relation.EQ, r1);
+        Leaf b2_2_1 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d1Er1, d3Er1, d5Er1)));
+        Leaf b2_2_2 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d1Er2, d3Er2, d5Er2, d4Nr1, d6Nr1, ed7Er1)));
         Assert.assertTrue(tree.getLeaves().contains(b2_2_1));
         Assert.assertTrue(tree.getLeaves().contains(b2_2_2));
 
@@ -258,15 +261,15 @@ public class TestSplittingTree extends RaLibTestSuite {
         boolean success = tree.splitByOutput(b0, in);
         Assert.assertTrue(success);
 
-        Constraint d1Er1 = Constraint.construct(d1, Relation.EQ, r1);
-        Constraint d1Er2 = Constraint.construct(d1, Relation.EQ, r2);
+        SDV d2 = new SDV(T_INT, 2);
+        Constraint d2Er1 = Constraint.construct(d2, Relation.EQ, r1);
+        Constraint d2Er2 = Constraint.construct(d2, Relation.EQ, r2);
         Leaf b1 = makeBlock(new SymbolicState(locs[0], Constraint.TRUE));
-        Leaf b2 = makeBlock(new SymbolicState(locs[1], d1Er1),
-                new SymbolicState(locs[2], d1Er2));
+        Leaf b2 = makeBlock(new SymbolicState(locs[1], d2Er1),
+                new SymbolicState(locs[2], d2Er2));
         Assert.assertTrue(tree.getLeaves().contains(b1));
         Assert.assertTrue(tree.getLeaves().contains(b2));
 
-        SDV d2 = new SDV(T_INT, 2);
         in = new DSymbolInstance(I_PUSH, new SymbolicDataVariable[] {d2});
         success = tree.splitByOutput(b2, in);
         Assert.assertFalse(success);
@@ -284,12 +287,12 @@ public class TestSplittingTree extends RaLibTestSuite {
         success = tree.splitByState(b2, in, out);
         Assert.assertTrue(success);
 
-        SDV d4 = new SDV(T_INT, 4);
-        Constraint d4Er1 = Constraint.construct(d4, Relation.EQ, r1);
+        SDV d5 = new SDV(T_INT, 5);
+        Constraint d5Er1 = Constraint.construct(d5, Relation.EQ, r1);
         Constraint d3Er1 = Constraint.construct(d3, Relation.EQ, r1);
         Constraint d3Er2 = Constraint.construct(d3, Relation.EQ, r2);
-        Leaf b2_1 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d1Er1, d3Er1)));
-        Leaf b2_2 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d1Er2, d3Er2, d4Er1)));
+        Leaf b2_1 = makeBlock(new SymbolicState(locs[1], Constraint.construct(d2Er1, d3Er1)));
+        Leaf b2_2 = makeBlock(new SymbolicState(locs[2], Constraint.construct(d2Er2, d3Er2, d5Er1)));
         Assert.assertTrue(tree.getLeaves().contains(b2_1));
         Assert.assertTrue(tree.getLeaves().contains(b2_2));
 
@@ -306,7 +309,7 @@ public class TestSplittingTree extends RaLibTestSuite {
         return locArr;
     }
 
-    private Leaf makeBlock(SymbolicState ... states) {
+    protected static Leaf makeBlock(SymbolicState ... states) {
         Set<SymbolicState> set = new LinkedHashSet<>();
         for (SymbolicState s : states) {
             set.add(s);

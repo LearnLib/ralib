@@ -33,7 +33,7 @@ public class ConstraintList implements Constraint, Iterable<Constraint> {
         }
     }
 
-    public void add(Constraint constraint) {
+    private void add(Constraint constraint) {
         if (constraint instanceof ConstraintList cl) {
             constrs.addAll(cl.constrs);
         } else {
@@ -46,15 +46,6 @@ public class ConstraintList implements Constraint, Iterable<Constraint> {
         int index = 0;
         for (Constraint c : constrs) {
             index = Integer.max(index, c.maxIndex());
-        }
-        return index;
-    }
-
-    @Override
-    public int maxQuantifiedSDVIndex() {
-        int index = 0;
-        for (Constraint c : constrs) {
-            index = Integer.max(index, c.maxQuantifiedSDVIndex());
         }
         return index;
     }
