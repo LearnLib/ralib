@@ -69,7 +69,7 @@ public class TestQuantifiedInputSymbolGenerator extends RaLibTestSuite {
     }
 
     @Test
-    private void testInputSymbolGeneratorNoGuardedParams() {
+    public void testInputSymbolGeneratorNoGuardedParams() {
         RaModel model = new RaModel(buildEpsilonAutomaton(), false);
         Location l0 = model.getLocation(0);
         Leaf block = new Leaf(Set.of(new SymbolicState(l0, Constraint.TRUE)));
