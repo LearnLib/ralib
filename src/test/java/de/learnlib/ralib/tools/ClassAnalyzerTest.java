@@ -57,7 +57,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "use.ceopt=false;" +
             "use.suffixopt=true;" +
             "use.fresh=true;" +
-            "use.rwalk=true;" +
+            "equivalence=random.walk;" +
             "export.model=false;" +
             "rwalk.prob.fresh=0.3;" +
             "rwalk.prob.reset=0.1;" +
@@ -91,7 +91,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "use.ceopt=false;" +
             "use.suffixopt=true;" +
             "use.fresh=true;" +
-            "use.rwalk=true;" +
+            "equivalence=random.walk;" +
             "export.model=false;" +
             "rwalk.prob.fresh=0.8;" +
             "rwalk.prob.reset=0.1;" +
@@ -148,7 +148,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "use.ceopt=true;" +
             "use.suffixopt=true;" +
             "use.fresh=false;" +
-            "use.rwalk=true;" +
+            "equivalence=random.walk;" +
             "export.model=false;" +
             "rwalk.prob.fresh=0.1;" +
             "rwalk.prob.reset=0.0;" +
@@ -206,7 +206,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
                 "use.ceopt=false;" +
                 "use.suffixopt=true;" +
                 "use.fresh=true;" +
-                "use.rwalk=true;" +
+                "equivalence=random.walk;" +
                 "export.model=false;" +
                 "rwalk.prob.fresh=0.8;" +
                 "rwalk.prob.reset=0.1;" +
