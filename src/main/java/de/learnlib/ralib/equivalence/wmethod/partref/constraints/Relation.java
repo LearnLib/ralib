@@ -5,19 +5,17 @@ public enum Relation {
     NEQ;
 
     public Relation negate() {
-        return switch(this.ordinal()) {
-            case 0 -> NEQ;
-            case 1 -> EQ;
-            default -> null;
-        };
+        if (this.equals(EQ)) {
+            return NEQ;
+        }
+        return EQ;
     }
 
     @Override
     public String toString() {
-        return switch(this.ordinal()) {
-            case 0 -> "==";
-            case 1 -> "!=";
-            default -> null;
-        };
+        if (this.equals(EQ)) {
+            return "==";
+        }
+        return "!=";
     }
 }
