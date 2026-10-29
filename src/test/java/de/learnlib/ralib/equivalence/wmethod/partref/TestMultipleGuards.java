@@ -90,6 +90,7 @@ public class TestMultipleGuards extends RaLibTestSuite {
         SymbolicDataVariable d1 = new QuantifiedSDV(T, 1);
         in = new DSymbolInstance(D, new SymbolicDataVariable[] {d1});
         success = tree.splitByOutput(b2, in);
+        Assert.assertTrue(success);
 
         Constraint d1Er1 = Constraint.construct(d1, Relation.EQ, r1);
         Constraint d1Er2 = Constraint.construct(d1, Relation.EQ, r2);
