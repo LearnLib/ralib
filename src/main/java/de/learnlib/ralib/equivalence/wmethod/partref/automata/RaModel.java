@@ -203,6 +203,7 @@ public class RaModel extends RegisterAutomaton {
         return destinations.get(t);
     }
 
+    @Override
     public RARun getRun(Word<PSymbolInstance> prefix, Constants consts) {
         if (!ioMode) {
             prefix = removeEpsilon(prefix);
