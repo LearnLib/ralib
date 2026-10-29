@@ -35,7 +35,7 @@ import net.automatalib.word.Word;
 public class LearnEchoWpTest extends RaLibTestSuite {
 
     @Test
-    private void learnEchoWpTest() {
+    public void learnEchoWpTest() {
         Constants consts = new Constants();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
