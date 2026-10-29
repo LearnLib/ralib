@@ -58,7 +58,7 @@ public class ConstraintList implements Constraint, Iterable<Constraint> {
         Expression[] exprs = new Expression[constrs.size()];
         int i = 0;
         for (Constraint c : constrs) {
-            exprs[(i++)] = c.toExpression();
+            exprs[i++] = c.toExpression();
         }
         return ExpressionUtil.and(exprs);
     }
