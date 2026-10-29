@@ -119,7 +119,7 @@ public class SymbolicState {
 
                 List<Transition> transitions = new ArrayList<>(getTransitionsWithInput(loc.getTransitionsWithOutput(outact), in.getBaseSymbol()));
                 transitions.remove(t);
-                Set<Constraint> otherGuardsConstraints = constraintsFromGuard(transitions, in, loc);
+                Set<Constraint> otherGuardsConstraints = constraintsFromGuard(transitions, in);
                 Constraint mappingConstraint = Constraint.construct(outEqs);
                 Constraint guardConstraint = constraintFromGuard(t, in, loc);
                 if (otherGuardsConstraints.isEmpty()) {
@@ -187,11 +187,11 @@ public class SymbolicState {
                 Constraint outGuardConstraint = Constraint.construct(src.getOutputEqualities(in, out, t));
                 Constraint assignConstraint = constraintFromAssignment(t, in, out);
                 Constraint guardConstraint = constraintFromGuard(t, in, src);
-                Set<Constraint> otherGuardsConstraints = constraintsFromGuard(others, in, src);
+                Set<Constraint> otherGuardsConstraints = constraintsFromGuard(others, in);
                 if (otherGuardsConstraints.isEmpty()) {
                     constraints.add(Constraint.construct(guardConstraint, outGuardConstraint, assignConstraint));
                 } else {
-                    for (Constraint otherGuardsConstraint : constraintsFromGuard(others, in, src)) {
+                    for (Constraint otherGuardsConstraint : constraintsFromGuard(others, in)) {
                         constraints.add(Constraint.construct(guardConstraint, otherGuardsConstraint, outGuardConstraint, assignConstraint));
                     }
                 }
@@ -213,7 +213,7 @@ public class SymbolicState {
 //        return Optional.of(Constraint.construct(guardConstraint, outGuardConstraint, assignConstraint));
 //    }
 
-    private Set<Constraint> constraintsFromGuard(Collection<Transition> transitions, DSymbolInstance in, Location src) {
+    private Set<Constraint> constraintsFromGuard(Collection<Transition> transitions, DSymbolInstance in) {
         List<Set<RaGuard>> guardList = new ArrayList<>();
         SymbolicDataVariable[] vars = in.getSymbolicValues();
         for (Transition t : transitions) {
@@ -271,7 +271,6 @@ public class SymbolicState {
     }
 
     private Constraint constraintFromGuard(Transition transition, DSymbolInstance in, Location src) {
-        SymbolicDataVariable[] sdvs = in.getSymbolicValues();
         Set<RaGuard> guards = src.getGuards(transition);
         Set<Constraint> constraintList = new LinkedHashSet<>();
         for (RaGuard guard : guards) {

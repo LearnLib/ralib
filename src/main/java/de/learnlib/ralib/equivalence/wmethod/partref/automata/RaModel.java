@@ -54,7 +54,7 @@ public class RaModel extends RegisterAutomaton {
         Map<RALocation, Set<Transition>> outputParents = getOutputParents(model, inputLocations);
         this.locMap = createLocations(model, inputLocations, ioMode);
         this.predecessors = computePredecessors(model, inputLocations, locMap, outputParents, ioMode);
-        this.destinations = computeDestinations(model, locMap.inverse(), ioMode);
+        this.destinations = computeDestinations(locMap.inverse(), ioMode);
     }
 
     private static Collection<RALocation> getInputLocations(RegisterAutomaton model, boolean ioMode) {
@@ -143,7 +143,7 @@ public class RaModel extends RegisterAutomaton {
         return parents;
     }
 
-    private static Map<Transition, Location> computeDestinations(RegisterAutomaton model, BiMap<RALocation, Location> locMap, boolean ioMode) {
+    private static Map<Transition, Location> computeDestinations(BiMap<RALocation, Location> locMap, boolean ioMode) {
         Map<Transition, Location> destinations = new LinkedHashMap<>();
         for (RALocation raloc : locMap.keySet()) {
             for (Transition t : raloc.getOut()) {

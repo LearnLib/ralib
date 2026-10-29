@@ -37,8 +37,6 @@ public class Location {
 
     private final Set<Register> regs;
 
-    private final boolean ioMode;
-
     private final Collection<Transition> transitions;
 
     private final Transition epsilonTransition;
@@ -56,7 +54,6 @@ public class Location {
     public Location(RALocation raloc, Set<Register> regs, boolean ioMode) {
         this.raloc = raloc;
         this.regs = regs;
-        this.ioMode = ioMode;
         outputMappings = new LinkedHashMap<>();
         outputSymbols = new LinkedHashMap<>();
         outputParamMappings = new LinkedHashMap<>();

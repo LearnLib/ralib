@@ -19,7 +19,6 @@ import de.learnlib.ralib.equivalence.wmethod.partref.automata.Location;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaEqualityGuard;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaGuard;
 import de.learnlib.ralib.equivalence.wmethod.partref.automata.RaModel;
-import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Constraint;
 import de.learnlib.ralib.equivalence.wmethod.partref.constraints.Relation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
@@ -57,7 +56,6 @@ public class InputSymbolGenerator implements Iterator<DSymbolInstance> {
             guardedParams.put(inact, new ArrayList<>());
             for (SymbolicState s : block.getStates()) {
                 Location loc = s.getLocation();
-                Constraint c = s.getConstraints();
                 for (Transition t : loc.getRaLocation().getOut(inact)) {
                     Set<RaGuard> guards = RaGuard.fromRaGuard(t.getGuard());
                     for (RaGuard g : guards) {

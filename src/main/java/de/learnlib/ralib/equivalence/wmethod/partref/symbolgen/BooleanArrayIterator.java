@@ -11,7 +11,6 @@ import java.util.NoSuchElementException;
 public class BooleanArrayIterator implements Iterator<boolean[]> {
 
     private final int n;
-    private final int m;
     private boolean[] current;
     private boolean hasNext;
 
@@ -23,7 +22,6 @@ public class BooleanArrayIterator implements Iterator<boolean[]> {
         }
 
         this.n = n;
-        this.m = m;
         this.current = new boolean[n];
 
         // First combination: m true values, then n-m false values
