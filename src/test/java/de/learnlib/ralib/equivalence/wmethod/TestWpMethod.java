@@ -44,7 +44,6 @@ public class TestWpMethod extends RaLibTestSuite {
     public void testWpOnStack() {
 
         final int k = 2;
-        final WpMethodStrategy strat = WpMethodStrategy.SYSTEMATIC;
 
         Constants consts = new Constants();
         RegisterAutomaton sul = StackAutomatonExample.AUTOMATON;
@@ -56,7 +55,7 @@ public class TestWpMethod extends RaLibTestSuite {
         ConstraintSolver solver = new ConstraintSolver();
 
         RAEquivalenceTest modelChecker = new RAEquivalenceTest(sul, teachers, consts, false, I_PUSH, I_POP);
-        WpEquivalenceOracle wpEq = new WpEquivalenceOracle(sul, strat, k, teachers, consts, I_PUSH, I_POP);
+        WpEquivalenceOracle wpEq = new WpEquivalenceOracle(sul, k, teachers, consts, I_PUSH, I_POP);
 
         Measurements mes = new Measurements();
 
@@ -83,7 +82,6 @@ public class TestWpMethod extends RaLibTestSuite {
     public void testWpOnIOStack() {
 
         final int k = 2;
-        final WpMethodStrategy strat = WpMethodStrategy.SYSTEMATIC;
 
         Constants consts = new Constants();
         RegisterAutomaton ra = IOStackAutomatonExample.AUTOMATON;
@@ -97,7 +95,7 @@ public class TestWpMethod extends RaLibTestSuite {
         ConstraintSolver solver = new ConstraintSolver();
 
         IOEquivalenceTest modelChecker = new IOEquivalenceTest(ra, teachers, consts, false, I_PUSH, I_POP);
-        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, strat, k, teachers, consts, I_PUSH, I_POP);
+        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, k, teachers, consts, I_PUSH, I_POP);
 
         Measurements mes = new Measurements();
 
@@ -124,7 +122,6 @@ public class TestWpMethod extends RaLibTestSuite {
     public void testWpOnPureIOStack() {
 
         final int k = 2;
-        final WpMethodStrategy strat = WpMethodStrategy.SYSTEMATIC;
 
         Constants consts = new Constants();
         RegisterAutomaton ra = PureIOStackAutomatonExample.AUTOMATON;
@@ -138,7 +135,7 @@ public class TestWpMethod extends RaLibTestSuite {
         ConstraintSolver solver = new ConstraintSolver();
 
         IOEquivalenceTest modelChecker = new IOEquivalenceTest(ra, teachers, consts, false, I_PUSH, I_POP);
-        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, strat, k, teachers, consts, I_PUSH, I_POP);
+        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, k, teachers, consts, I_PUSH, I_POP);
 
         Measurements mes = new Measurements();
 

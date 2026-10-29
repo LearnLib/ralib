@@ -50,7 +50,7 @@ public class LearnEchoWpTest extends RaLibTestSuite {
 
         ConstraintSolver solver = new ConstraintSolver();
 
-        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, WpMethodStrategy.SYSTEMATIC, 2, teachers, consts, sul.getInputSymbols());
+        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, 2, teachers, consts, sul.getInputSymbols());
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
 

@@ -14,7 +14,6 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.wmethod.SequenceBuilder;
-import de.learnlib.ralib.equivalence.wmethod.WpMethodStrategy;
 import de.learnlib.ralib.equivalence.wmethod.WpTestSuite;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -26,8 +25,6 @@ import net.automatalib.word.Word;
 public class IOWpEquivalenceOracle implements IOEquivalenceOracle {
 
     private final DataWordSUL target;
-
-    private final WpMethodStrategy strategy;
 
     private final int sizeDifference;
 
@@ -42,13 +39,11 @@ public class IOWpEquivalenceOracle implements IOEquivalenceOracle {
     private static final Logger LOGGER = LoggerFactory.getLogger(IOWpEquivalenceOracle.class);
 
     public IOWpEquivalenceOracle(DataWordSUL target,
-            WpMethodStrategy strategy,
             int sizeDifference,
             Map<DataType, Theory> teachers,
             Constants consts,
             ParameterizedSymbol ... inputs) {
         this.target = target;
-        this.strategy = strategy;
         this.sizeDifference = sizeDifference;
         this.teachers = teachers;
         this.consts = consts;
@@ -63,7 +58,7 @@ public class IOWpEquivalenceOracle implements IOEquivalenceOracle {
             LOGGER.warn(Category.QUERY, "set of inputs is ignored by this equivalence oracle");
         }
 
-        WpTestSuite testSuite = new WpTestSuite(hypothesis, sizeDifference, strategy, teachers, solver, consts, true, inputs);
+        WpTestSuite testSuite = new WpTestSuite(hypothesis, sizeDifference, teachers, solver, consts, true, inputs);
 
         for (Word<PSymbolInstance> test : testSuite) {
             Word<PSymbolInstance> hypOutput = SequenceBuilder.getOutputSequence(test, hypothesis, consts);

@@ -75,7 +75,7 @@ public class LearnSipWpTest extends RaLibTestSuite {
 
         Hypothesis hyp = sllambda.getHypothesis();
 
-        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, WpMethodStrategy.SYSTEMATIC, 2, teachers, consts, inputs);
+        IOWpEquivalenceOracle wpEq = new IOWpEquivalenceOracle(sul, 2, teachers, consts, inputs);
 
         DefaultQuery<PSymbolInstance, Boolean> ce = wpEq.findCounterExample(hyp, null);
         while (ce != null) {
