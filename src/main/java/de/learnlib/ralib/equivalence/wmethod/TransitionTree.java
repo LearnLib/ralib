@@ -17,22 +17,22 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class TransitionTree {
 
-    private class TransitionTreeConstructor {
+    private static class TransitionTreeConstructor {
 
         private final MutableRegisterAutomaton tree;
 
         private final Map<RALocation, RALocation> nodeToRaLoc;
 
-        public TransitionTreeConstructor() {
+        private TransitionTreeConstructor() {
             this.tree = new MutableRegisterAutomaton();
             this.nodeToRaLoc = new LinkedHashMap<>();
         }
 
-        public Map<RALocation, RALocation> getNodeToRaLocMap() {
+        private Map<RALocation, RALocation> getNodeToRaLocMap() {
             return nodeToRaLoc;
         }
 
-        public RegisterAutomaton constructTransitionTree(RALocation initial) {
+        private RegisterAutomaton constructTransitionTree(RALocation initial) {
             RALocation root = tree.addInitialState(initial.isAccepting());
             nodeToRaLoc.put(root, initial);
 
