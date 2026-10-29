@@ -44,10 +44,21 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     public static final String LEARNER_RADT = "sldt";
     public static final String LEARNER_SLLAMBDAEQ = "sllambdaeq";
 
+    public static final String EQUIVALENCE_NONE = "none";
+    public static final String EQUIVALENCE_RANDOM_WALK = "random.walk";
+    public static final String EQUIVALENCE_WP = "wp";
+    public static final String EQUIVALENCE_RANDOM_WP = "random.wp";
+
     protected static final ConfigurationOption.StringOption OPTION_LEARNER
             = new ConfigurationOption.StringOption("learner",
             "Learning Algorithm: " + LEARNER_SLSTAR + " (default) or " +
                     LEARNER_RADT + " or " + LEARNER_SLLAMBDA, LEARNER_SLSTAR, true);
+
+    protected static final ConfigurationOption.StringOption OPTION_EQUIVALENCE
+            = new ConfigurationOption.StringOption("equivalence",
+            "Equivalence Oracle: " + EQUIVALENCE_NONE + " (default), " +
+                    EQUIVALENCE_WP + ", " + EQUIVALENCE_RANDOM_WALK + ", or " + EQUIVALENCE_RANDOM_WP,
+                    EQUIVALENCE_NONE, true);
 
     protected static final ConfigurationOption.LongOption OPTION_RANDOM_SEED
             = new ConfigurationOption.LongOption("random.seed", "Seed for RNG", 0L, true);
@@ -67,11 +78,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                     return lvl;
                 }
             };
-
-    protected static final ConfigurationOption.BooleanOption OPTION_USE_RWALK
-            = new ConfigurationOption.BooleanOption("use.rwalk",
-                    "Use random walk for finding counterexamples. "
-                    + "This will override any ces produced by the eq test", Boolean.FALSE, true);
 
     protected static final ConfigurationOption.BooleanOption OPTION_USE_CEOPT
             = new ConfigurationOption.BooleanOption("use.ceopt",
@@ -133,6 +139,18 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.BooleanOption("rwalk.seed.transitions",
             "Use words from U (transitions) as prefixes for runs", false, true);
 
+    protected static final ConfigurationOption.IntegerOption OPTION_RWP_MINIMUM_SIZE
+            = new ConfigurationOption.IntegerOption("rwp.min.size",
+                    "Minimal size of random word", 1, true);
+
+    protected static final ConfigurationOption.IntegerOption OPTION_RWP_RND_LENGTH
+            = new ConfigurationOption.IntegerOption("rwp.rnd.len",
+                    "Random word expected length", 2, true);
+
+    protected static final ConfigurationOption.IntegerOption OPTION_WP_KBOUND
+            = new ConfigurationOption.IntegerOption("wp.k",
+                    "Difference in size between specification and input model", 2, true);
+
     protected static final ConfigurationOption.StringOption OPTION_TEACHERS
             = new ConfigurationOption.StringOption("teachers",
                     "Teachers. Format: type:class + type:class + ...", null, false);
@@ -164,6 +182,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected String learnerName = LEARNER_SLSTAR;
 
+    protected String equivName = EQUIVALENCE_NONE;
+
     private static final Random RANDOM = new Random();
 
     @Override
@@ -181,7 +201,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         config.setProperty("__seed", "" + seed);
 
         this.useCeOptimizers = OPTION_USE_CEOPT.parse(config);
-        this.findCounterexamples = OPTION_USE_RWALK.parse(config);
         this.maxRounds = OPTION_MAX_ROUNDS.parse(config);
         this.useSuffixOpt = OPTION_USE_SUFFIXOPT.parse(config);
         this.timeoutMillis = OPTION_TIMEOUT.parse(config);
@@ -189,6 +208,9 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         this.useFresh = OPTION_USE_FRESH_VALUES.parse(config);
 
         this.learnerName = OPTION_LEARNER.parse(config);
+        this.equivName = OPTION_EQUIVALENCE.parse(config);
+
+        this.findCounterexamples = !equivName.equals(EQUIVALENCE_NONE);
 
         String[] parsed = OPTION_TEACHERS.parse(config).split("\\+", -1);
         for (String s : parsed) {

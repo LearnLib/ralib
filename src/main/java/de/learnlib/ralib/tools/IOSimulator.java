@@ -32,6 +32,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.*;
+import de.learnlib.ralib.equivalence.IORandomWpEquivalenceOracle.Options;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
@@ -55,6 +56,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -91,7 +93,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_USE_FRESH_VALUES,
         OPTION_EXPORT_MODEL,
         OPTION_USE_EQTEST,
-        OPTION_USE_RWALK,
         OPTION_MAX_ROUNDS,
         OPTION_TIMEOUT,
         OPTION_RWALK_FRESH_PROB,
@@ -99,7 +100,10 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_RWALK_MAX_DEPTH,
         OPTION_RWALK_MAX_RUNS,
         OPTION_RWALK_RESET,
-        OPTION_RWALK_SEED_TRANSITIONS
+        OPTION_RWALK_SEED_TRANSITIONS,
+        OPTION_RWP_MINIMUM_SIZE,
+        OPTION_RWP_RND_LENGTH,
+        OPTION_WP_KBOUND
     };
 
     private RegisterAutomaton model;
@@ -108,7 +112,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
     private DataWordSUL sulTest;
 
-    private IORandomWalk randomWalk = null;
+    private IOEquivalenceOracle ioEquivalenceOracle = null;
 
     private IOEquivalenceTest eqTest;
 
@@ -244,19 +248,50 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
             boolean resetRuns = OPTION_RWALK_RESET.parse(config);
             boolean seedTransitions = OPTION_RWALK_SEED_TRANSITIONS.parse(config);
+            int minimalSize = OPTION_RWP_MINIMUM_SIZE.parse(config);
+            int rndLength = OPTION_RWP_RND_LENGTH.parse(config);
+            int k = OPTION_WP_KBOUND.parse(config);
 
-            this.randomWalk = new IORandomWalk(random,
-                    sulTest,
-                    drawUniformly, // do not draw symbols uniformly
-                    resetProbabilty, // reset probability
-                    freshProbability, // prob. of choosing a fresh data value
-                    maxTestRuns, // 1000 runs
-                    maxDepth, // max depth
-                    consts,
-                    resetRuns, // reset runs
-                    seedTransitions,
-                    teachers,
-                    inputSymbols);
+            Options options = new Options(random,
+                    minimalSize,
+                    rndLength,
+                    drawUniformly,
+                    freshProbability,
+                    maxTestRuns);
+
+            this.ioEquivalenceOracle = switch (this.equivName) {
+                case AbstractToolWithRandomWalk.EQUIVALENCE_RANDOM_WALK ->
+                    new IORandomWalk(random,
+                            sulTest,
+                            drawUniformly, // do not draw symbols uniformly
+                            resetProbabilty, // reset probability
+                            freshProbability, // prob. of choosing a fresh data value
+                            maxTestRuns, // 1000 runs
+                            maxDepth, // max depth
+                            consts,
+                            resetRuns, // reset runs
+                            seedTransitions,
+                            teachers,
+                            inputSymbols);
+                case AbstractToolWithRandomWalk.EQUIVALENCE_WP ->
+                    new IOWpEquivalenceOracle(sulTest,
+                            k,
+                            teachers,
+                            consts,
+                            inputSymbols);
+                case AbstractToolWithRandomWalk.EQUIVALENCE_RANDOM_WP ->
+                    new IORandomWpEquivalenceOracle(sulTest,
+                            teachers,
+                            consts,
+                            options,
+                            inputSymbols);
+                default ->
+                    throw new ConfigurationException("Unknown equivalence oracle algorithm: " + this.equivName);
+            };
+
+            if (this.equivName.equals(AbstractToolWithRandomWalk.EQUIVALENCE_RANDOM_WALK)) {
+                ((IORandomWalk) this.ioEquivalenceOracle).setError(SpecialSymbols.ERROR);
+            }
         }
 
         this.ceOptLoops = new IOCounterexampleLoopRemover(back);
@@ -329,7 +364,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
                 statistics.startOrResumeClock(counterexampleSearchTime);
-                ce2 = (findCounterexamples ? this.randomWalk.findCounterExample(hyp, new ArrayList<>()) : ce);
+                ce2 = (findCounterexamples ? this.ioEquivalenceOracle.findCounterExample(hyp, new ArrayList<>()) : ce);
 
                 statistics.pauseClock(counterexampleSearchTime);
                 System.out.println("CE: " + ce2);

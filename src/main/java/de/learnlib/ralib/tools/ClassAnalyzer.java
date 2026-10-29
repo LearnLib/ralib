@@ -34,7 +34,11 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IORandomWalk;
+import de.learnlib.ralib.equivalence.IORandomWpEquivalenceOracle;
+import de.learnlib.ralib.equivalence.IORandomWpEquivalenceOracle.Options;
+import de.learnlib.ralib.equivalence.IOWpEquivalenceOracle;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.sllambda.SLCT;
@@ -89,6 +93,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
         OPTION_LEARNER,
+        OPTION_EQUIVALENCE,
         OPTION_LOGGING_LEVEL,
         OPTION_TARGET,
         OPTION_METHODS,
@@ -97,7 +102,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_USE_CEOPT,
         OPTION_USE_SUFFIXOPT,
         OPTION_EXPORT_MODEL,
-        OPTION_USE_RWALK,
         OPTION_MAX_ROUNDS,
         OPTION_MAX_DEPTH,
         OPTION_TIMEOUT,
@@ -106,7 +110,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_RWALK_MAX_DEPTH,
         OPTION_RWALK_MAX_RUNS,
         OPTION_RWALK_RESET,
-        OPTION_RWALK_SEED_TRANSITIONS
+        OPTION_RWALK_SEED_TRANSITIONS,
+        OPTION_RWP_MINIMUM_SIZE,
+        OPTION_RWP_RND_LENGTH,
+        OPTION_WP_KBOUND
     };
 
     private DataWordSUL sulLearn;
@@ -115,7 +122,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private DataWordSUL trackingSULTest;
 
-    private IORandomWalk randomWalk = null;
+    private IOEquivalenceOracle ioEquivalenceOracle = null;
 
     private RaLearningAlgorithm learner;
 
@@ -270,21 +277,50 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
                 boolean resetRuns = OPTION_RWALK_RESET.parse(config);
                 boolean seedTransitions = OPTION_RWALK_SEED_TRANSITIONS.parse(config);
+                int minimalSize = OPTION_RWP_MINIMUM_SIZE.parse(config);
+                int rndLength = OPTION_RWP_RND_LENGTH.parse(config);
+                int k = OPTION_WP_KBOUND.parse(config);
 
-                this.randomWalk = new IORandomWalk(random,
-                        sulTest,
-                        drawUniformly, // do not draw symbols uniformly
-                        resetProbabilty, // reset probability
-                        freshProbability, // prob. of choosing a fresh data value
-                        maxTestRuns, // 1000 runs
-                        maxDepth, // max depth
-                        consts,
-                        resetRuns, // reset runs
-                        seedTransitions,
-                        teachers,
-                        inputSymbols);
+                Options options = new Options(random,
+                        minimalSize,
+                        rndLength,
+                        drawUniformly,
+                        freshProbability,
+                        maxTestRuns);
 
-                this.randomWalk.setError(SpecialSymbols.ERROR);
+                this.ioEquivalenceOracle = switch (this.equivName) {
+                    case AbstractToolWithRandomWalk.EQUIVALENCE_RANDOM_WALK ->
+                        new IORandomWalk(random,
+                                sulTest,
+                                drawUniformly, // do not draw symbols uniformly
+                                resetProbabilty, // reset probability
+                                freshProbability, // prob. of choosing a fresh data value
+                                maxTestRuns, // 1000 runs
+                                maxDepth, // max depth
+                                consts,
+                                resetRuns, // reset runs
+                                seedTransitions,
+                                teachers,
+                                inputSymbols);
+                    case AbstractToolWithRandomWalk.EQUIVALENCE_WP ->
+                        new IOWpEquivalenceOracle(sulTest,
+                                k,
+                                teachers,
+                                consts,
+                                inputSymbols);
+                    case AbstractToolWithRandomWalk.EQUIVALENCE_RANDOM_WP ->
+                        new IORandomWpEquivalenceOracle(sulTest,
+                                teachers,
+                                consts,
+                                options,
+                                inputSymbols);
+                    default ->
+                        throw new ConfigurationException("Unknown equivalence oracle algorithm: " + this.equivName);
+                };
+
+                if (this.equivName.equals(AbstractToolWithRandomWalk.EQUIVALENCE_RANDOM_WALK)) {
+                    ((IORandomWalk) this.ioEquivalenceOracle).setError(SpecialSymbols.ERROR);
+                }
             }
 
             this.ceOptLoops = new IOCounterexampleLoopRemover(back);
@@ -335,7 +371,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             statistics.pauseClock(equivalenceTestTime);
             statistics.startOrResumeClock(counterexampleSearchTime);
             if (findCounterexamples) {
-                ce = this.randomWalk.findCounterExample(hyp, null);
+                ce = this.ioEquivalenceOracle.findCounterExample(hyp, null);
             }
 
             statistics.pauseClock(counterexampleSearchTime);
