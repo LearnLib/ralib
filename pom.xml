@@ -3,7 +3,7 @@
 
     <groupId>de.learnlib.ralib</groupId>
     <artifactId>ralib</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
 
     <name>RALib</name>
@@ -85,7 +85,7 @@
         <connection>scm:git:https://github.com/LearnLib/ralib.git</connection>
         <developerConnection>scm:git:git@github.com:LearnLib/ralib.git</developerConnection>
         <url>https://github.com/LearnLib/ralib/tree/main</url>
-        <tag>HEAD</tag>
+        <tag>ralib-0.2</tag>
     </scm>
 
     <distributionManagement>
@@ -106,7 +106,7 @@
         <maven.compiler.release>21</maven.compiler.release>
 
         <!-- Dependency versions appear alphabetically below -->
-        <checker-qual.version>4.3.1</checker-qual.version>
+        <checker-qual.version>4.4.0</checker-qual.version>
         <commons-lang.version>3.20.0</commons-lang.version>
         <gson.version>2.15.0</gson.version>
         <error-prone.version>2.52.0</error-prone.version>
@@ -126,7 +126,7 @@
         <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
         <release-plugin.version>3.3.1</release-plugin.version>
         <source-plugin.version>3.4.0</source-plugin.version>
-        <spotless-plugin.version>3.10.4</spotless-plugin.version>
+        <spotless-plugin.version>3.11.0</spotless-plugin.version>
         <spotbugs-plugin.version>4.10.5.0</spotbugs-plugin.version>
         <surefire-plugin.version>3.6.1</surefire-plugin.version>
     </properties>
