@@ -455,6 +455,7 @@
                         <artifactId>central-publishing-maven-plugin</artifactId>
                         <extensions>true</extensions>
                         <configuration>
+                            <checksums>required</checksums>
                             <deploymentName>RALib ${project.version}</deploymentName>
                             <publishingServerId>sonatype</publishingServerId>
                         </configuration>
